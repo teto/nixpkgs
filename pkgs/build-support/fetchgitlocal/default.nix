@@ -18,8 +18,7 @@ let
 
       # hash of current directory
       # remove trailing newline
-      git rev-parse $(git write-tree) \
-        | tr -d '\n' > $out
+      git write-tree | tr -d '\n' > $out
 
       mv $DOT_GIT/index-user $DOT_GIT/index # restore index
     '';
