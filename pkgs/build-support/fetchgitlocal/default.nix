@@ -10,8 +10,10 @@ let
       dummy = builtins.currentTime; # impure, do every time
       preferLocalBuild = true;
     } ''
+      cd ${srcStr}
+
       # `tr` to remove trailing newline
-      git -C ${srcStr} write-tree | tr -d '\n' > $out
+      git write-tree --prefix=$(git rev-parse --show-prefix) | tr -d '\n' > $out
     '';
 
   gitHash = builtins.readFile gitHashFile; # cache against git hash
@@ -22,9 +24,13 @@ let
     } ''
       mkdir $out
 
+      # git annoyingly breaks without doing this since the hash does
+      # not correspond to repo root.
+      cd $(git -C ${srcStr} rev-parse --show-toplevel)
+
       # dump tar of *current directory* at given revision
-      git -C ${srcStr} archive --format=tar ${gitHash} \
-        | tar xf - -C $out
+      git archive --format=tar ${gitHash} \
+        | tar xv - -C $out
     '';
 
 in nixPath
