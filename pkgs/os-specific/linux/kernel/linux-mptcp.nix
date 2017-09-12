@@ -2,11 +2,11 @@
 
 import ./generic.nix (args // rec {
   mptcpVersion = "0.92.1";
-  modDirVersion = "4.1.38";
+  modDirVersion = "4.4.83";
   version = "${modDirVersion}-mptcp_v${mptcpVersion}";
 
   extraMeta = {
-    branch = "4.1";
+    branch = "4.4";
     maintainers = [ stdenv.lib.maintainers.layus ];
   };
 
