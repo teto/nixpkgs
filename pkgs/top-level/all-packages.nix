@@ -6680,6 +6680,7 @@ with pkgs;
   love = love_0_10;
 
   ### LUA MODULES
+  lua-setup-hook = callPackage ../development/interpreters/lua-5/setup-hook.nix { };
 
   lua4 = callPackage ../development/interpreters/lua-4 { };
   lua5_0 = callPackage ../development/interpreters/lua-5/5.0.3.nix { };

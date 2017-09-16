@@ -30,12 +30,18 @@ let
   inherit (stdenv.lib) maintainers;
 
   # helper functions for dealing with LUA_PATH and LUA_CPATH
+  # only used in neovim/can be removed
   getPath       = lib : type : "${lib}/lib/lua/${lua.luaversion}/?.${type};${lib}/share/lua/${lua.luaversion}/?.${type}";
   getLuaPath    = lib : getPath lib "lua";
   getLuaCPath   = lib : getPath lib "so";
 
+  wrapLua = callPackage ../development/interpreters/lua-5/wrap-lua.nix {inherit lua; inherit (pkgs) makeSetupHook makeWrapper; };
+
   #define build lua package function
-  buildLuaPackage = callPackage ../development/lua-modules/generic lua;
+  buildLuaPackage = callPackage ../development/lua-modules/generic/lua-build-package.nix {
+    inherit lua;
+    inherit wrapLua;
+  };
 
   luarocks = callPackage ../development/tools/misc/luarocks {
     inherit lua;
@@ -628,13 +634,14 @@ let
       url = "http://www.kyne.com.au/~mark/software/download/lua-${name}.tar.gz";
       sha256 = "0y67yqlsivbhshg8ma535llz90r4zag9xqza5jx0q7lkap6nkg2i";
     };
-
+    # to overwrite PREFIX and fix all paths
+    # TODO pass it as PREFIX rather. but out doesn't seem like the good way
     preBuild = ''
       sed -i "s|/usr/local|$out|" Makefile
     '';
 
-    makeFlags = [ "LUA_VERSION=${lua.luaversion}" ];
 
+    makeFlags = [ "VERBOSE=1" "LUA_VERSION=${lua.luaversion}" ];
     postInstall = ''
       rm -rf $out/share/lua/${lua.luaversion}/cjson/tests
     '';

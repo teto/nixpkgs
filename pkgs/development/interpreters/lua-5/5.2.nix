@@ -1,5 +1,8 @@
+# look at python/wrapper.nix
+# look at setup hooks too
 { stdenv, fetchurl, readline, compat ? false
-, hostPlatform
+, hostPlatform, makeWrapper
+, lua-setup-hook, callPackage
 }:
 
 let
@@ -23,6 +26,16 @@ stdenv.mkDerivation rec {
 
   patches = if stdenv.isDarwin then [ ./5.2.darwin.patch ] else [ dsoPatch ];
 
+  # sitePackages best if it returns a string/file
+
+  libFolder = "$out/lib/lua/${luaversion}";
+  setupHook = lua-setup-hook ;
+
+  # have a look at cython3.6
+  buildEnv = callPackage ./wrapper.nix {
+    # lua = self;
+  };
+
   configurePhase =
     if stdenv.isDarwin
     then ''
@@ -32,6 +45,29 @@ stdenv.mkDerivation rec {
     makeFlagsArray=( INSTALL_TOP=$out INSTALL_MAN=$out/share/man/man1 PLAT=linux CFLAGS="-DLUA_USE_LINUX -O2 -fPIC${if compat then " -DLUA_COMPAT_ALL" else ""}" LDFLAGS="-fPIC" V=${luaversion} R=${version} )
     installFlagsArray=( TO_BIN="lua luac" TO_LIB="liblua.a liblua.so liblua.so.${luaversion} liblua.so.${version}" INSTALL_DATA='cp -d' )
   '';
+
+    # postBuild = ''
+    #   . "${makeWrapper}/nix-support/setup-hook"
+
+    #   if [ -L "$out/bin" ]; then
+    #       unlink "$out/bin"
+    #   fi
+    #   mkdir -p "$out/bin"
+
+    #   for path in ${stdenv.lib.concatStringsSep " " paths}; do
+    #     if [ -d "$path/bin" ]; then
+    #       cd "$path/bin"
+    #       for prg in *; do
+    #         if [ -f "$prg" ]; then
+    #           rm -f "$out/bin/$prg"
+    #           if [ -x "$prg" ]; then
+    #             makeWrapper "$path/bin/$prg" "$out/bin/$prg" --set PYTHONHOME "$out" --set PYTHONNOUSERSITE "true"
+    #           fi
+    #         fi
+    #       done
+    #     fi
+    #   done
+    # '' + postBuild;
 
   postInstall = ''
     mkdir -p "$out/share/doc/lua" "$out/lib/pkgconfig"

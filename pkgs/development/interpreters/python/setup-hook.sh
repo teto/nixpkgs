@@ -2,6 +2,7 @@ addPythonPath() {
     addToSearchPathWithCustomDelimiter : PYTHONPATH $1/@sitePackages@
 }
 
+# unused ?
 toPythonPath() {
     local paths="$1"
     local result=
