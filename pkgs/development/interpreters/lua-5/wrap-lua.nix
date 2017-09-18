@@ -13,8 +13,9 @@ makeSetupHook {
       deps = makeWrapper;
       # substitutions.libPrefix = python.libPrefix;
       # look for python it's the interpreter generated in the env
-      substitutions.executable = "bin/lua";
+      # substitutions.executable = "bin/lua";
       # substitutions.executable = "${env}/bin/${lua}";
+      substitutions.executable = lua.interpreter;
       substitutions.lua = lua;
       # substitutions.magicalSedExpression = let
       #   # Looks weird? Of course, it's between single quoted shell strings.

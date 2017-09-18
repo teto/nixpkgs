@@ -55,12 +55,12 @@ wrapLuaProgramsIn() {
             # Rewrite "#! .../env python" to "#! /nix/store/.../python".
             # Strip suffix, like "3" or "2.7m" -- we don't have any choice on which
             # Lua to use besides one with this hook anyway.
-            # if head -n1 "$f" | grep -q '#!.*/env.*\(lua\)'; then
-            #     sed -i "$f" -e "1 s^.*/env[ ]*\(python\|pypy\)[^ ]*^#! @executable@^"
-            # fi
+            if head -n1 "$f" | grep -q '#!.*/env.*\(lua\)'; then
+                sed -i "$f" -e "1 s^.*/env[ ]*\(lua\)[^ ]*^#! @executable@^"
+            fi
 
             # catch /python and /.python-wrapped
-            # if head -n1 "$f" | grep -q '/\.\?\(python\|pypy\)'; then
+            # if head -n1 "$f" | grep -q '/\.\?\(lua\|pypy\)'; then
                 # dont wrap EGG-INFO scripts since they are called from python
                 # if echo "$f" | grep -qv EGG-INFO/scripts; then
                     echo "wrapping \`$f'..."
