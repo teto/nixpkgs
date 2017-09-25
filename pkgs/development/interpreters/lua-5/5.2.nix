@@ -3,6 +3,8 @@
 { stdenv, fetchurl, readline, compat ? false
 , hostPlatform, makeWrapper
 , lua-setup-hook, callPackage
+# , getLuaPath
+# , getLuaCPath
 }:
 
 let
@@ -26,6 +28,9 @@ in
 stdenv.mkDerivation rec {
   name = "lua-${version}";
   luaversion = "5.2";
+  # libPrefix = getLuaPath "${luaversion}";
+  # libCPrefix = getLuaCPath "${luaversion}";
+
   version = "${luaversion}.3";
 
   src = fetchurl {

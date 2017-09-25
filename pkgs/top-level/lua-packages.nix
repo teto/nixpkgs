@@ -31,9 +31,9 @@ let
 
   # helper functions for dealing with LUA_PATH and LUA_CPATH
   # only used in neovim/can be removed
-  getPath       = lib : type : "${lib}/lib/lua/${lua.luaversion}/?.${type};${lib}/share/lua/${lua.luaversion}/?.${type}";
-  getLuaPath    = lib : getPath lib "lua";
-  getLuaCPath   = lib : getPath lib "so";
+  # getPath       = aib : type : "${lib}/lib/lua/${lua.luaversion}/?.${type};${lib}/share/lua/${lua.luaversion}/?.${type}";
+  # getLuaPath    = lib : getPath lib "lua";
+  # getLuaCPath   = lib : getPath lib "so";
 
   wrapLua = callPackage ../development/interpreters/lua-5/wrap-lua.nix {inherit lua; inherit (pkgs) makeSetupHook makeWrapper; };
 
@@ -41,6 +41,8 @@ let
   buildLuaPackage = callPackage ../development/interpreters/lua-5/mk-lua-package.nix {
     inherit lua;
     inherit wrapLua;
+    # inherit getLuaPath;
+    # inherit getLuaCPath;
   };
 
   # buildLuaPackage = callPackage ../development/lua-modules/generic/lua-build-package.nix {
