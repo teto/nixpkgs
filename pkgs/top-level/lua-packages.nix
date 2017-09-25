@@ -38,10 +38,15 @@ let
   wrapLua = callPackage ../development/interpreters/lua-5/wrap-lua.nix {inherit lua; inherit (pkgs) makeSetupHook makeWrapper; };
 
   #define build lua package function
-  buildLuaPackage = callPackage ../development/lua-modules/generic/lua-build-package.nix {
+  buildLuaPackage = callPackage ../development/interpreters/lua-5/mk-lua-package.nix {
     inherit lua;
     inherit wrapLua;
   };
+
+  # buildLuaPackage = callPackage ../development/lua-modules/generic/lua-build-package.nix {
+  #   inherit lua;
+  #   inherit wrapLua;
+  # };
 
   luarocks = callPackage ../development/tools/misc/luarocks {
     inherit lua;

@@ -11,6 +11,17 @@ let
     sha256 = "1by1dy4ql61f5c6njq9ibf9kaqm3y633g2q8j54iyjr4cxvqwqz9";
     name = "lua-arch.patch";
   };
+
+#   passthru = let
+#     luaPackages = callPackage ../../../../../top-level/lua-packages.nix {lua=self; overrides=packageOverrides;};
+#   in rec {
+#     # inherit libPrefix sitePackages x11Support;
+#     # executable = "${libPrefix}m";
+#     buildEnv = callPackage ../../wrapper.nix { python = self; };
+#     withPackages = import ../../with-packages.nix { inherit buildEnv pythonPackages;};
+#     # pkgs = pythonPackages;
+#   };
+
 in
 stdenv.mkDerivation rec {
   name = "lua-${version}";
@@ -35,6 +46,7 @@ stdenv.mkDerivation rec {
   buildEnv = callPackage ./wrapper.nix {
     # lua = self;
   };
+  interpreter = "$out/bin/lua";
 
   configurePhase =
     if stdenv.isDarwin
