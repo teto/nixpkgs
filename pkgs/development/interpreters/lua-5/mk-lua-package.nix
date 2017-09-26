@@ -78,6 +78,19 @@ lua.stdenv.mkDerivation (builtins.removeAttrs attrs ["disabled" "checkInputs"] /
     wrapLuaPrograms
   '' + attrs.postFixup or '''';
 
+  installPhase = attrs.installPhase or ''
+    runHook preInstall
+
+    # mkdir -p "$out/${lua.libFolder}"
+    # can be 5.2 for instance
+    folder="$out/lib/lua/${lua.libFolder}"
+    if [ -d "$folder" ]; then
+      export LUA_PATH="$folder:$LUA_PATH"
+      export LUA_CPATH="$folder:$LUA_CPATH"
+    fi
+
+    runHook postInstall
+  '';
 
   passthru = {
     inherit lua; # The lua interpreter
