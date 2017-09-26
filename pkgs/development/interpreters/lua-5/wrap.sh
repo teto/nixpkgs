@@ -18,7 +18,7 @@ buildLuaPath() {
     program_LUA_CPATH=
     program_PATH=
     luaPathsSeen["@lua@"]=1
-    addToSearchPath program_PATH @lua@/bin
+    addToLuaSearchPath program_PATH @lua@/bin
     for path in $luaPath; do
         _addToLuaPath $path
     done
@@ -65,6 +65,7 @@ wrapLuaProgramsIn() {
                     echo "wrapping \`$f'..."
                     # patchLuaScript "$f"
                     echo "wrapping with LUA_PATH=$program_LUA_PATH"
+                    echo "wrapping with LUA_CPATH=$program_LUA_CPATH"
                     # wrapProgram creates the executable shell script described
                     # above. The script will set LUA_PATH and PATH variables.!
                     # (see pkgs/build-support/setup-hooks/make-wrapper.sh)
@@ -86,14 +87,15 @@ wrapLuaProgramsIn() {
     fi
 }
 
-addToSearchPathWithCustomDelimiter() {
+addToLuaSearchPathWithCustomDelimiter() {
     local delimiter="$1"
     local varName="$2"
     local dir="$3"
-    local dontCheckForDir="${4:-}"
+    local suffix="$4"
+    # local dontCheckForDir="${4:-}"
     # if [ -z $dontCheckForDir ] || [ -d "$dir" ]; then
-    if  [ -d "$(dirname \"$dir\")" ]; then
-        export "${varName}=${!varName:+${!varName}${delimiter}}${dir}"
+    if  [ -d "$dir" ]; then
+        export "${varName}=${!varName:+${!varName}${delimiter}}${dir}${suffix}"
     else
         echo "$3 not a directory; ignoring"
     fi
@@ -101,8 +103,8 @@ addToSearchPathWithCustomDelimiter() {
 
 PATH_DELIMITER=':'
 
-addToSearchPath() {
-    addToSearchPathWithCustomDelimiter "${PATH_DELIMITER}" "$@"
+addToLuaSearchPath() {
+    addToLuaSearchPathWithCustomDelimiter ";" "$@"
 }
 
 
@@ -113,21 +115,21 @@ addToSearchPath() {
 _addToLuaPath() {
     local dir="$1"
     # Stop if we've already visited here.
-    echo "call to _addToLuaPath '$1'"
+    echo "call to _addToLuaPath '$dir'"
     if [ -n "${luaPathsSeen[$dir]}" ]; then
         echo "path $dir already visited"
         return;
     fi
     luaPathsSeen[$dir]=1
-    # addToSearchPath is defined in stdenv/generic/setup.sh. It will have
+    # addToLuaSearchPath is defined in stdenv/generic/setup.sh. It will have
     # the effect of calling `export program_X=$dir/...:$program_X`.
     # echo "Add to search path $dir/@libFolder@"
   # getPath       = aib : type : "${lib}/lib/lua/${lua.luaversion}/?.${type};${lib}/share/lua/${lua.luaversion}/?.${type}";
-    addToSearchPath program_LUA_PATH "$dir/lib/lua/@luaversion@/?.lua" 1
-    addToSearchPath program_LUA_PATH "$dir/share/lua/@luaversion@/?.lua" 1
-    addToSearchPath program_LUA_CPATH "$dir/toto" 1
-    addToSearchPath program_LUA_CPATH "$dir/toto" 1
-    # addToSearchPath program_PATH "$dir/bin"
+    addToLuaSearchPath program_LUA_PATH "$dir/lib/lua/@luaversion@" "/?.lua"
+    addToLuaSearchPath program_LUA_PATH "$dir/share/lua/@luaversion@" "/?.lua"
+    addToLuaSearchPath program_LUA_CPATH "$dir/lib/lua/@luaversion@" "/?.so"
+    addToLuaSearchPath program_LUA_CPATH "$dir/share/lua/@luaversion@" "/?.so"
+    # addToLuaSearchPath program_PATH "$dir/bin"
 
     # Inspect the propagated inputs (if they exist) and recur on them.
     local prop="$dir/nix-support/propagated-native-build-inputs"

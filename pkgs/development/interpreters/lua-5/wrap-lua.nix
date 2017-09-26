@@ -17,6 +17,7 @@ makeSetupHook {
       # substitutions.executable = "${env}/bin/${lua}";
       substitutions.executable = lua.interpreter;
       substitutions.lua = lua;
+      substitutions.luaversion = "5.2"; # lua.version;
       # substitutions.magicalSedExpression = let
       #   # Looks weird? Of course, it's between single quoted shell strings.
       #   # NOTE: Order DOES matter here, so single character quotes need to be
