@@ -36,14 +36,14 @@
 # generated binaries.
 , makeWrapperArgs ? []
 
-# Skip wrapping of python programs altogether
+# Skip wrapping of lua programs altogether
 , dontWrapLuaPrograms ? false
 
 , meta ? {}
-
 , passthru ? {}
-
 , doCheck ? false
+, preShellHook ? ""
+, postShellHook ? ""
 
 , ... } @ attrs:
 
@@ -77,6 +77,15 @@ lua.stdenv.mkDerivation (builtins.removeAttrs attrs ["disabled" "checkInputs"] /
   postFixup = lib.optionalString (!dontWrapLuaPrograms) ''
     wrapLuaPrograms
   '' + attrs.postFixup or '''';
+
+  shellHook = attrs.shellHook or ''
+    ${preShellHook}
+      echo "hello world"
+      export PATH="$tmp_path/bin:$PATH"
+      export MATTATOR="HELLO WORLD"
+      # mkdir -p $tmp_path/
+    ${postShellHook}
+  '';
 
   installPhase = attrs.installPhase or ''
     runHook preInstall

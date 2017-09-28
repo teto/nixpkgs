@@ -653,6 +653,10 @@ let
       rm -rf $out/share/lua/${lua.luaversion}/cjson/tests
     '';
 
+    # shellHook=''
+    #   echo "hello"
+    #   '';
+
     installTargets = "install install-extra";
 
     disabled = isLuaJIT;

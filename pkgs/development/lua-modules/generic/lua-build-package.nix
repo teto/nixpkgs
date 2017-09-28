@@ -1,72 +1,80 @@
-{ lua, stdenv, wrapLua  }:
+# { lua, stdenv, wrapLua
+# # Execute before shell hook
+# , preShellHook ? ""
+# # Execute after shell hook
+# , postShellHook ? ""
+# }:
 
-{ buildInputs ? [], disabled ? false, ... } @ attrs:
+# { buildInputs ? [], disabled ? false, ... } @ attrs:
 
-if disabled then
-  throw "${attrs.name} not supported by interpreter lua-${lua.luaversion}"
-else
-  lua.stdenv.mkDerivation ({
+# if disabled then
+#   throw "${attrs.name} not supported by interpreter lua-${lua.luaversion}"
+# else
+#   lua.stdenv.mkDerivation ({
 
-      preBuild = ''
-        makeFlagsArray=(
-          PREFIX=$out
-          LUA_LIBDIR="$out/lib/lua/${lua.luaversion}"
-          LUA_INC="-I${lua}/include");
-      '';
+#       preBuild = ''
+#         makeFlagsArray=(
+#           PREFIX=$out
+#           LUA_LIBDIR="$out/lib/lua/${lua.luaversion}"
+#           LUA_INC="-I${lua}/include");
+#       '';
 
-    }
-    //
-    attrs
-    //
-    {
-      name = "lua${lua.luaversion}-" + attrs.name;
-      buildInputs = buildInputs ++ [ wrapLua ];
+#     }
+#     //
+#     attrs
+#     //
+#     {
+#       name = "lua${lua.luaversion}-" + attrs.name;
+#       buildInputs = buildInputs ++ [ wrapLua ];
 
-      libFolder = "$out/lib/lua/${lua.luaversion}";
+#       libFolder = "$out/lib/lua/${lua.luaversion}";
 
-      # bahs function defined in wrap.sh
-      postFixup = stdenv.lib.optionalString (true) ''
-      wrapLuaPrograms
-      '';
-      # TODO add it if it exists
-      # + attrs.postFixup;
-  # buildInputs = buildInputs ++ [ bootstrapped-pip ];
+#       # bahs function defined in wrap.sh
+#       postFixup = stdenv.lib.optionalString (true) ''
+#       wrapLuaPrograms
+#       '';
+#       # TODO add it if it exists
+#       # + attrs.postFixup;
+#   # buildInputs = buildInputs ++ [ bootstrapped-pip ];
 
-  # configurePhase = attrs.configurePhase or ''
-  #   runHook preConfigure
-  #   runHook postConfigure
-  # '';
+#   # configurePhase = attrs.configurePhase or ''
+#   #   runHook preConfigure
+#   #   runHook postConfigure
+#   # '';
+#   shellHook = attrs.shellHook or ''
+#     ${preShellHook}
+#       # tmp_path=$(mktemp -d)
+#       export PATH="$tmp_path/bin:$PATH"
+#       export MATTATR="HELLO WORLD"
+#       # mkdir -p $tmp_path/
+#     ${postShellHook}
+#   '';
+#   installPhase = attrs.installPhase or ''
+#     runHook preInstall
 
-  # installPhase = attrs.installPhase or ''
-  #   runHook preInstall
+#     # mkdir -p "$out/toto"
+#     export MATTATOR="$out/MATT:$PYTHONPATH"
 
-  #   mkdir -p "$out/${python.sitePackages}"
-  #   export PYTHONPATH="$out/${python.sitePackages}:$PYTHONPATH"
+#     runHook postInstall
+#   '';
 
-  #   pushd dist
-  #   ${bootstrapped-pip}/bin/pip install *.whl --no-index --prefix=$out --no-cache ${toString installFlags} --build tmpbuild
-  #   popd
+#     # TODO maybe we wwant to create the lib package automatically
+#     # TODO
+#     # export PYTHONPATH="$out/${python.sitePackages}:$PYTHONPATH"
 
-  #   runHook postInstall
-  # '';
+#   # installPhase = attrs.installPhase or ''
+#   #   runHook preInstall
 
-    # TODO maybe we wwant to create the lib package automatically
-    # TODO
-    # export PYTHONPATH="$out/${python.sitePackages}:$PYTHONPATH"
-
-  # installPhase = attrs.installPhase or ''
-  #   runHook preInstall
-
-  #   mkdir -p "$out/toto"
-  #   export LUA_PATH="$out/toto:$LUA_PATH"
+#   #   mkdir -p "$out/toto"
+#   #   export LUA_PATH="$out/toto:$LUA_PATH"
 
 
-  #   runHook postInstall
-  #   '';
+#   #   runHook postInstall
+#   #   '';
 
-      # but this is not exported ??
-      # LUA_PATH = stdenv.lib.concatStringsSep ";" (map getLuaPath "$out/lib/lua/${lua.luaversion}");
-      # LUA_CPATH = stdenv.lib.concatStringsSep ";" (map getLuaCPath lualibs);
+#       # but this is not exported ??
+#       # LUA_PATH = stdenv.lib.concatStringsSep ";" (map getLuaPath "$out/lib/lua/${lua.luaversion}");
+#       # LUA_CPATH = stdenv.lib.concatStringsSep ";" (map getLuaCPath lualibs);
 
-    }
-  )
+#     }
+#   )
