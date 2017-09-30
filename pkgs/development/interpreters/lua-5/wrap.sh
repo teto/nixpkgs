@@ -83,9 +83,10 @@ wrapLuaProgramsIn() {
                 # fi
             # fi
         done
-        TOTO=1
     fi
 }
+
+# TODO dupliaced in setup-hook.sh
 
 addToLuaSearchPathWithCustomDelimiter() {
     local delimiter="$1"
@@ -100,8 +101,6 @@ addToLuaSearchPathWithCustomDelimiter() {
         echo "$3 not a directory; ignoring"
     fi
 }
-
-PATH_DELIMITER=':'
 
 addToLuaSearchPath() {
     addToLuaSearchPathWithCustomDelimiter ";" "$@"

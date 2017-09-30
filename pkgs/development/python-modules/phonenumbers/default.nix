@@ -10,6 +10,8 @@ buildPythonPackage rec {
     sha256 = "ff2f492e49c212bb7185954efe09e68583a67daec586c02c49bc728c343d4eb0";
   };
 
+  postFixup = ''echo hello world'';
+
   meta = {
     description = "Python version of Google's common library for parsing, formatting, storing and validating international phone numbers";
     homepage    = https://github.com/daviddrysdale/python-phonenumbers;

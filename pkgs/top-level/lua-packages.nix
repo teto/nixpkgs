@@ -10,6 +10,7 @@
 , perl, gtk2, python, glib, gobjectIntrospection, libevent, zlib, autoreconfHook
 , mysql, postgresql, cyrus_sasl
 , fetchFromGitHub, libmpack, which
+, pkgs
 }:
 
 let
@@ -38,12 +39,14 @@ let
   wrapLua = callPackage ../development/interpreters/lua-5/wrap-lua.nix {inherit lua; inherit (pkgs) makeSetupHook makeWrapper; };
 
   #define build lua package function
-  buildLuaPackage = callPackage ../development/interpreters/lua-5/mk-lua-package.nix {
+  buildLuaPackage = with pkgs.lib; makeOverridable( callPackage ../development/interpreters/lua-5/mk-lua-package.nix {
     inherit lua;
     inherit wrapLua;
     # inherit getLuaPath;
     # inherit getLuaCPath;
-  };
+  });
+
+  # buildLuaApplication = args: buildLuaPackage ({namePrefix="";} // args );
 
   # buildLuaPackage = callPackage ../development/lua-modules/generic/lua-build-package.nix {
   #   inherit lua;
@@ -651,6 +654,13 @@ let
     makeFlags = [ "VERBOSE=1" "LUA_VERSION=${lua.luaversion}" ];
     postInstall = ''
       rm -rf $out/share/lua/${lua.luaversion}/cjson/tests
+    '';
+
+    LOULOU="eaezea";
+
+    postFixup = ''
+      echo postfixup called
+      export TOTO="toto"
     '';
 
     # shellHook=''

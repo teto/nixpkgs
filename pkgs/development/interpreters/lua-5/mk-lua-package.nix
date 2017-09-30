@@ -2,6 +2,7 @@
 
 { lib
 , lua
+, stdenv
 , wrapLua
 , unzip
 , ensureNewerSourcesHook
@@ -54,19 +55,18 @@ if disabled
 then throw "${name} not supported for interpreter ${lua}"
 else
 
-lua.stdenv.mkDerivation (builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
+stdenv.mkDerivation (
+builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
 
   name = namePrefix + name;
 
   # inherit luaPath;
 
   buildInputs = [ wrapLua ] ++ buildInputs
-    ++ [ (ensureNewerSourcesHook { year = "1980"; }) ]
-    # ++ (lib.optional (lib.hasSuffix "zip" attrs.src.name or "") unzip)
+    # ++ [ (ensureNewerSourcesHook { year = "1980"; }) ]
     ++ lib.optionals doCheck checkInputs;
 
   # propagate python/setuptools to active setup-hook in nix-shell
-  # sure about setuptools ?
   propagatedBuildInputs = propagatedBuildInputs ++ [ lua ];
 
   # Python packages don't have a checkPhase, only an installCheckPhase
@@ -74,6 +74,7 @@ lua.stdenv.mkDerivation (builtins.removeAttrs attrs ["disabled" "checkInputs"] /
   doInstallCheck = doCheck;
 
 
+  # even here we should export LUA_PATH ?
   postFixup = lib.optionalString (!dontWrapLuaPrograms) ''
     wrapLuaPrograms
   '' + attrs.postFixup or '''';
@@ -93,6 +94,10 @@ lua.stdenv.mkDerivation (builtins.removeAttrs attrs ["disabled" "checkInputs"] /
     # mkdir -p "$out/${lua.libFolder}"
     # can be 5.2 for instance
     folder="$out/lib/lua/${lua.libFolder}"
+    echo "install ran"
+    export TOTO="YO MAN!"
+    echo "installPhase run"
+    echo "Checking for folder '$folder'"
     if [ -d "$folder" ]; then
       export LUA_PATH="$folder:$LUA_PATH"
       export LUA_CPATH="$folder:$LUA_CPATH"

@@ -3,7 +3,7 @@
 { stdenv, fetchurl, readline, compat ? false
 , hostPlatform, makeWrapper
 , lua-setup-hook, callPackage
-, self
+# , self
 , packageOverrides ? (self: super: {})
 # , getLuaPath
 # , getLuaCPath
@@ -37,6 +37,8 @@ stdenv.mkDerivation rec {
   # sitePackages best if it returns a string/file
 
   libFolder = "$out/lib/lua/${luaversion}";
+
+  # setup hook runs on propagatedBuildInputs
   setupHook = lua-setup-hook ;
 
   # have a look at cython3.6
@@ -78,15 +80,15 @@ stdenv.mkDerivation rec {
     #   done
     # '' + postBuild;
 
-  passthru = let
-    luaPackages = callPackage ../../../top-level/lua-packages.nix {lua=self; overrides=packageOverrides;};
-  in rec {
-    executable = "lua";
-    buildEnv = callPackage ./wrapper.nix { lua = self; };
-    withPackages = import ./with-packages.nix { inherit buildEnv luaPackages;};
-    pkgs = luaPackages;
-    interpreter = "${self}/bin/${executable}";
-  };
+  # passthru = let
+  #   # luaPackages = callPackage ../../../top-level/lua-packages.nix {lua=self; overrides=packageOverrides;};
+  # in rec {
+  #   executable = "lua";
+  #   # buildEnv = callPackage ./wrapper.nix { lua = self; };
+  #   withPackages = import ./with-packages.nix { inherit buildEnv luaPackages;};
+  #   pkgs = luaPackages;
+  #   interpreter = "${self}/bin/${executable}";
+  # };
 
   postInstall = ''
     mkdir -p "$out/share/doc/lua" "$out/lib/pkgconfig"

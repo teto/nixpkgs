@@ -48,7 +48,7 @@ let
     inherit (lua) meta;
 
     passthru = lua.passthru // {
-      interpreter = "${env}/bin/${lua.executable}";
+      interpreter = "${env}/bin/lua";
       inherit lua;
       env = stdenv.mkDerivation {
         name = "interactive-${lua.name}-environment";
