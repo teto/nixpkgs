@@ -57,6 +57,11 @@ let
     inherit lua;
   };
 
+  cjson = callPackage ../development/lua-modules/cjson {
+    inherit lua;
+    inherit buildLuaPackage;
+  };
+
   luabitop = buildLuaPackage rec {
     version = "1.0.2";
     name = "bitop-${version}";
@@ -636,48 +641,45 @@ let
     };
   };
 
-  cjson = buildLuaPackage rec {
-    name = "cjson-${version}";
-    version = "2.1.0";
+  # cjson = buildLuaPackage rec {
+  #   name = "cjson-${version}";
+  #   version = "2.1.0";
+  #   src = fetchurl {
+  #     url = "http://www.kyne.com.au/~mark/software/download/lua-cjson-2.1.0.tar.gz";
+  #     sha256 = "0y67yqlsivbhshg8ma535llz90r4zag9xqza5jx0q7lkap6nkg2i";
+  #   };
+  #   nativeBuildInputs = [ lua ];
+  #   # to overwrite PREFIX and fix all paths
+  #   # TODO pass it as PREFIX rather. but out doesn't seem like the good way
+  #   preBuild = ''
+  #     sed -i "s|/usr/local|$out|" Makefile
+  #   '';
+  #   makeFlags = [ "VERBOSE=1" "LUA_VERSION=${lua.luaversion}" ];
+  #   postInstall = ''
+  #     rm -rf $out/share/lua/${lua.luaversion}/cjson/tests
+  #   '';
 
-    src = fetchurl {
-      url = "http://www.kyne.com.au/~mark/software/download/lua-${name}.tar.gz";
-      sha256 = "0y67yqlsivbhshg8ma535llz90r4zag9xqza5jx0q7lkap6nkg2i";
-    };
-    # to overwrite PREFIX and fix all paths
-    # TODO pass it as PREFIX rather. but out doesn't seem like the good way
-    preBuild = ''
-      sed -i "s|/usr/local|$out|" Makefile
-    '';
+  #   LOULOU="eaezea";
 
+  #   postFixup = ''
+  #     echo postfixup called
+  #     export TOTO="toto"
+  #   '';
 
-    makeFlags = [ "VERBOSE=1" "LUA_VERSION=${lua.luaversion}" ];
-    postInstall = ''
-      rm -rf $out/share/lua/${lua.luaversion}/cjson/tests
-    '';
+  #   # shellHook=''
+  #   #   echo "hello"
+  #   #   '';
 
-    LOULOU="eaezea";
-
-    postFixup = ''
-      echo postfixup called
-      export TOTO="toto"
-    '';
-
-    # shellHook=''
-    #   echo "hello"
-    #   '';
-
-    installTargets = "install install-extra";
-
-    disabled = isLuaJIT;
-
-    meta = with stdenv.lib; {
-      description = "Lua C extension module for JSON support";
-      homepage = "https://www.kyne.com.au/~mark/software/lua-cjson.php";
-      license = licenses.mit;
-      maintainers = with maintainers; [ vyp ];
-    };
-  };
+  #   installTargets = "install install-extra";
+  #   # installPhase = ''
+  #   #   mkdir -p $out/lib/lua/${lua.luaversion}
+  #   #   install -p re.lua $out/lib/lua/${lua.luaversion}
+  #   # '';
+  #   meta = {
+  #     description = "Lua C extension module for JSON support";
+  #     license = stdenv.lib.licenses.mit;
+  #   };
+  # };
 
   lgi = stdenv.mkDerivation rec {
     name = "lgi-${version}";

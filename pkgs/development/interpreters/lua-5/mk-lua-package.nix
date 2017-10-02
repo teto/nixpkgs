@@ -4,8 +4,8 @@
 , lua
 , stdenv
 , wrapLua
-, unzip
-, ensureNewerSourcesHook
+# , unzip
+# , ensureNewerSourcesHook
 }:
 
 { name
@@ -23,6 +23,7 @@
 # propagate build dependencies so in case we have A -> B -> C,
 # C can import package A propagated by B
 , propagatedBuildInputs ? []
+, propagatedNativeBuildInputs ? []
 
 # DEPRECATED: use propagatedBuildInputs
 # , pythonPath ? []
@@ -62,13 +63,13 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
 
   # inherit luaPath;
 
-  buildInputs = [ wrapLua ] ++ buildInputs
+  buildInputs = [ wrapLua  ] ++ buildInputs
     # ++ [ (ensureNewerSourcesHook { year = "1980"; }) ]
     ++ lib.optionals doCheck checkInputs;
 
   # propagate python/setuptools to active setup-hook in nix-shell
-  propagatedBuildInputs = propagatedBuildInputs ++ [ lua ];
-
+  # propagatedBuildInputs = propagatedBuildInputs ++ [ lua ];
+  propagatedNativeBuildInputs = propagatedNativeBuildInputs ++ [ lua ];
   # Python packages don't have a checkPhase, only an installCheckPhase
   doCheck = false;
   doInstallCheck = doCheck;
@@ -78,6 +79,18 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
   postFixup = lib.optionalString (!dontWrapLuaPrograms) ''
     wrapLuaPrograms
   '' + attrs.postFixup or '''';
+
+
+  # posthook run for the current derivation only
+  # postHook = ''
+  #   # function addLuaPath() {
+  #   echo "running the hook dude"
+  #   folder="$out/lib/lua/${lua.libFolder}"
+  #         export LUA_PATH="$folder:$LUA_PATH"
+  #         export LUA_CPATH="$folder:$LUA_CPATH"
+  #     # }
+  #   # envHooks+=(addLuaPath)
+  #   '';
 
   shellHook = attrs.shellHook or ''
     ${preShellHook}
@@ -98,10 +111,10 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
     export TOTO="YO MAN!"
     echo "installPhase run"
     echo "Checking for folder '$folder'"
-    if [ -d "$folder" ]; then
-      export LUA_PATH="$folder:$LUA_PATH"
+    # if [ -d "$folder" ]; then
+      export LUA_PATH="toto:$LUA_PATH"
       export LUA_CPATH="$folder:$LUA_CPATH"
-    fi
+    # fi
 
     runHook postInstall
   '';

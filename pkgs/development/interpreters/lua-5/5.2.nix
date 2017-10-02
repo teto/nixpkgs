@@ -36,7 +36,7 @@ stdenv.mkDerivation rec {
 
   # sitePackages best if it returns a string/file
 
-  libFolder = "$out/lib/lua/${luaversion}";
+  libFolder = "lib/lua/${luaversion}";
 
   # setup hook runs on propagatedBuildInputs
   setupHook = lua-setup-hook ;

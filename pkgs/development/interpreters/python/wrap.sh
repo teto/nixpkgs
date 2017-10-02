@@ -1,6 +1,8 @@
 # Wrapper around wrapPythonProgramsIn, below. The $pythonPath
 # variable is passed in from the buildPythonPackage function.
 wrapPythonPrograms() {
+    echo "wrap pythonPrograms in $out"
+    echo "echo $pythonPath"
     wrapPythonProgramsIn "$out/bin" "$out $pythonPath"
 }
 
@@ -87,6 +89,7 @@ wrapPythonProgramsIn() {
 # flagging the directories it has visited in `pythonPathsSeen`.
 _addToPythonPath() {
     local dir="$1"
+    echo "_addToPythonPath"
     # Stop if we've already visited here.
     if [ -n "${pythonPathsSeen[$dir]}" ]; then return; fi
     pythonPathsSeen[$dir]=1
