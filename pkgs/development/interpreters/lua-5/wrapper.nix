@@ -3,14 +3,14 @@
 , postBuild ? ""
 , ignoreCollisions ? false }:
 
-# Create a python executable that knows about additional packages.
+# Create a lua executable that knows about additional packages.
 let
   # TODO chech what it does
   # recursivePthLoader = import ../../python-modules/recursive-pth-loader/default.nix { stdenv = stdenv; python = python; };
   env = let
     # I removed recursivePthLoader  but check why
     # closePropagation is in deprecated.nix
-    paths = stdenv.lib.closePropagation (extraLibs ++ [  ] ) ;
+    paths = stdenv.lib.closePropagation (extraLibs ++ [ lua ] ) ;
   in buildEnv {
     name = "${lua.name}-env";
 
@@ -36,7 +36,7 @@ let
                 # --set LUA_PATH "$out"
                 # todo use --PREFIX instead ?
 
-                makeWrapper "$path/bin/$prg" "$out/bin/$prg" --set "LUA_PATH" "$out" --set "LUA_CPATH" "ZEP"
+                makeWrapper "$path/bin/$prg" "$out/bin/$prg" --set LUA_PATH "$out" --set LUA_CPATH "ZEP"
               fi
             fi
           done

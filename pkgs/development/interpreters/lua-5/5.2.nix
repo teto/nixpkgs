@@ -20,6 +20,7 @@ in
 stdenv.mkDerivation rec {
   name = "lua-${version}";
   luaversion = "5.2";
+  # TODO use majorVersion
   # libPrefix = getLuaPath "${luaversion}";
   # libCPrefix = getLuaCPath "${luaversion}";
 
@@ -51,9 +52,8 @@ stdenv.mkDerivation rec {
   passthru = let
     luaPackages = callPackage ../../../../../top-level/lua-packages.nix {lua=self; overrides=packageOverrides;};
   in rec {
-    inherit libPrefix sitePackages x11Support;
     # executable = "${libPrefix}m";
-    buildEnv = callPackage ../../wrapper.nix { python = self; };
+    buildEnv = callPackage ../../wrapper.nix { lua = self; };
     withPackages = import ../../with-packages.nix { inherit buildEnv luaPackages;};
     pkgs = luaPackages;
     interpreter = "${self}/bin/lua";
