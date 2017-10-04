@@ -6687,6 +6687,7 @@ with pkgs;
   lua5_1 = callPackage ../development/interpreters/lua-5/5.1.nix { };
   lua5_2 = callPackage ../development/interpreters/lua-5/5.2.nix {
     # inherit getLuaPath; inherit getLuaCPath;
+    self = lua5_2;
   };
   lua5_2_compat = callPackage ../development/interpreters/lua-5/5.2.nix {
     compat = true;

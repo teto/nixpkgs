@@ -3,7 +3,7 @@
 { stdenv, fetchurl, readline, compat ? false
 , hostPlatform, makeWrapper
 , lua-setup-hook, callPackage
-# , self
+, self
 , packageOverrides ? (self: super: {})
 # , getLuaPath
 # , getLuaCPath
@@ -42,10 +42,23 @@ stdenv.mkDerivation rec {
   setupHook = lua-setup-hook ;
 
   # have a look at cython3.6
-  buildEnv = callPackage ./wrapper.nix {
-    # lua = self;
+  # buildEnv = callPackage ./wrapper.nix {
+  #   # lua = self;
+  # };
+  # interpreter = "$out/bin/lua";
+
+
+  passthru = let
+    luaPackages = callPackage ../../../../../top-level/lua-packages.nix {lua=self; overrides=packageOverrides;};
+  in rec {
+    inherit libPrefix sitePackages x11Support;
+    # executable = "${libPrefix}m";
+    buildEnv = callPackage ../../wrapper.nix { python = self; };
+    withPackages = import ../../with-packages.nix { inherit buildEnv luaPackages;};
+    pkgs = luaPackages;
+    interpreter = "${self}/bin/lua";
   };
-  interpreter = "$out/bin/lua";
+
 
   configurePhase =
     if stdenv.isDarwin
