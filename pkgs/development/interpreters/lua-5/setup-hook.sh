@@ -19,10 +19,10 @@ addToLuaSearchPathWithCustomDelimiter() {
     local varName="$2"
     local dir="$3"
     local suffix="$4"
-    # local dontCheckForDir="${4:-}"
-    # if [ -z $dontCheckForDir ] || [ -d "$dir" ]; then
+    echo "===> checking dir $3"
     if  [ -d "$dir" ]; then
         export "${varName}=${!varName:+${!varName}${delimiter}}${dir}${suffix}"
+        echo "VALID entry; exporting $3"
     else
         echo "$3 not a directory; ignoring"
     fi
@@ -67,6 +67,8 @@ addToLuaPath() {
     #         addToLuaPath "$new_path"
     #     done
     # fi
+    echo "LUA_PATH=$LUA_PATH"
+    echo "LUA_CPATH=$LUA_CPATH"
 }
 
 envHooks+=(addToLuaPath)

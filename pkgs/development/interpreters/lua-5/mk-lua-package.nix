@@ -56,14 +56,15 @@ if disabled
 then throw "${name} not supported for interpreter ${lua}"
 else
 
-stdenv.mkDerivation (
+lua.stdenv.mkDerivation (
 builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
 
   name = namePrefix + name;
+    # name = "lua${lua.luaversion}-" + attrs.name;
 
   # inherit luaPath;
 
-  buildInputs = [ wrapLua  ] ++ buildInputs
+  buildInputs = [ wrapLua ] ++ buildInputs
     # ++ [ (ensureNewerSourcesHook { year = "1980"; }) ]
     ++ lib.optionals doCheck checkInputs;
 
@@ -74,12 +75,19 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
   doCheck = false;
   doInstallCheck = doCheck;
 
+  preBuild = ''
+    makeFlagsArray=(
+      PREFIX=$out
+      LUA_LIBDIR="$out/lib/lua/${lua.luaversion}"
+      LUA_INC="-I${lua}/include");
+  '';
 
   # even here we should export LUA_PATH ?
   postFixup = lib.optionalString (!dontWrapLuaPrograms) ''
     wrapLuaPrograms
   '' + attrs.postFixup or '''';
 
+    # export PYTHONPATH="$out/${python.sitePackages}:$PYTHONPATH"
 
   # posthook run for the current derivation only
   # postHook = ''
@@ -94,30 +102,28 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
 
   shellHook = attrs.shellHook or ''
     ${preShellHook}
-      echo "hello world"
-      export PATH="$tmp_path/bin:$PATH"
+      echo "SHELL HOOK from lua-mk-derivation"
       export MATTATOR="HELLO WORLD"
-      # mkdir -p $tmp_path/
     ${postShellHook}
   '';
 
-  installPhase = attrs.installPhase or ''
-    runHook preInstall
+  # installPhase = attrs.installPhase or ''
+  #   runHook preInstall
 
-    # mkdir -p "$out/${lua.libFolder}"
-    # can be 5.2 for instance
-    folder="$out/lib/lua/${lua.libFolder}"
-    echo "install ran"
-    export TOTO="YO MAN!"
-    echo "installPhase run"
-    echo "Checking for folder '$folder'"
-    # if [ -d "$folder" ]; then
-      export LUA_PATH="toto:$LUA_PATH"
-      export LUA_CPATH="$folder:$LUA_CPATH"
-    # fi
+  #   # mkdir -p "$out/${lua.libFolder}"
+  #   # can be 5.2 for instance
+  #   folder="$out/lib/lua/${lua.libFolder}"
+  #   echo "install ran"
+  #   export TOTO="YO MAN!"
+  #   echo "installPhase run"
+  #   echo "Checking for folder '$folder'"
+  #   # if [ -d "$folder" ]; then
+  #     # export LUA_PATH="toto:$LUA_PATH"
+  #     # export LUA_CPATH="$folder:$LUA_CPATH"
+  #   # fi
 
-    runHook postInstall
-  '';
+  #   runHook postInstall
+  # '';
 
   passthru = {
     inherit lua; # The lua interpreter

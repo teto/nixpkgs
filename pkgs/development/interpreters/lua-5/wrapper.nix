@@ -4,9 +4,8 @@
 , ignoreCollisions ? false }:
 
 # Create a lua executable that knows about additional packages.
+# LUA_PATH should already be built at this point ?!!
 let
-  # TODO chech what it does
-  # recursivePthLoader = import ../../python-modules/recursive-pth-loader/default.nix { stdenv = stdenv; python = python; };
   env = let
     # I removed recursivePthLoader  but check why
     # closePropagation is in deprecated.nix
@@ -17,8 +16,11 @@ let
     inherit paths;
     inherit ignoreCollisions;
 
+    # c la qu'on doit avoir un hook no ?
     # we create wrapper for the binaries in the different packages
     postBuild = ''
+      # LUA_PATH est nul la
+
       . "${makeWrapper}/nix-support/setup-hook"
 
       if [ -L "$out/bin" ]; then
@@ -27,6 +29,7 @@ let
       mkdir -p "$out/bin"
 
       for path in ${stdenv.lib.concatStringsSep " " paths}; do
+        echo "new path = $path"
         if [ -d "$path/bin" ]; then
           cd "$path/bin"
           for prg in *; do
@@ -35,6 +38,7 @@ let
               if [ -x "$prg" ]; then
                 # --set LUA_PATH "$out"
                 # todo use --PREFIX instead ?
+                # TODO add itself to LUA_PATH
 
                 makeWrapper "$path/bin/$prg" "$out/bin/$prg" --set LUA_PATH "$out" --set LUA_CPATH "ZEP"
               fi
@@ -53,6 +57,8 @@ let
       env = stdenv.mkDerivation {
         name = "interactive-${lua.name}-environment";
         nativeBuildInputs = [ env ];
+
+        setupHook = "";
 
         buildCommand = ''
           echo >&2 ""

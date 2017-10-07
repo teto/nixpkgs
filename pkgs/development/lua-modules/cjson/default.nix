@@ -18,16 +18,17 @@ buildLuaPackage rec {
       sed -i "s|/usr/local|$out|" Makefile
     '';
     makeFlags = [ "VERBOSE=1" "LUA_VERSION=${lua.luaversion}" ];
+    # why would you do that ?
     postInstall = ''
       rm -rf $out/share/lua/${lua.luaversion}/cjson/tests
     '';
 
-    LOULOU="eaezea";
+    # LOULOU="eaezea";
 
-    postFixup = ''
-      echo postfixup called
-      export TOTO="toto"
-    '';
+    # postFixup = ''
+    #   echo postfixup called
+    #   export TOTO="toto"
+    # '';
 
     # shellHook=''
     #   echo "hello"

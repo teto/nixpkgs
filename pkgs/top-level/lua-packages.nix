@@ -11,6 +11,7 @@
 , mysql, postgresql, cyrus_sasl
 , fetchFromGitHub, libmpack, which
 , pkgs
+, overrides ? (self: super: {})
 }:
 
 let

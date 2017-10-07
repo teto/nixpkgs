@@ -19,12 +19,13 @@ let
 in
 stdenv.mkDerivation rec {
   name = "lua-${version}";
-  luaversion = "5.2";
+  majorVersion = "5.2";
+  luaversion = "${majorVersion}";
   # TODO use majorVersion
-  # libPrefix = getLuaPath "${luaversion}";
-  # libCPrefix = getLuaCPath "${luaversion}";
+  # libPrefix = getLuaPath "${majorVersion}";
+  # libCPrefix = getLuaCPath "${majorVersion}";
 
-  version = "${luaversion}.3";
+  version = "${majorVersion}.3";
 
   src = fetchurl {
     url = "http://www.lua.org/ftp/${name}.tar.gz";
@@ -37,9 +38,11 @@ stdenv.mkDerivation rec {
 
   # sitePackages best if it returns a string/file
 
-  libFolder = "lib/lua/${luaversion}";
+  # todo make it a list ? function generator
+  libFolder = "lib/lua/${majorVersion}";
 
   # setup hook runs on propagatedBuildInputs
+  # hook useless won't find any good libraries
   setupHook = lua-setup-hook ;
 
   # have a look at cython3.6
@@ -50,11 +53,11 @@ stdenv.mkDerivation rec {
 
 
   passthru = let
-    luaPackages = callPackage ../../../../../top-level/lua-packages.nix {lua=self; overrides=packageOverrides;};
+    luaPackages = callPackage ../../../top-level/lua-packages.nix {lua=self; overrides=packageOverrides;};
   in rec {
     # executable = "${libPrefix}m";
-    buildEnv = callPackage ../../wrapper.nix { lua = self; };
-    withPackages = import ../../with-packages.nix { inherit buildEnv luaPackages;};
+    buildEnv = callPackage ./wrapper.nix { lua = self; };
+    withPackages = import ./with-packages.nix { inherit buildEnv luaPackages;};
     pkgs = luaPackages;
     interpreter = "${self}/bin/lua";
   };
@@ -63,11 +66,11 @@ stdenv.mkDerivation rec {
   configurePhase =
     if stdenv.isDarwin
     then ''
-    makeFlagsArray=( INSTALL_TOP=$out INSTALL_MAN=$out/share/man/man1 PLAT=macosx CFLAGS="-DLUA_USE_LINUX -fno-common -O2 -fPIC${if compat then " -DLUA_COMPAT_ALL" else ""}" LDFLAGS="-fPIC" V=${luaversion} R=${version} )
+    makeFlagsArray=( INSTALL_TOP=$out INSTALL_MAN=$out/share/man/man1 PLAT=macosx CFLAGS="-DLUA_USE_LINUX -fno-common -O2 -fPIC${if compat then " -DLUA_COMPAT_ALL" else ""}" LDFLAGS="-fPIC" V=${majorVersion} R=${majorVersion} )
     installFlagsArray=( TO_BIN="lua luac" TO_LIB="liblua.${version}.dylib" INSTALL_DATA='cp -d' )
   '' else ''
-    makeFlagsArray=( INSTALL_TOP=$out INSTALL_MAN=$out/share/man/man1 PLAT=linux CFLAGS="-DLUA_USE_LINUX -O2 -fPIC${if compat then " -DLUA_COMPAT_ALL" else ""}" LDFLAGS="-fPIC" V=${luaversion} R=${version} )
-    installFlagsArray=( TO_BIN="lua luac" TO_LIB="liblua.a liblua.so liblua.so.${luaversion} liblua.so.${version}" INSTALL_DATA='cp -d' )
+    makeFlagsArray=( INSTALL_TOP=$out INSTALL_MAN=$out/share/man/man1 PLAT=linux CFLAGS="-DLUA_USE_LINUX -O2 -fPIC${if compat then " -DLUA_COMPAT_ALL" else ""}" LDFLAGS="-fPIC" V=${majorVersion} R=${version} )
+    installFlagsArray=( TO_BIN="lua luac" TO_LIB="liblua.a liblua.so liblua.so.${majorVersion} liblua.so.${version}" INSTALL_DATA='cp -d' )
   '';
 
     # postBuild = ''
@@ -93,20 +96,10 @@ stdenv.mkDerivation rec {
     #   done
     # '' + postBuild;
 
-  # passthru = let
-  #   # luaPackages = callPackage ../../../top-level/lua-packages.nix {lua=self; overrides=packageOverrides;};
-  # in rec {
-  #   executable = "lua";
-  #   # buildEnv = callPackage ./wrapper.nix { lua = self; };
-  #   withPackages = import ./with-packages.nix { inherit buildEnv luaPackages;};
-  #   pkgs = luaPackages;
-  #   interpreter = "${self}/bin/${executable}";
-  # };
-
   postInstall = ''
     mkdir -p "$out/share/doc/lua" "$out/lib/pkgconfig"
     mv "doc/"*.{gif,png,css,html} "$out/share/doc/lua/"
-    rmdir $out/{share,lib}/lua/${luaversion} $out/{share,lib}/lua
+    rmdir $out/{share,lib}/lua/${majorVersion} $out/{share,lib}/lua
     mkdir -p "$out/lib/pkgconfig"
     cat >"$out/lib/pkgconfig/lua.pc" <<EOF
     prefix=$out
@@ -133,7 +126,7 @@ stdenv.mkDerivation rec {
       makeFlagsArray=(
         INSTALL_TOP=$out
         INSTALL_MAN=$out/share/man/man1
-        V=${luaversion}
+        V=${majorVersion}
         R=${version}
         ${if isMingw then "mingw" else stdenv.lib.optionalString isDarwin ''
         ''}
