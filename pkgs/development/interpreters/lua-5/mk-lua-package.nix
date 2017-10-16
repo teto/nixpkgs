@@ -5,7 +5,9 @@
 , stdenv
 , wrapLua
 # , unzip
-# , ensureNewerSourcesHook
+
+# adds a postUnpackHooks
+, ensureNewerSourcesHook
 }:
 
 { name
@@ -100,11 +102,33 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
   #   # envHooks+=(addLuaPath)
   #   '';
 
+
+  # inspired from build-python-setup-tools
   shellHook = attrs.shellHook or ''
     ${preShellHook}
       echo "SHELL HOOK from lua-mk-derivation"
       export MATTATOR="HELLO WORLD"
+    export LUA_PATH="from_hook_toto:$LUA_PATH"
+    export LUA_CPATH="from_hook_tata:$LUA_CPATH"
     ${postShellHook}
+  '';
+
+  installPhase = attrs.installPhase or ''
+    runHook preInstall
+
+    addToLuaSearchPath LUA_PATH "$dir/lib/lua/@luaversion@" "/?.lua"
+    addToLuaSearchPath LUA_PATH "$dir/share/lua/@luaversion@" "/?.lua"
+    addToLuaSearchPath LUA_CPATH "$dir/lib/lua/@luaversion@" "/?.so"
+    addToLuaSearchPath LUA_CPATH "$dir/share/lua/@luaversion@" "/?.so"
+
+    export LUA_PATH="from_install_toto:$LUA_PATH"
+    export LUA_CPATH="from_install_tata:$LUA_CPATH"
+
+    # pushd dist
+    # /bin/pip install *.whl --no-index --prefix=$out --no-cache
+    # popd
+
+    runHook postInstall
   '';
 
   # installPhase = attrs.installPhase or ''
