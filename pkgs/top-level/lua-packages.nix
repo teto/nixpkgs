@@ -53,6 +53,7 @@ let
   #   inherit lua;
   #   inherit wrapLua;
   # };
+  # buildLuaApplication = args: buildLuaPackage ({namePrefix="";} // args );
 
   luarocks = callPackage ../development/tools/misc/luarocks {
     inherit lua;
