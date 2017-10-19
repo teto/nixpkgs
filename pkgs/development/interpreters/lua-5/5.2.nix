@@ -5,6 +5,7 @@
 , lua-setup-hook, callPackage
 , self
 , packageOverrides ? (self: super: {})
+# , filter # in fact in with stdenv.lib;
 # , getLuaPath
 # , getLuaCPath
 }:
@@ -15,6 +16,15 @@ let
     sha256 = "1by1dy4ql61f5c6njq9ibf9kaqm3y633g2q8j54iyjr4cxvqwqz9";
     name = "lua-arch.patch";
   };
+buildInputs = [];
+  # buildInputs = filter (p: p != null) [
+  #   # zlib bzip2 expat lzma libffi gdbm sqlite
+  #   readline
+  # ]
+    # ++ optionals x11Support [ tcl tk libX11 xproto ]
+    # ++ optionals stdenv.isDarwin [ CF configd ]
+    # ;
+
 
 in
 stdenv.mkDerivation rec {
@@ -25,6 +35,7 @@ stdenv.mkDerivation rec {
   # libPrefix = getLuaPath "${majorVersion}";
   # libCPrefix = getLuaCPath "${majorVersion}";
 
+  # inherit buildInputs;
   version = "${majorVersion}.3";
 
   src = fetchurl {
@@ -62,6 +73,8 @@ stdenv.mkDerivation rec {
     interpreter = "${self}/bin/lua";
   };
 
+
+  enableParallelBuilding = true;
 
   configurePhase =
     if stdenv.isDarwin
