@@ -1,4 +1,5 @@
-/* This file defines the composition for CPAN (Perl) packages.  It has
+/* This file definndInputs "$i" nativePkgs propagated-native-build-inputs
+donees the composition for CPAN (Perl) packages.  It has
    been factored out of all-packages.nix because there are so many of
    them.  Also, because most Nix expressions for CPAN packages are
    trivial, most are actually defined here.  I.e. there's no function

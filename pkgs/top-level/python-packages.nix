@@ -16570,6 +16570,9 @@ EOF
 
   pymacaroons-pynacl = callPackage ../development/python-modules/pymacaroons-pynacl { };
 
+  pygccxml = callPackage ../development/python-modules/pygccxml {};
+
+
   pynacl = callPackage ../development/python-modules/pynacl { };
 
   service-identity = callPackage ../development/python-modules/service_identity { };
