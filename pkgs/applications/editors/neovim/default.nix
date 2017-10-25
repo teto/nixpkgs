@@ -105,10 +105,16 @@ let
       ncurses
       neovimLibvterm
       unibilium
+#       # luajit
       luaPackages.lua
       gperf
     ] ++ optional withJemalloc jemalloc
-      ++ lualibs;
+      ++ lualibs
+      # pour les tests il nous faut busted/
+      # et penlight
+      ++ optionals doCheck [ luaPackages.busted luaPackages.penlight ];
+
+    doCheck = false;
 
     nativeBuildInputs = [
       cmake
@@ -117,10 +123,16 @@ let
       pkgconfig
     ];
 
-    LUA_PATH = stdenv.lib.concatStringsSep ";" (map luaPackages.getLuaPath lualibs);
-    LUA_CPATH = stdenv.lib.concatStringsSep ";" (map luaPackages.getLuaCPath lualibs);
+    # LUA_PATH = stdenv.lib.concatStringsSep ";" (map luaPackages.getLuaPath lualibs);
+    # LUA_CPATH = stdenv.lib.concatStringsSep ";" (map luaPackages.getLuaCPath lualibs);
 
+<<<<<<< HEAD
     lualibs = [ luaPackages.mpack luaPackages.lpeg luaPackages.luabitop ];
+||||||| merged common ancestors
+    lualibs = [ luaPackages.mpack luaPackages.lpeg luajitPackages.lpeg luaPackages.luabitop ];
+=======
+    lualibs = with luaPackages; [ mpack lpeg luabitop ];
+>>>>>>> merging l2tp brnach
 
     cmakeFlags = [
       "-DLUA_PRG=${luaPackages.lua}/bin/lua"

@@ -15,7 +15,6 @@ makeSetupHook {
       deps = makeWrapper;
       # substitutions.libPrefix = lua.libPrefix;
       # look for python it's the interpreter generated in the env
-      # substitutions.executable = "bin/lua";
       # substitutions.executable = "${env}/bin/${lua}";
       substitutions.executable = lua.interpreter;
       substitutions.lua = lua;

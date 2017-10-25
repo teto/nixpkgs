@@ -1,4 +1,4 @@
-{stdenv, fetchurl, lua, curl, makeWrapper, which, unzip}:
+{stdenv, fetchurl, lua, curl, makeWrapper, which, unzip, cjson}:
 let
   s = # Generated upstream information
   rec {
@@ -11,6 +11,7 @@ let
   };
   buildInputs = [
     lua curl makeWrapper which unzip
+    cjson
   ];
 in
 stdenv.mkDerivation {

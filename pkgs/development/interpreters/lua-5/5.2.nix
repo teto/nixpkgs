@@ -55,12 +55,12 @@ stdenv.mkDerivation rec {
   # setup hook runs on propagatedBuildInputs
   # hook useless won't find any good libraries
   setupHook = lua-setup-hook ;
+  # setupHook = ./setup-hook.sh;
 
   # have a look at cython3.6
   # buildEnv = callPackage ./wrapper.nix {
   #   # lua = self;
   # };
-  # interpreter = "$out/bin/lua";
 
 
   passthru = let

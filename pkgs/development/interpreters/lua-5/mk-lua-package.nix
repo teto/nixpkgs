@@ -113,23 +113,30 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
     ${postShellHook}
   '';
 
-  installPhase = attrs.installPhase or ''
-    runHook preInstall
+  #
+  # installPhase = attrs.installPhase or ''
+  # postInstall = attrs.postInstall or ''
+  #   echo "Started install"
+  #   runHook preInstall
 
-    addToLuaSearchPath LUA_PATH "$dir/lib/lua/@luaversion@" "/?.lua"
-    addToLuaSearchPath LUA_PATH "$dir/share/lua/@luaversion@" "/?.lua"
-    addToLuaSearchPath LUA_CPATH "$dir/lib/lua/@luaversion@" "/?.so"
-    addToLuaSearchPath LUA_CPATH "$dir/share/lua/@luaversion@" "/?.so"
+  #   addToLuaSearchPath LUA_PATH "$out/lib/lua/${lua.luaversion}" "/?.lua"
+  #   addToLuaSearchPath LUA_PATH "$out/share/lua/${lua.luaversion}" "/?.lua"
+  #   addToLuaSearchPath LUA_CPATH "$out/lib/lua/${lua.luaversion}" "/?.so"
+  #   addToLuaSearchPath LUA_CPATH "$out/share/lua/${lua.luaversion}" "/?.so"
 
-    export LUA_PATH="from_install_toto:$LUA_PATH"
-    export LUA_CPATH="from_install_tata:$LUA_CPATH"
+  #   export LUA_PATH="from_install_toto:$LUA_PATH"
+  #   export LUA_CPATH="from_install_tata:$LUA_CPATH"
 
-    # pushd dist
-    # /bin/pip install *.whl --no-index --prefix=$out --no-cache
-    # popd
+  #   # pushd dist
+  #   # /bin/pip install *.whl --no-index --prefix=$out --no-cache
+  #   # popd
 
-    runHook postInstall
-  '';
+  #   runHook postInstall
+
+  #   echo "finished install"
+  #   echo "LUA_PATH=$LUA_PATH"
+  #   echo "LUA_CPATH=$LUA_CPATH"
+  # '';
 
   # installPhase = attrs.installPhase or ''
   #   runHook preInstall

@@ -21,13 +21,19 @@ let
     postBuild = ''
       # LUA_PATH est nul la
 
+      # si la tu recharges le truc
       . "${makeWrapper}/nix-support/setup-hook"
+      echo "postBuild wrapper"
+      echo "program_LUA_PATH=$program_LUA_PATH"
+      echo "program_LUA_CPATH=$program_LUA_CPATH"
 
       if [ -L "$out/bin" ]; then
           unlink "$out/bin"
       fi
       mkdir -p "$out/bin"
 
+
+      # la le code python il te
       for path in ${stdenv.lib.concatStringsSep " " paths}; do
         echo "new path = $path"
         if [ -d "$path/bin" ]; then
@@ -39,8 +45,9 @@ let
                 # --set LUA_PATH "$out"
                 # todo use --PREFIX instead ?
                 # TODO add itself to LUA_PATH
+                echo "remove wrapper"
 
-                makeWrapper "$path/bin/$prg" "$out/bin/$prg" --set LUA_PATH "$out" --set LUA_CPATH "ZEP"
+                # makeWrapper "$path/bin/$prg" "$out/bin/$prg" --set LUA_PATH "$LUA_PATH" --set LUA_CPATH "ZEP:$LUA_CPATH"
               fi
             fi
           done
@@ -58,7 +65,7 @@ let
         name = "interactive-${lua.name}-environment";
         nativeBuildInputs = [ env ];
 
-        setupHook = "";
+        # setupHook = "";
 
         buildCommand = ''
           echo >&2 ""

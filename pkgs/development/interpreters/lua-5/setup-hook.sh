@@ -34,6 +34,12 @@ addToLuaSearchPath() {
     addToLuaSearchPathWithCustomDelimiter ";" "$@"
 }
 
+startLuaEnvHook() {
+echo "STARTING LUA ENV HOOK"
+addToLuaPath "$1"
+echo "FINISHED LUA ENV HOOK"
+
+}
 
 # Adds the lib and bin directories to the LUA_PATH and PATH variables,
 # respectively. Recurses on any paths declared in
@@ -71,5 +77,6 @@ addToLuaPath() {
     echo "LUA_CPATH=$LUA_CPATH"
 }
 
-envHooks+=(addToLuaPath)
+
+envHooks+=(startLuaEnvHook)
 

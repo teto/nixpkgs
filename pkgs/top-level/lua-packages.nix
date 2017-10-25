@@ -54,9 +54,26 @@ let
   #   inherit wrapLua;
   # };
   # buildLuaApplication = args: buildLuaPackage ({namePrefix="";} // args );
+busted = buildLuaPackage rec {
+src={
+sha256="0snaxcq60fj86i75b5lq3d60pd05xzpz1w4qslhm228g8rc0kg4b";
+url=https://github.com/Olivine-Labs/busted/archive/v2.0.rc9-0.tar.gz; }
+;
+propagatedBuildInputs=[ lua lua_cliargs luafilesystem dkjson say luassert ansicolors lua-term penlight mediator_lua luasocket];
+meta={
+homepage="http://olivinelabs.com/busted/"; }
+;
+name="busted";
+installPhase=''
+		mkdir -p $out/lib/lua/${lua.luaversion}
+		install -p bit.so $out/lib/lua/${lua.luaversion}
+		'' ;
+version="2.0.rc9-0"; }
+;
 
   luarocks = callPackage ../development/tools/misc/luarocks {
     inherit lua;
+    inherit cjson;
   };
 
   cjson = callPackage ../development/lua-modules/cjson {

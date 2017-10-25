@@ -10,8 +10,8 @@ buildLuaPackage rec {
       url = "http://www.kyne.com.au/~mark/software/download/lua-cjson-2.1.0.tar.gz";
       sha256 = "0y67yqlsivbhshg8ma535llz90r4zag9xqza5jx0q7lkap6nkg2i";
     };
-    nativeBuildInputs = [ lua ];
-    propagatedBuildInputs = [ lua ];
+    # nativeBuildInputs = [ lua ];
+    # propagatedBuildInputs = [ lua ];
     # to overwrite PREFIX and fix all paths
     # TODO pass it as PREFIX rather. but out doesn't seem like the good way
     preBuild = ''
@@ -30,9 +30,9 @@ buildLuaPackage rec {
     #   export TOTO="toto"
     # '';
 
-    # shellHook=''
-    #   echo "hello"
-    #   '';
+    shellHook=''
+      echo "hello world";
+      '';
 
     installTargets = "install install-extra";
     # installPhase = ''
