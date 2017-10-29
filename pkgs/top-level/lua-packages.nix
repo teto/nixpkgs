@@ -31,14 +31,15 @@ let
 
     # recurseForDerivations
 
-    generatedPackages = recurseIntoAttrs (callPackage(./lua-generated-packages.nix {
-      inherit stdenv self fetchurl fetchgit;
-    }));
+    generatedPackages = callPackage ./lua-generated-packages.nix {
+      inherit self stdenv fetchurl fetchgit;
+    };
 
     self = _self;
-    # generatedPackages //
-  _self = with self; rec {
+    #
+  _self = with self; generatedPackages //  rec {
     inherit lua;
+    inherit generatedPackages;
     inherit (stdenv.lib) maintainers;
     # generatedPackages = (import ./lua-generated-packages.nix) { inherit self stdenv fetchurl fetchgit; };
 
