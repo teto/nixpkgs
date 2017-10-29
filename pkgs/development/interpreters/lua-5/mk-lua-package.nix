@@ -2,6 +2,7 @@
 
 { lib
 , lua
+, luarocks
 , stdenv
 , wrapLua
 # , unzip
@@ -16,7 +17,7 @@
 , namePrefix ? lua.name + "-"
 
 # Dependencies for building the package
-, buildInputs ? []
+, buildInputs ? [  ]
 
 # Dependencies needed for running the checkPhase.
 # These are added to buildInputs when doCheck = true.
@@ -66,7 +67,8 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
 
   # inherit luaPath;
 
-  buildInputs = [ wrapLua ] ++ buildInputs
+  # luarocks
+  buildInputs = [ wrapLua  ] ++ buildInputs
     # ++ [ (ensureNewerSourcesHook { year = "1980"; }) ]
     ++ lib.optionals doCheck checkInputs;
 
@@ -101,6 +103,7 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
   #     # }
   #   # envHooks+=(addLuaPath)
   #   '';
+  # TODO maybe we can remove the unpackPhase as it will be redownloaded
 
 
   # inspired from build-python-setup-tools
@@ -113,12 +116,13 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
     ${postShellHook}
   '';
 
-  #
-  # installPhase = attrs.installPhase or ''
-  # postInstall = attrs.postInstall or ''
-  #   echo "Started install"
-  #   runHook preInstall
+  # count on luarocks to install it
+  installPhase = attrs.installPhase or ''
 
+    echo "Started install"
+    runHook preInstall
+
+    luarocks install --tree $out
   #   addToLuaSearchPath LUA_PATH "$out/lib/lua/${lua.luaversion}" "/?.lua"
   #   addToLuaSearchPath LUA_PATH "$out/share/lua/${lua.luaversion}" "/?.lua"
   #   addToLuaSearchPath LUA_CPATH "$out/lib/lua/${lua.luaversion}" "/?.so"
@@ -131,12 +135,12 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
   #   # /bin/pip install *.whl --no-index --prefix=$out --no-cache
   #   # popd
 
-  #   runHook postInstall
+    runHook postInstall
 
   #   echo "finished install"
   #   echo "LUA_PATH=$LUA_PATH"
   #   echo "LUA_CPATH=$LUA_CPATH"
-  # '';
+  '';
 
   # installPhase = attrs.installPhase or ''
   #   runHook preInstall

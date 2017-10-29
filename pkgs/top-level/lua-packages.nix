@@ -11,6 +11,8 @@
 , mysql, postgresql, cyrus_sasl
 , fetchFromGitHub, libmpack, which
 , pkgs
+, recurseIntoAttrs
+, fetchgit
 , overrides ? (self: super: {})
 }:
 
@@ -26,10 +28,19 @@ let
     else if stdenv.isSunOS then "solaris"
     else throw "unsupported platform";
 
-  self = _self;
-  _self = with self; {
-  inherit lua;
-  inherit (stdenv.lib) maintainers;
+
+    # recurseForDerivations
+
+    generatedPackages = recurseIntoAttrs (callPackage(./lua-generated-packages.nix {
+      inherit stdenv self fetchurl fetchgit;
+    }));
+
+    self = _self;
+    # generatedPackages //
+  _self = with self; rec {
+    inherit lua;
+    inherit (stdenv.lib) maintainers;
+    # generatedPackages = (import ./lua-generated-packages.nix) { inherit self stdenv fetchurl fetchgit; };
 
   # helper functions for dealing with LUA_PATH and LUA_CPATH
   # only used in neovim/can be removed
@@ -54,22 +65,6 @@ let
   #   inherit wrapLua;
   # };
   # buildLuaApplication = args: buildLuaPackage ({namePrefix="";} // args );
-busted = buildLuaPackage rec {
-src={
-sha256="0snaxcq60fj86i75b5lq3d60pd05xzpz1w4qslhm228g8rc0kg4b";
-url=https://github.com/Olivine-Labs/busted/archive/v2.0.rc9-0.tar.gz; }
-;
-propagatedBuildInputs=[ lua lua_cliargs luafilesystem dkjson say luassert ansicolors lua-term penlight mediator_lua luasocket];
-meta={
-homepage="http://olivinelabs.com/busted/"; }
-;
-name="busted";
-installPhase=''
-		mkdir -p $out/lib/lua/${lua.luaversion}
-		install -p bit.so $out/lib/lua/${lua.luaversion}
-		'' ;
-version="2.0.rc9-0"; }
-;
 
   luarocks = callPackage ../development/tools/misc/luarocks {
     inherit lua;
