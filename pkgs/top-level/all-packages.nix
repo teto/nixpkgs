@@ -19687,6 +19687,10 @@ with pkgs;
 
   terraform = terraform_0_9;
 
+  tegaki-recognize = callPackage ../applications/misc/tegaki {
+    inherit (python3Packages) buildPythonApplication;
+  };
+
   terraform-inventory = callPackage ../applications/networking/cluster/terraform-inventory {};
 
   terragrunt = callPackage ../applications/networking/cluster/terragrunt {};

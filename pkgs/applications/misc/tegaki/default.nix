@@ -1,46 +1,39 @@
-{ stdenv, fetchurl, pkgconfig, cmake, intltool, gettext
-, libxml2, enchant, isocodes, icu, libpthreadstubs
-, pango, cairo, libxkbfile, libXau, libXdmcp, libxkbcommon
-, dbus, gtk2, gtk3, qt4, extra-cmake-modules
+{ stdenv, fetchFromGitHub
+# , pkgconfig, cmake, intltool, gettext
+# , dbus, gtk2, gtk3, qt4, extra-cmake-modules
+, buildPythonApplication
 }:
 
-stdenv.mkDerivation rec {
+# stdenv.mkDerivation
+buildPythonApplication rec {
   version = "0.3.1";
-  pname = "tegaki-recognize"
+  pname = "tegaki-recognize";
+  name = "tegaki-recognize";
 
-  src = fetchurl {
-    url    = "http://download.fcitx-im.org/fcitx/${name}_dict.tar.xz";
-    sha256 = "0xvcmm4yi7kagf55d0yl3ql5ssbkm9410fwbz3kd988pchichdsk";
+  src = fetchFromGitHub {
+    owner = "tegaki";
+    repo = "tegaki";
+    rev = "v${version}";
+    sha256 = "09mw2if9p885phbgah5f95q3fwy7s5b46qlmpxqyzfcnj6g7afr5";
   };
 
-  postPatch = ''
-    substituteInPlace src/frontend/qt/CMakeLists.txt \
-      --replace $\{QT_PLUGINS_DIR} $out/lib/qt4/plugins
-  '';
+  # postPatch = ''
+  #   substituteInPlace src/frontend/qt/CMakeLists.txt \
+  #     --replace $\{QT_PLUGINS_DIR} $out/lib/qt4/plugins
+  # '';
 
-  nativeBuildInputs = [ cmake extra-cmake-modules intltool pkgconfig ];
+  # nativeBuildInputs = [ cmake extra-cmake-modules intltool pkgconfig ];
 
-  buildInputs = [
-    enchant gettext isocodes icu libpthreadstubs libXau libXdmcp libxkbfile
-    libxkbcommon libxml2 dbus cairo gtk2 gtk3 pango qt4
-  ];
-
-  cmakeFlags = ''
-    -DENABLE_QT_IM_MODULE=ON
-    -DENABLE_GTK2_IM_MODULE=ON
-    -DENABLE_GTK3_IM_MODULE=ON
-    -DENABLE_GIR=OFF
-    -DENABLE_OPENCC=OFF
-    -DENABLE_PRESAGE=OFF
-    -DENABLE_XDGAUTOSTART=OFF
-  '';
-
+  # buildInputs = [
+  #   enchant gettext isocodes icu libpthreadstubs libXau libXdmcp libxkbfile
+  #   libxkbcommon libxml2 dbus cairo gtk2 gtk3 pango qt4
+  # ];
   meta = with stdenv.lib; {
-    homepage    = "https://github.com/fcitx/fcitx";
-    description = "A Flexible Input Method Framework";
-    license     = licenses.gpl2;
-    platforms   = platforms.linux;
-    maintainers = with maintainers; [ ericsagnes ];
+    description = "Japanese handwriting model for the Zinnia engine";
+    homepage = http://tegaki.org/;
+    license = licenses.lgpl21;
+    platforms = platforms.unix;
+    maintainers = [ maintainers.teto ];
   };
 }
 
