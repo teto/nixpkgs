@@ -17,6 +17,8 @@ buildPythonApplication rec {
     sha256 = "09mw2if9p885phbgah5f95q3fwy7s5b46qlmpxqyzfcnj6g7afr5";
   };
 
+  sourceRoot = "${src.name}/tegaki-recognize";
+
   # postPatch = ''
   #   substituteInPlace src/frontend/qt/CMakeLists.txt \
   #     --replace $\{QT_PLUGINS_DIR} $out/lib/qt4/plugins
