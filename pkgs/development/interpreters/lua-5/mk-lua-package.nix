@@ -13,6 +13,7 @@
 
 { name
 
+, version
 # by default prefix `name` e.g. "python3.3-${name}"
 , namePrefix ? lua.name + "-"
 
@@ -60,15 +61,17 @@ then throw "${name} not supported for interpreter ${lua}"
 else
 
 lua.stdenv.mkDerivation (
-builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
+builtins.removeAttrs attrs ["disabled" "checkInputs"] // rec {
 
-  name = namePrefix + name;
+  # pname = name;
+  # TODO fix
+  pname = namePrefix + name;
     # name = "lua${lua.luaversion}-" + attrs.name;
 
   # inherit luaPath;
 
   # luarocks
-  buildInputs = [ wrapLua  ] ++ buildInputs
+  buildInputs = [ wrapLua luarocks ] ++ buildInputs
     # ++ [ (ensureNewerSourcesHook { year = "1980"; }) ]
     ++ lib.optionals doCheck checkInputs;
 
@@ -79,11 +82,29 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
   doCheck = false;
   doInstallCheck = doCheck;
 
+  rockspec_name = name + "-" + version + ".rockspec";
+
+  postUnpack=''
+    # download the rockspec
+    # ideally put it in the store ?
+    luarocks download --rockspec ${name} ${version}
+    # ${name}
+
+    # now remove all dependencies from the rockspec; there is a check on the
+    # filename so it should
+    # TODO replace the archive too
+    perl -0pe 's/dependencies = {((.|\n)+?)}//g' ${rockspec_name} > ${rockspec_name}
+    # perl -0pe 's/dependencies = {((.|\n)+?)}//g'  lua_cliargs-3.0-1.rockspec
+  '';
   preBuild = ''
     makeFlagsArray=(
       PREFIX=$out
       LUA_LIBDIR="$out/lib/lua/${lua.luaversion}"
       LUA_INC="-I${lua}/include");
+
+      # strip the rockspec of its dependencies
+      # aka remove all its attributes
+      # and change the source (assumed it's unpacked already)
   '';
 
   # even here we should export LUA_PATH ?
@@ -122,7 +143,17 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
     echo "Started install"
     runHook preInstall
 
-    luarocks install --tree $out
+    # TODO set the stripped rockspec
+    # luarocks make
+    luarocks make --tree $out ${name}
+
+
+
+    # luarocks install --tree $out ${name}
+
+    #
+
+
   #   addToLuaSearchPath LUA_PATH "$out/lib/lua/${lua.luaversion}" "/?.lua"
   #   addToLuaSearchPath LUA_PATH "$out/share/lua/${lua.luaversion}" "/?.lua"
   #   addToLuaSearchPath LUA_CPATH "$out/lib/lua/${lua.luaversion}" "/?.so"
@@ -165,7 +196,7 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
   } // passthru;
 
   meta = with lib.maintainers; {
-    # default to python's platforms
+    # default to lua's platforms
     platforms = lua.meta.platforms;
   } // meta // {
     # add extra maintainer(s) to every package

@@ -1,4 +1,6 @@
-{stdenv, fetchurl, lua, curl, makeWrapper, which, unzip, cjson}:
+{stdenv, fetchurl, lua, curl, makeWrapper, which, unzip
+, cjson ? null
+}:
 let
   s = # Generated upstream information
   rec {
@@ -11,8 +13,9 @@ let
   };
   buildInputs = [
     lua curl makeWrapper which unzip
-    cjson
-  ];
+
+  # to prevent cycling dependancy
+  ] ++ stdenv.lib.optionals false [ cjson ];
 in
 stdenv.mkDerivation {
   inherit (s) name version;
