@@ -7,17 +7,20 @@
 # stdenv.mkDerivation
 buildPythonApplication rec {
   version = "0.3.1";
-  pname = "tegaki-recognize";
-  name = "tegaki-recognize";
+  name = "tegaki";
+  # name = "${pname}-${version}";
 
-  src = fetchFromGitHub {
-    owner = "tegaki";
-    repo = "tegaki";
-    rev = "v${version}";
-    sha256 = "09mw2if9p885phbgah5f95q3fwy7s5b46qlmpxqyzfcnj6g7afr5";
-  };
+  # src = fetchFromGitHub {
+  #   owner = "tegaki";
+  #   repo = "tegaki";
+  #   rev = "v${version}";
+  #   sha256 = "09mw2if9p885phbgah5f95q3fwy7s5b46qlmpxqyzfcnj6g7afr5";
+  # };
+  # sourceRoot = "${src.name}/tegaki-recognize";
 
-  sourceRoot = "${src.name}/tegaki-recognize";
+  src = /home/teto/tegaki/tegaki-python;
+
+  # propagatedBuildInputs = [ tegaki ];
 
   # postPatch = ''
   #   substituteInPlace src/frontend/qt/CMakeLists.txt \
@@ -31,7 +34,7 @@ buildPythonApplication rec {
   #   libxkbcommon libxml2 dbus cairo gtk2 gtk3 pango qt4
   # ];
   meta = with stdenv.lib; {
-    description = "Japanese handwriting model for the Zinnia engine";
+    description = "Japanese handwriting recognition";
     homepage = http://tegaki.org/;
     license = licenses.lgpl21;
     platforms = platforms.unix;
