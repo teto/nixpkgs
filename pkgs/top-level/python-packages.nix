@@ -24447,7 +24447,7 @@ EOF
 
   textacy = callPackage ../development/python-modules/textacy { };
 
-  tegaki = callPackage ../development/python-modules/tegaki { };
+  tegaki-python = callPackage ../development/python-modules/tegaki { };
 
   pyemd  = callPackage ../development/python-modules/pyemd { };
 

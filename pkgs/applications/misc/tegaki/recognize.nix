@@ -1,15 +1,16 @@
 { stdenv, fetchFromGitHub
 # , pkgconfig, cmake, intltool, gettext
 # , dbus, gtk2, gtk3, qt4, extra-cmake-modules
-, tegaki
+, tegaki-python
+, pygobject3
 , buildPythonApplication
 }:
 
 # stdenv.mkDerivation
 buildPythonApplication rec {
   version = "0.3.1";
-  pname = "tegaki-recognize";
-  name = "${pname}-${version}";
+  name = "tegaki-recognize";
+  # name = "${pname}-${version}";
 
   # src = fetchFromGitHub {
   #   owner = "tegaki";
@@ -21,8 +22,7 @@ buildPythonApplication rec {
 
   src = /home/teto/tegaki/tegaki-recognize;
 
-
-  propagatedBuildInputs = [ tegaki ];
+  propagatedBuildInputs = [ tegaki-python pygobject3 ];
 
   # postPatch = ''
   #   substituteInPlace src/frontend/qt/CMakeLists.txt \
