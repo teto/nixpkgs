@@ -639,7 +639,7 @@ let
       makeFlagsArray=(CC=$CC);
     '';
 
-    buildFlags = platformString;
+    # buildFlags = platformString;
 
     installPhase = ''
       mkdir -p $out/lib/lua/${lua.luaversion}

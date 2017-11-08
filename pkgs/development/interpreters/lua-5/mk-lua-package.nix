@@ -46,6 +46,7 @@
 , dontWrapLuaPrograms ? false
 
 , meta ? {}
+
 , passthru ? {}
 , doCheck ? false
 , preShellHook ? ""
@@ -60,8 +61,12 @@ if disabled
 then throw "${name} not supported for interpreter ${lua}"
 else
 
+let
+  rockspec_name = name + "-" + version + ".rockspec";
+  luarocks_cfg = "luarocks_cfg";
+in
 lua.stdenv.mkDerivation (
-builtins.removeAttrs attrs ["disabled" "checkInputs"] // rec {
+builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
 
   # pname = name;
   # TODO fix
@@ -82,21 +87,28 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // rec {
   doCheck = false;
   doInstallCheck = doCheck;
 
-  rockspec_name = name + "-" + version + ".rockspec";
+  # Generate luarocks config file build-support folder
+  # todo remove it
+  # preBuild = ''
+  #   '';
 
-  postUnpack=''
+  #
+  LUAROCKS_CONFIG="$out/${luarocks_cfg}";
+
+  # postUnpack=''
     # download the rockspec
     # ideally put it in the store ?
-    luarocks download --rockspec ${name} ${version}
+    # luarocks download --rockspec ${name} ${version}
     # ${name}
 
     # now remove all dependencies from the rockspec; there is a check on the
     # filename so it should
     # TODO replace the archive too
-    perl -0pe 's/dependencies = {((.|\n)+?)}//g' ${rockspec_name} > ${rockspec_name}
+    # perl -0pe 's/dependencies = {((.|\n)+?)}//g' ${rockspec_name} > ${rockspec_name}
     # perl -0pe 's/dependencies = {((.|\n)+?)}//g'  lua_cliargs-3.0-1.rockspec
-  '';
+  # '';
   preBuild = ''
+    echo 'local_cache = /tmp' > $out/${luarocks_cfg}
     makeFlagsArray=(
       PREFIX=$out
       LUA_LIBDIR="$out/lib/lua/${lua.luaversion}"
