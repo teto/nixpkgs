@@ -10,6 +10,7 @@
 , perl, gtk2, python, glib, gobjectIntrospection, libevent, zlib, autoreconfHook
 , mysql, postgresql, cyrus_sasl
 , fetchFromGitHub, libmpack, which
+, fetchrock
 , pkgs
 , recurseIntoAttrs
 , fetchgit
@@ -634,18 +635,19 @@ let
       url = "http://www.inf.puc-rio.br/~roberto/lpeg/${name}.tar.gz";
       sha256 = "0xlbfw1w7l65a5qhnx5sfw327hkq1zcj8xmg4glfw6fj9ha4b9gg";
     };
+    buildInputs = [ unzip ];
 
-    preBuild = ''
-      makeFlagsArray=(CC=$CC);
-    '';
+    # preBuild = ''
+    #   makeFlagsArray=(CC=$CC);
+    # '';
 
     # buildFlags = platformString;
 
-    installPhase = ''
-      mkdir -p $out/lib/lua/${lua.luaversion}
-      install -p lpeg.so $out/lib/lua/${lua.luaversion}
-      install -p re.lua $out/lib/lua/${lua.luaversion}
-    '';
+    # installPhase = ''
+    #   mkdir -p $out/lib/lua/${lua.luaversion}
+    #   install -p lpeg.so $out/lib/lua/${lua.luaversion}
+    #   install -p re.lua $out/lib/lua/${lua.luaversion}
+    # '';
 
     meta = with stdenv.lib; {
       description = "Parsing Expression Grammars For Lua";

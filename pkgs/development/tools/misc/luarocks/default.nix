@@ -46,6 +46,9 @@ stdenv.mkDerivation {
 	}
     done
   '';
+
+  setupHook = ./setup-hook.sh;
+
   meta = {
     inherit (s) version;
     description = ''A package manager for Lua'';

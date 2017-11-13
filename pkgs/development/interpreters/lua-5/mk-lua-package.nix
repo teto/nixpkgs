@@ -63,7 +63,8 @@ else
 
 let
   rockspec_name = name + "-" + version + ".rockspec";
-  luarocks_cfg = "luarocks_cfg";
+  # luarocks_cfg = "$(pwd)/luarocks_cfg";
+  # /tmp/${luarocks_cfg}
 in
 lua.stdenv.mkDerivation (
 builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
@@ -93,7 +94,22 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
   #   '';
 
   #
-  LUAROCKS_CONFIG="$out/${luarocks_cfg}";
+  # preUnpack= ''
+  #   echo "Preunpack"
+
+  # luarocks_cfg = "$(pwd)/luarocks_cfg";
+  #   '';
+  # LUAROCKS_CONFIG="${luarocks_cfg}";
+
+  postUnpack = ''
+    # $out/
+    cd $sourceRoot
+    echo ">> post unpack $(pwd)"
+    ls
+    # todoplacerholder
+    unpackFile "lpeg-1.0.1.tar.gz"
+    # unpackFile "*.tar.gz"
+    '';
 
   # postUnpack=''
     # download the rockspec
@@ -108,7 +124,11 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
     # perl -0pe 's/dependencies = {((.|\n)+?)}//g'  lua_cliargs-3.0-1.rockspec
   # '';
   preBuild = ''
-    echo 'local_cache = /tmp' > $out/${luarocks_cfg}
+    echo "PREBUILD"
+    echo "we are in folder $(pwd)"
+    ls
+    export LUAROCKS_CONFIG="$(pwd)/luarocks_cfg"
+    echo "local_cache = '$(pwd)'" > "$LUAROCKS_CFG"
     makeFlagsArray=(
       PREFIX=$out
       LUA_LIBDIR="$out/lib/lua/${lua.luaversion}"
@@ -157,7 +177,7 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
 
     # TODO set the stripped rockspec
     # luarocks make
-    luarocks make --tree $out ${name}
+    luarocks make --tree $out ${rockspec_name}
 
 
 

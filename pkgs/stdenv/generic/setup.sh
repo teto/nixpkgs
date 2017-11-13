@@ -44,12 +44,14 @@ runOneHook() {
     set -u # May be called from elsewhere, so do `set -u`.
 
     local hookName="$1"
+    header "running '$hookName' hooks until one succeeds"
     shift
     local hooksSlice="${hookName%Hook}Hooks[@]"
 
     local hook ret=1
     # Hack around old bash like above
     for hook in "_callImplicitHook 1 $hookName" ${!hooksSlice+"${!hooksSlice}"}; do
+        header "running '$hook' hooks until one succeeds"
         if _eval "$hook" "$@"; then
             ret=0
             break
@@ -71,6 +73,7 @@ _callImplicitHook() {
     set -u
     local def="$1"
     local hookName="$2"
+    header "calling '$hookName' hook"
     case "$(type -t "$hookName")" in
         (function|alias|builtin)
             set +u

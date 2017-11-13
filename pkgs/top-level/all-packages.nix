@@ -203,6 +203,22 @@ with pkgs;
 
   fetchCrate = callPackage ../build-support/rust/fetchcrate.nix { };
 
+  gitRepoToName = callPackage ../build-support/fetchgit/gitrepotoname.nix { };
+
+  # fetches src.rock and .rock
+  # fetchzip doesn't have overrideAttrs
+  # removeAttrs args [ "stripRoot" "extraPostFetch" ]))
+  # fetchrock = fetchzip (x: {nativeBuildInputs = x.nativeBuildInputs++ [ luarocks];});
+  fetchrock = callPackage ../build-support/fetchrock {};
+  # lib.overrideDerivation ( fetchzip
+  # {nativeBuildInputs, ...} @ args:
+  # removeAttrs args [ nativeBuildInputs] // { nativeBuildInputs= nativeBuildInputs ++ [ luarocks ];}
+  # );
+  # (x: {nativeBuildInputs = x.nativeBuildInputs++ [ luarocks];});
+# callPackage ../build-support/fetchrock { };
+
+  gitRepoToName = callPackage ../build-support/fetchgit/gitrepotoname.nix { };
+
   fetchFromGitHub = {
     owner, repo, rev, name ? "source",
     fetchSubmodules ? false, private ? false,
