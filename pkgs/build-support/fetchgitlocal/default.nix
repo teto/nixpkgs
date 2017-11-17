@@ -1,19 +1,23 @@
 { runCommand, git, nix }: src:
 
 let
+  tmpFolder =  "/tmp/fetchgitlocal-${src}-${currentTime}";
+  currentTime = builtins.currentTime; # impure, do every time
+
   srcStr = toString src;
 
   # Adds the current directory in the index (respecting ignored files) to the git store,
   # and returns the hash
   gitHashFile = runCommand "put-in-git" {
       nativeBuildInputs = [ git ];
-      dummy = builtins.currentTime; # impure, do every time
+      dummy = currentTime;
       preferLocalBuild = true;
     } ''
       cd ${srcStr}
 
       # `tr` to remove trailing newline
-      git write-tree --prefix=$(git rev-parse --show-prefix) | tr -d '\n' > $out
+      cp -r .git ${tmpFolder}
+      GIT_DIR=${tmpFolder} git write-tree --prefix=$(git rev-parse --show-prefix) | tr -d '\n' > $out
     '';
 
   gitHash = builtins.readFile gitHashFile; # cache against git hash
