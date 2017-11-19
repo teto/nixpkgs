@@ -1,7 +1,7 @@
 { runCommand, git, nix }: src:
 
 let
-  tmpFolder =  "/tmp/fetchgitlocal-${src}-${currentTime}";
+  tmpFolder =  "/tmp/fetchgitlocal-${builtins.toString currentTime}";
   currentTime = builtins.currentTime; # impure, do every time
 
   srcStr = toString src;
@@ -13,11 +13,20 @@ let
       dummy = currentTime;
       preferLocalBuild = true;
     } ''
-      cd ${srcStr}
+      # cd ${srcStr}
+      set -x sh
+      echo CWD=$PWD
 
       # `tr` to remove trailing newline
-      cp -r .git ${tmpFolder}
-      GIT_DIR=${tmpFolder} git write-tree --prefix=$(git rev-parse --show-prefix) | tr -d '\n' > $out
+      cp -r ${srcStr}/.git ${tmpFolder}
+      chmod a+w ${tmpFolder}
+      export GIT_DIR=${tmpFolder}
+
+      # > $out
+      echo OUT=$out
+      echo USER=$USER
+      res="$(git rev-parse --show-prefix)"
+      git write-tree --prefix="$res" | tr -d '\n' >  $out
     '';
 
   gitHash = builtins.readFile gitHashFile; # cache against git hash
@@ -26,14 +35,18 @@ let
       nativeBuildInputs = [ git ];
       preferLocalBuild = true;
     } ''
+      set -x
       mkdir $out
 
       # git annoyingly breaks without doing this since the hash does
       # not correspond to repo root.
+      # -C => as if git was run from tthat place
+      # show-top-level => sjow fullpath
       cd $(git -C ${srcStr} rev-parse --show-toplevel)
 
       # dump tar of *current directory* at given revision
-      git archive --format=tar ${gitHash} \
+      hash="${gitHash}"
+      git archive --format=tar $hash \
         | tar xv - -C $out
     '';
 
