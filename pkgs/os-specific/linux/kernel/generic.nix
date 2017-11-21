@@ -16,7 +16,7 @@
   extraConfig ? ""
 
 , # The version number used for the module directory
-  modDirVersion ? version
+  modVersion ? null
 
 , # An attribute set whose attributes express the availability of
   # certain features in this kernel.  E.g. `{iwlwifi = true;}'
@@ -116,9 +116,15 @@ let
   };
 
   kernel = (callPackage ./manual-config.nix {}) {
-    inherit version modDirVersion src kernelPatches stdenv extraMeta configfile hostPlatform;
+    inherit version src kernelPatches stdenv extraMeta configfile hostPlatform;
 
     config = { CONFIG_MODULES = "y"; CONFIG_FW_LOADER = "m"; };
+
+    modDirVersion = if (modVersion == null) then
+        # modDirVersion needs to be x.y.z, will automatically add .0 if needed
+        with lib; (concatStrings (intersperse "." (take 3 (splitString "." "${version}.0"))))
+      else
+        modVersion;
   };
 
   passthru = {

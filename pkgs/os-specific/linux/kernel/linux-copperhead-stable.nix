@@ -7,19 +7,12 @@ let
   revision = "a";
   sha256 = "1kdy3sqrn161hm5avhk3nd75p07a21ja0rzar3ybibh1bl2mc6zq";
 
-  # modVersion needs to be x.y.z, will automatically add .0 if needed
-  modVersion = concatStrings (intersperse "." (take 3 (splitString "." "${version}.0")));
-
-  # branchVersion needs to be x.y
-  branchVersion = concatStrings (intersperse "." (take 2 (splitString "." version)));
-
-  modDirVersion = "${modVersion}-hardened";
+  modVersion = "${version}-hardened";
 in
 buildLinux (args // {
-  inherit modDirVersion;
+  inherit modVersion;
 
   version = "${version}-${revision}";
-  extraMeta.branch = "${branchVersion}";
 
   src = fetchFromGitHub {
     inherit sha256;

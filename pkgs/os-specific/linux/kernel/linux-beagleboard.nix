@@ -1,12 +1,12 @@
 { stdenv, buildPackages, hostPlatform, fetchFromGitHub, perl, buildLinux, ubootTools, dtc, ... } @ args:
 
 let
-  modDirVersion = "4.14.12";
+  modVersion = "4.14.12";
   tag = "r23";
 in
 stdenv.lib.overrideDerivation (buildLinux (args // rec {
-  version = "${modDirVersion}-ti-${tag}";
-  inherit modDirVersion;
+  version = "${modVersion}-ti-${tag}";
+  inherit modVersion;
 
   src = fetchFromGitHub {
     owner = "beagleboard";

@@ -2,8 +2,8 @@
 
 buildLinux (rec {
   mptcpVersion = "0.93";
-  modDirVersion = "4.9.60";
-  version = "${modDirVersion}-mptcp_v${mptcpVersion}";
+  modVersion = "4.9.60";
+  version = "${modVersion}-mptcp_v${mptcpVersion}";
   # autoModules= true;
 
   extraMeta = {

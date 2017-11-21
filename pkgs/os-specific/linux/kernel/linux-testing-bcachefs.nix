@@ -2,7 +2,7 @@
 
 buildLinux (args // rec {
   version = "4.15.2018.04.14";
-  modDirVersion = "4.15.0";
+  modVersion = "4.15.0";
   extraMeta.branch = "master";
   extraMeta.maintainers = [ stdenv.lib.maintainers.davidak stdenv.lib.maintainers.chiiruno ];
 

@@ -2,8 +2,7 @@
 
 buildLinux (args // rec {
   version = "4.17-rc3";
-  modDirVersion = "4.17.0-rc3";
-  extraMeta.branch = "4.17";
+  modVersion = "4.17.0-rc3";
 
   src = fetchurl {
     url = "https://git.kernel.org/torvalds/t/linux-${version}.tar.gz";
