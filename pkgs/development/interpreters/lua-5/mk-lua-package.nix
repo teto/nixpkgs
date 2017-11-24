@@ -62,6 +62,7 @@ then throw "${name} not supported for interpreter ${lua}"
 else
 
 let
+  # TODO find it
   rockspec_name = name + "-" + version + ".rockspec";
   # luarocks_cfg = "$(pwd)/luarocks_cfg";
   # /tmp/${luarocks_cfg}
@@ -93,7 +94,7 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
   # preBuild = ''
   #   '';
 
-  #
+  # ERASE preunpack ?
   # preUnpack= ''
   #   echo "Preunpack"
 
@@ -101,19 +102,23 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
   #   '';
   # LUAROCKS_CONFIG="${luarocks_cfg}";
 
+  # postUnpackHook is run in stdenv/generic/builder.sh
+  # after cding to sourceRoot
   postUnpack = ''
     # $out/
-    cd $sourceRoot
-    echo ">> post unpack $(pwd)"
-    ls
+    # set -x
+    echo "postunpack stuff "
+    # cd $sourceRoot
+    echo ">> post unpack $PWD"
+    rm -rf $out
+
     # todoplacerholder
-    unpackFile "lpeg-1.0.1.tar.gz"
+    # unpackFile "lpeg-1.0.1.tar.gz"
     # unpackFile "*.tar.gz"
     '';
 
   # postUnpack=''
-    # download the rockspec
-    # ideally put it in the store ?
+    # download the rockspec ideally put it in the store ?
     # luarocks download --rockspec ${name} ${version}
     # ${name}
 
@@ -123,21 +128,24 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
     # perl -0pe 's/dependencies = {((.|\n)+?)}//g' ${rockspec_name} > ${rockspec_name}
     # perl -0pe 's/dependencies = {((.|\n)+?)}//g'  lua_cliargs-3.0-1.rockspec
   # '';
-  preBuild = ''
-    echo "PREBUILD"
-    echo "we are in folder $(pwd)"
-    ls
-    export LUAROCKS_CONFIG="$(pwd)/luarocks_cfg"
-    echo "local_cache = '$(pwd)'" > "$LUAROCKS_CFG"
-    makeFlagsArray=(
-      PREFIX=$out
-      LUA_LIBDIR="$out/lib/lua/${lua.luaversion}"
-      LUA_INC="-I${lua}/include");
 
+  # TODO fix hooks, run them etc..
+  # preBuild
+  buildPhase = ''
+    echo "PREBUILD"
+    echo "we are in folder $PWD"
+    ls
+    export LUAROCKS_CONFIG="$PWD/luarocks_cfg"
+    echo "local_cache = '$PWD'" > "$LUAROCKS_CONFIG"
+    # makeFlagsArray=(
+    #   PREFIX=$out
+    #   LUA_LIBDIR="$out/lib/lua/${lua.luaversion}"
+    #   LUA_INC="-I${lua}/include");
       # strip the rockspec of its dependencies
       # aka remove all its attributes
       # and change the source (assumed it's unpacked already)
   '';
+
 
   # even here we should export LUA_PATH ?
   postFixup = lib.optionalString (!dontWrapLuaPrograms) ''
@@ -175,11 +183,28 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
     echo "Started install"
     runHook preInstall
 
+    echo "Looking for the rockspec"
+    # elif [ -z "$sourceRoot" ]; then
+        for i in *; do
+          if [[ "$i" =~ \.rockspec$ ]]; then
+
+          fi
+            if [ -d "$i" ]; then
+                case $dirsBefore in
+                    *\ $i\ *)
+                        ;;
+                    *)
+    if [ -z "$rockspec" ]; then
+      echo " could not find rockspec"
+      exit 1
+    fi
+
     # TODO set the stripped rockspec
     # luarocks make
+    # TODO fetchzip should not have created $out beforehand
     luarocks make --tree $out ${rockspec_name}
 
-
+    # install --deps-mode=none should work too
 
     # luarocks install --tree $out ${name}
 

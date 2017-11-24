@@ -631,10 +631,29 @@ let
     name = "lpeg-${version}";
     version = "0.12";
 
-    src = fetchurl {
-      url = "http://www.inf.puc-rio.br/~roberto/lpeg/${name}.tar.gz";
-      sha256 = "0xlbfw1w7l65a5qhnx5sfw327hkq1zcj8xmg4glfw6fj9ha4b9gg";
+    # src = fetchurl {
+    #   url = "http://www.inf.puc-rio.br/~roberto/lpeg/${name}.tar.gz";
+    #   sha256 = "0xlbfw1w7l65a5qhnx5sfw327hkq1zcj8xmg4glfw6fj9ha4b9gg";
+    # };
+
+    NIX_DEBUG=1;
+
+    src = fetchrock {
+    # src = fetchzip {
+      stripRoot=false;
+      # name="${name}.zip";
+      url="https://luarocks.org/manifests/gvvaughan/lpeg-1.0.1-1.src.rock";
+      # url = "http://www.inf.puc-rio.br/~roberto/lpeg/${name}.tar.gz";
+      sha256 = "0a8gw1ma9farlrc4y2ax1jp2s71132jr7gvscxh72xr0bax352ps";
+      # extraPostFetch = ''
+      #   # tar xvf
+      #   #       unpackFile "$renamed"
+      #   # apparently
+      #   cd $out
+      #   unpackFile *.tar.gz
+      # '';
     };
+    # TODO added luarocks for testing but it should be automatic; remove
     buildInputs = [ unzip ];
 
     # preBuild = ''
