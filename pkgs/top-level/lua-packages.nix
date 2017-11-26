@@ -82,8 +82,11 @@ let
     version = "1.0.2";
     name = "bitop-${version}";
 
-    src = fetchurl {
-      url = "http://bitop.luajit.org/download/LuaBitOp-${version}.tar.gz";
+    # src = fetchurl {
+    #   url = "http://bitop.luajit.org/download/LuaBitOp-${version}.tar.gz";
+    src = fetchrock {
+      url = "https://luarocks.org/manifests/luarocks/luabitop-1.0.2-1.src.rock";
+      # url = "http://bitop.luajit.org/download/LuaBitOp-${version}.tar.gz";
       sha256 = "16fffbrgfcw40kskh2bn9q7m3gajffwd2f35rafynlnd7llwj1qj";
     };
 

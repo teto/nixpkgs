@@ -183,26 +183,30 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
     echo "Started install"
     runHook preInstall
 
-    echo "Looking for the rockspec"
-    # elif [ -z "$sourceRoot" ]; then
-        for i in *; do
-          if [[ "$i" =~ \.rockspec$ ]]; then
+    # echo "Looking for the rockspec"
+    # set -x
+    # for i in *; do
+    #   if [[ "$i" =~ \.rockspec$ ]]; then
+    #     rockspec="$i"
+    #     break;
+    #   fi
+    # done
+    # if [ -z "$rockspec" ]; then
+    #   echo " could not find rockspec"
+    #   exit 1
+    # fi
+    # echo "rockspec found ='$rockspec'"
 
-          fi
-            if [ -d "$i" ]; then
-                case $dirsBefore in
-                    *\ $i\ *)
-                        ;;
-                    *)
-    if [ -z "$rockspec" ]; then
-      echo " could not find rockspec"
-      exit 1
-    fi
+    echo "Looking for the folder fron $PWD"
+    set -x
+    folder=$(find .  -mindepth 2 -maxdepth 2 -type d -path '*${name}*'|head -n1)
+    echo "folder found ='$folder'"
 
     # TODO set the stripped rockspec
     # luarocks make
     # TODO fetchzip should not have created $out beforehand
-    luarocks make --tree $out ${rockspec_name}
+    # gcc
+    luarocks make --tree $out $rockspec
 
     # install --deps-mode=none should work too
 

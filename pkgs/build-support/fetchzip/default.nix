@@ -12,6 +12,7 @@
 , url
 , extraPostFetch ? ""
 , name ? "source"
+, keepInTemp ? false
 , ... } @ args:
 
 lib.overrideDerivation (fetchurl ({
@@ -33,7 +34,7 @@ lib.overrideDerivation (fetchurl ({
       mv "$downloadedFile" "$renamed"
       unpackFile "$renamed"
     ''
-    + (if stripRoot then ''
+    +  lib.optionalString stripRoot ''
       if [ $(ls "$unpackDir" | wc -l) != 1 ]; then
         echo "error: zip file must contain a single file or directory."
         echo "hint: Pass stripRoot=false; to fetchzip to assume flat list of files."
@@ -43,11 +44,13 @@ lib.overrideDerivation (fetchurl ({
       if [ -f "$unpackDir/$fn" ]; then
         mkdir $out
       fi
-      mv "$unpackDir/$fn" "$out"
-    '' else ''
+      # Might be a problem if they have the same name
+      mv "$unpackDir/$fn" "$unpackDir"
+    ''
+    + lib.optionalString (!keepInTemp) (''
       mv "$unpackDir" "$out"
-    '') #*/
+    '')
     + extraPostFetch;
-} // removeAttrs args [ "stripRoot" "extraPostFetch" ]))
+} // removeAttrs args [ "stripRoot" "keepInTemp" "extraPostFetch" ]))
 # Hackety-hack: we actually need unzip hooks, too
 (x: {nativeBuildInputs = x.nativeBuildInputs++ [unzip];})

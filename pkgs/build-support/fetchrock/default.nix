@@ -25,12 +25,29 @@
 # // { stripRoot = true; }
 lib.overrideDerivation (fetchzip ({
   # name = "toto"; # args.name or (baseNameOf url);
-  name = args.name; # or (baseNameOf url);
+  # name = args.name; # or (baseNameOf url);
   stripRoot = false;
+  keepInTemp = true; # we have extra processing steps to do
   extraPostFetch=''
       echo "FETCHROCK postFetch $PWD"
 
-    unpackFile "$out/lpeg-1.0.1.tar.gz"
+    # mv $unpack
+
+    # echo "Looking for the rockspec"
+    # set -x
+    # for i in *; do
+    #   if [[ "$i" =~ \.rockspec$ ]]; then
+    #     rockspec="$i"
+    #     break;
+    #   fi
+    # done
+    # if [ -z "$rockspec" ]; then
+    #   echo " could not find rockspec"
+    #   exit 1
+    # fi
+
+    # echo "rockspec found ='$rockspec'"
+
 
     # then we need to strip the root folder see fetchzip code
       # if [ $(ls "$unpackDir" | wc -l) != 1 ]; then
