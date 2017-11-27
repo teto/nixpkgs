@@ -31,35 +31,6 @@ lib.overrideDerivation (fetchzip ({
   extraPostFetch=''
       echo "FETCHROCK postFetch $PWD"
 
-    # mv $unpack
-
-    # echo "Looking for the rockspec"
-    # set -x
-    # for i in *; do
-    #   if [[ "$i" =~ \.rockspec$ ]]; then
-    #     rockspec="$i"
-    #     break;
-    #   fi
-    # done
-    # if [ -z "$rockspec" ]; then
-    #   echo " could not find rockspec"
-    #   exit 1
-    # fi
-
-    # echo "rockspec found ='$rockspec'"
-
-
-    # then we need to strip the root folder see fetchzip code
-      # if [ $(ls "$unpackDir" | wc -l) != 1 ]; then
-      #   echo "error: zip file must contain a single file or directory."
-      #   echo "hint: Pass stripRoot=false; to fetchzip to assume flat list of files."
-      #   exit 1
-      # fi
-      # fn=$(cd "$unpackDir" && echo *)
-      # if [ -f "$unpackDir/$fn" ]; then
-      #   mkdir $out
-      # fi
-      # mv "$unpackDir/$fn" "$out"
       '';
     # postFetch=''
     #   echo "POSTFETCH"
