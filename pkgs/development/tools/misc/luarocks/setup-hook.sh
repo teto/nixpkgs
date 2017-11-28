@@ -2,13 +2,20 @@ unpackCmdHooks+=(_trySourceRock)
 _trySourceRock() {
 
     echo "LUAROCKS unpack on $curSrc"
-    echo "ARGS:"
-    echo "$@"
     if ! [[ "$curSrc" =~ \.src.rock$ ]]; then return 1; fi
     echo "luarocks hook attempts to unpack"
-    # unzip -qq "$curSrc"
-    # todo add --force
-    luarocks unpack "$curSrc"
+
+    # export LUAROCKS_CONFIG=
+    echo PWD=$PWD
+    echo out=$out
+    export PATH=${unzip}/bin:$PATH
+    # echo $PATH
+    # unzip --version
+    # luarocks expects a clean <name>.rock.spec name to be the package name
+    # so we have to strip the hash
+    renamed="$(stripHash $curSrc)"
+    cp -v "$curSrc" "$renamed"
+    luarocks unpack --verbose --force "$renamed"
 
     # most likely it will have a tar.gz archive in it
     # unpackFile "*.tar.gz"

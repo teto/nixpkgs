@@ -5,7 +5,7 @@
 , luarocks
 , stdenv
 , wrapLua
-# , unzip
+, unzip
 
 # adds a postUnpackHooks
 , ensureNewerSourcesHook
@@ -104,18 +104,14 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
 
   # postUnpackHook is run in stdenv/generic/builder.sh
   # after cding to sourceRoot
-  postUnpack = ''
-    # $out/
-    # set -x
-    echo "postunpack stuff "
-    # cd $sourceRoot
-    echo ">> post unpack $PWD"
-    rm -rf $out
+  # postUnpack = ''
+  #   # $out/
+  #   # set -x
+  #   echo "postunpack stuff "
+  #   # cd $sourceRoot
+  #   echo ">> post unpack PWD=$PWD et out=$out"
 
-    # todoplacerholder
-    # unpackFile "lpeg-1.0.1.tar.gz"
-    # unpackFile "*.tar.gz"
-    '';
+  #   '';
 
   # postUnpack=''
     # download the rockspec ideally put it in the store ?
@@ -128,11 +124,17 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
     # perl -0pe 's/dependencies = {((.|\n)+?)}//g' ${rockspec_name} > ${rockspec_name}
     # perl -0pe 's/dependencies = {((.|\n)+?)}//g'  lua_cliargs-3.0-1.rockspec
   # '';
+  setSourceRoot=''
+    folder=$(find .  -mindepth 2 -maxdepth 2 -type d -path '*${name}*'|head -n1)
+    echo "folder found ='$folder'"
+    sourceRoot=$folder
+  '';
 
   # TODO fix hooks, run them etc..
   # preBuild
   buildPhase = ''
     echo "PREBUILD"
+    runHook preBuild
     echo "we are in folder $PWD"
     ls
     export LUAROCKS_CONFIG="$PWD/luarocks_cfg"
@@ -141,9 +143,6 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
     #   PREFIX=$out
     #   LUA_LIBDIR="$out/lib/lua/${lua.luaversion}"
     #   LUA_INC="-I${lua}/include");
-      # strip the rockspec of its dependencies
-      # aka remove all its attributes
-      # and change the source (assumed it's unpacked already)
   '';
 
 
@@ -180,7 +179,7 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
   # count on luarocks to install it
   installPhase = attrs.installPhase or ''
 
-    echo "Started install"
+    echo "STARTED INSTALL"
     runHook preInstall
 
     # echo "Looking for the rockspec"
@@ -199,14 +198,13 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
 
     echo "Looking for the folder fron $PWD"
     set -x
-    folder=$(find .  -mindepth 2 -maxdepth 2 -type d -path '*${name}*'|head -n1)
-    echo "folder found ='$folder'"
+    # TODO set it as $sourceRoot
 
     # TODO set the stripped rockspec
     # luarocks make
     # TODO fetchzip should not have created $out beforehand
     # gcc
-    luarocks make --tree $out $rockspec
+    luarocks make --verbose --tree $out $rockspec
 
     # install --deps-mode=none should work too
 

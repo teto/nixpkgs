@@ -16,6 +16,8 @@ let
 
   # to prevent cycling dependancy
   ] ++ stdenv.lib.optionals false [ cjson ];
+
+  # for unpack hook
 in
 stdenv.mkDerivation {
   inherit (s) name version;
@@ -48,6 +50,8 @@ stdenv.mkDerivation {
   '';
 
   setupHook = ./setup-hook.sh;
+
+  propagatedBuildInputs = [ unzip ];
 
   meta = {
     inherit (s) version;

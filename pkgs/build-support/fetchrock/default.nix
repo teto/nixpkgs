@@ -19,30 +19,45 @@
 #      according to the function `f'.  The function `f' is called with
 #      the original derivation attributes.
 
+  # nixPath = runCommand "put-in-nix" {
+  #     nativeBuildInputs = [ git ];
+  #     preferLocalBuild = true;
+  #   } ''
+  #     mkdir $out
+
+  #     # dump tar of *current directory* at given revision
+  #     git -C ${srcStr} archive --format=tar ${gitHash} \
+  #       | tar xf - -C $out
+  #   '';
+
+# or we could use run command here to put the rockspec
 # move rockspec somewhere else
 # runCommand "put-in-git" {
 #
+# I should inherit fetchurl directly
+# $downloadedFile
 # // { stripRoot = true; }
-lib.overrideDerivation (fetchzip ({
-  # name = "toto"; # args.name or (baseNameOf url);
-  # name = args.name; # or (baseNameOf url);
-  stripRoot = false;
-  keepInTemp = true; # we have extra processing steps to do
-  extraPostFetch=''
-      echo "FETCHROCK postFetch $PWD"
+# lib.overrideDerivation (fetchzip ({
+#   # name = "toto"; # args.name or (baseNameOf url);
+#   name = args.name; # or (baseNameOf url);
+#   stripRoot = false;
+#   keepInTemp = true; # we have extra processing steps to do
+#   extraPostFetch=''
+#       echo "FETCHROCK postFetch $PWD"
 
-      '';
-    # postFetch=''
-    #   echo "POSTFETCH"
-    #   '';
-} // args))
-# Hackety-hack: we actually need unzip hooks, too
-(x: {
-  nativeBuildInputs = x.nativeBuildInputs++ [luarocks];
-  # postFetch = x.postFetch + ''
-  #   echo "FETCHROCK postFetch $PWD"
+#       mkdir $out
+#       '';
+#     # postFetch=''
+#     #   echo "POSTFETCH"
+#     #   '';
+# } // args))
+# # Hackety-hack: we actually need unzip hooks, too
+# (x: {
+#   nativeBuildInputs = x.nativeBuildInputs++ [luarocks];
+#   # postFetch = x.postFetch + ''
+#   #   echo "FETCHROCK postFetch $PWD"
 
-  #   unpackFile "lpeg-1.0.1.tar.gz"
-  #   '';
-})
+#   #   unpackFile "lpeg-1.0.1.tar.gz"
+#   #   '';
+# })
 
