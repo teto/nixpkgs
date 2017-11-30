@@ -124,6 +124,7 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
     # perl -0pe 's/dependencies = {((.|\n)+?)}//g' ${rockspec_name} > ${rockspec_name}
     # perl -0pe 's/dependencies = {((.|\n)+?)}//g'  lua_cliargs-3.0-1.rockspec
   # '';
+  # that works only for src.rock !
   setSourceRoot=''
     folder=$(find .  -mindepth 2 -maxdepth 2 -type d -path '*${name}*'|head -n1)
     echo "folder found ='$folder'"

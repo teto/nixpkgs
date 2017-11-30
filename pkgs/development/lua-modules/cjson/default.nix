@@ -10,11 +10,17 @@ buildLuaPackage rec {
       url = "http://www.kyne.com.au/~mark/software/download/lua-cjson-2.1.0.tar.gz";
       sha256 = "0y67yqlsivbhshg8ma535llz90r4zag9xqza5jx0q7lkap6nkg2i";
     };
+
+    # sourceRoot="lua-cjson-2.1.0";
+    # setSourceRoot="cd $sourceRoot";
     # nativeBuildInputs = [ lua ];
     # propagatedBuildInputs = [ lua ];
     # to overwrite PREFIX and fix all paths
     # TODO pass it as PREFIX rather. but out doesn't seem like the good way
     preBuild = ''
+      cd ..
+      echo $PWD
+      ls
       sed -i "s|/usr/local|$out|" Makefile
     '';
     makeFlags = [ "VERBOSE=1" "LUA_VERSION=${lua.luaversion}" ];
