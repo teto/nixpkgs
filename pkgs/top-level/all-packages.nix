@@ -223,8 +223,6 @@ with pkgs;
   # (x: {nativeBuildInputs = x.nativeBuildInputs++ [ luarocks];});
 # callPackage ../build-support/fetchrock { };
 
-  gitRepoToName = callPackage ../build-support/fetchgit/gitrepotoname.nix { };
-
   fetchFromGitHub = {
     owner, repo, rev, name ? "source",
     fetchSubmodules ? false, private ? false,
