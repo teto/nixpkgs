@@ -79,13 +79,7 @@ toPythonModule (python.stdenv.mkDerivation (builtins.removeAttrs attrs [
     ++ buildInputs
     ++ pythonPath;
 
-  unpackCmd=''
-    echo "HELLO WORLD"
-    echo $curSrc
-    stripHash $curSrc
-    '';
-
-  # propagate python/setuptools to active setup-hook in nix-shell
+  # Propagate python and setuptools. We should stop propagating setuptools.
   propagatedBuildInputs = propagatedBuildInputs ++ [ python setuptools ];
 
   # Python packages don't have a checkPhase, only an installCheckPhase
