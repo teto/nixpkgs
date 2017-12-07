@@ -6,6 +6,7 @@
 , stdenv
 , wrapLua
 , unzip
+, writeText
 
 # adds a postUnpackHooks
 , ensureNewerSourcesHook
@@ -62,10 +63,12 @@ then throw "${name} not supported for interpreter ${lua}"
 else
 
 let
-  # TODO find it
-  rockspec_name = name + "-" + version + ".rockspec";
-  # luarocks_cfg = "$(pwd)/luarocks_cfg";
-  # /tmp/${luarocks_cfg}
+
+  # todo use this
+  # Used to be $PWD
+  luarocks_config = writeText "luarocksConfig" ''
+    local_cache = ""
+    '';
 in
 lua.stdenv.mkDerivation (
 builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
@@ -183,35 +186,19 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
     echo "STARTED INSTALL"
     runHook preInstall
 
-    # echo "Looking for the rockspec"
-    # set -x
-    # for i in *; do
-    #   if [[ "$i" =~ \.rockspec$ ]]; then
-    #     rockspec="$i"
-    #     break;
-    #   fi
-    # done
-    # if [ -z "$rockspec" ]; then
-    #   echo " could not find rockspec"
-    #   exit 1
-    # fi
-    # echo "rockspec found ='$rockspec'"
 
     echo "Looking for the folder fron $PWD"
     set -x
     # TODO set it as $sourceRoot
 
-    # TODO set the stripped rockspec
     # luarocks make
-    # TODO fetchzip should not have created $out beforehand
     # gcc
     luarocks make --verbose --tree $out $rockspec
 
+    # to prevent collision when creating the environment
+    rm $out/lib/luarocks/rocks/manifest
     # install --deps-mode=none should work too
-
     # luarocks install --tree $out ${name}
-
-    #
 
 
   #   addToLuaSearchPath LUA_PATH "$out/lib/lua/${lua.luaversion}" "/?.lua"

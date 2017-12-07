@@ -209,13 +209,14 @@ with pkgs;
   # fetchzip doesn't have overrideAttrs
   # removeAttrs args [ "stripRoot" "extraPostFetch" ]))
   # fetchrock = fetchzip (x: {nativeBuildInputs = x.nativeBuildInputs++ [ luarocks];});
-  fetchrock = callPackage ../build-support/fetchrock {
-    extraPostFetch = ''
-      echo "FETCHROCK postFetch $PWD"
+  fetchrock = fetchurl;
+  # callPackage ../build-support/fetchrock {
+  #   extraPostFetch = ''
+  #     echo "FETCHROCK postFetch $PWD"
 
-    unpackFile "lpeg-1.0.1.tar.gz"
-      '';
-  };
+  #   # unpackFile "lpeg-1.0.1.tar.gz"
+  #     '';
+  # };
   # lib.overrideDerivation ( fetchzip
   # {nativeBuildInputs, ...} @ args:
   # removeAttrs args [ nativeBuildInputs] // { nativeBuildInputs= nativeBuildInputs ++ [ luarocks ];}

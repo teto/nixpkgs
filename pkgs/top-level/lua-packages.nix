@@ -279,35 +279,35 @@ let
     };
   };
 
-  luafilesystem = buildLuaPackage rec {
-    version = "1.6.3";
-    name = "filesystem-${version}";
+  # luafilesystem = buildLuaPackage rec {
+  #   version = "1.6.3";
+  #   name = "filesystem-${version}";
 
-    src = fetchFromGitHub {
-      owner = "keplerproject";
-      repo = "luafilesystem";
-      rev = "v${stdenv.lib.replaceChars ["."] ["_"] version}";
-      sha256 = "1hxcnqj53540ysyw8fzax7f09pl98b8f55s712gsglcdxp2g2pri";
-    };
+  #   src = fetchFromGitHub {
+  #     owner = "keplerproject";
+  #     repo = "luafilesystem";
+  #     rev = "v${stdenv.lib.replaceChars ["."] ["_"] version}";
+  #     sha256 = "1hxcnqj53540ysyw8fzax7f09pl98b8f55s712gsglcdxp2g2pri";
+  #   };
 
-    preConfigure = ''
-      substituteInPlace config --replace "CC= gcc" "";
-    ''
-    + stdenv.lib.optionalString stdenv.isDarwin ''
-      substituteInPlace config \
-      --replace 'LIB_OPTION= -shared' '###' \
-      --replace '#LIB_OPTION= -bundle' 'LIB_OPTION= -bundle'
-      substituteInPlace Makefile --replace '10.3' '10.5'
-    '';
+  #   preConfigure = ''
+  #     substituteInPlace config --replace "CC= gcc" "";
+  #   ''
+  #   + stdenv.lib.optionalString stdenv.isDarwin ''
+  #     substituteInPlace config \
+  #     --replace 'LIB_OPTION= -shared' '###' \
+  #     --replace '#LIB_OPTION= -bundle' 'LIB_OPTION= -bundle'
+  #     substituteInPlace Makefile --replace '10.3' '10.5'
+  #   '';
 
-    meta = with stdenv.lib; {
-      description = "Lua library complementing filesystem-related functions";
-      homepage = "https://github.com/keplerproject/luafilesystem";
-      license = licenses.mit;
-      maintainers = with maintainers; [ flosse ];
-      platforms = platforms.unix;
-    };
-  };
+  #   meta = with stdenv.lib; {
+  #     description = "Lua library complementing filesystem-related functions";
+  #     homepage = "https://github.com/keplerproject/luafilesystem";
+  #     license = licenses.mit;
+  #     maintainers = with maintainers; [ flosse ];
+  #     platforms = platforms.unix;
+  #   };
+  # };
 
   luaposix = buildLuaPackage rec {
     name = "posix-${version}";
