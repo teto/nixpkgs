@@ -33,7 +33,7 @@ stdenv.mkDerivation rec {
   src = /home/teto/dce;
 
   buildInputs = [ ns3forDce gcc ]
-    # ++ stdenv.lib.optionals 
+    # ++ stdenv.lib.optionals
     ;
 
   nativeBuildInputs = [ pkgconfig ];
@@ -48,7 +48,7 @@ stdenv.mkDerivation rec {
 
     # make configure
     # TODO limit modules so that it gets faster
-    ./waf configure --prefix=$out \
+    python3 ./waf configure --prefix=$out \
     --with-ns3=${ns3forDce} \
       ${stdenv.lib.optionalString (!withExamples) "--disable-examples"}
       '' + stdenv.lib.optionalString doCheck " --enable-tests \\" + ''
