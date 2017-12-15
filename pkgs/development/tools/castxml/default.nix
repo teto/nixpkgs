@@ -39,7 +39,8 @@ stdenv.mkDerivation rec {
     # see https://github.com/CastXML/CastXML/issues/90
     ctest -E 'cmd.cc-(gnu|msvc)-((c-src-c)|(src-cxx))-cmd'
   '';
-
+  # c pour ca qu on aviat le truc
+  # warning: argument unused during compilation: '-nostdlibinc' [-Wunused-command-line-argument]
   # to prevent
   # g++: erreur : unrecognized command line option « -stdlib=libstdc++ »;
   # did you mean -static-libstdc++
