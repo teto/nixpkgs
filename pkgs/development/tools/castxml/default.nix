@@ -40,6 +40,15 @@ stdenv.mkDerivation rec {
     ctest -E 'cmd.cc-(gnu|msvc)-((c-src-c)|(src-cxx))-cmd'
   '';
 
+  # to prevent
+  # g++: erreur : unrecognized command line option « -stdlib=libstdc++ »;
+  # did you mean -static-libstdc++
+  # see NIX_CXXSTDLIB_COMPILE
+  # https://github.com/NixOS/nixpkgs/issues/29877
+  shellHook=''
+    export NIX_CXXSTDLIB_COMPILE="";
+  '';
+
   meta = with stdenv.lib; {
     homepage = https://www.kitware.com;
     license = licenses.asl20;

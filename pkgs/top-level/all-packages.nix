@@ -113,7 +113,13 @@ with pkgs;
 
   buildMaven = callPackage ../build-support/build-maven.nix {};
 
-  castxml = callPackage ../development/tools/castxml { };
+  castxml = callPackage ../development/tools/castxml {
+    # stdenv = llvmPackages_5.libcxxStdenv;
+    # clang = clang_5;
+    llvmPackages = llvmPackages_5;
+
+    # stdenv = clangStdenv;
+  };
 
   cmark = callPackage ../development/libraries/cmark { };
 
