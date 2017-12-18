@@ -1,5 +1,7 @@
 { stdenv, fetchFromGitHub, autoreconfHook, libtool, intltool, pkgconfig
 , ns-3, gcc
+, castxml, python3
+# pygccxml
 , lib
 , withDoc ? false
 , withManual ? false
@@ -18,6 +20,8 @@ let
   ++ lib.optionals withExamples []
   ;
   ns3forDce = ns-3.override( { inherit modules; });
+
+  pythonEnv = python3.withPackages (ps: with ps; [ pygccxml ]);
 in
 stdenv.mkDerivation rec {
   name    = "${pname}-${version}";
@@ -32,7 +36,7 @@ stdenv.mkDerivation rec {
   # };
   src = /home/teto/dce;
 
-  buildInputs = [ ns3forDce gcc ]
+  buildInputs = [ ns3forDce gcc castxml pythonEnv ]
     # ++ stdenv.lib.optionals
     ;
 

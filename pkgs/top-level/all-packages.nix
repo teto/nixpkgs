@@ -20544,6 +20544,8 @@ with pkgs;
     python=python3;
   };
 
+  dce = callPackage ../development/libraries/science/networking/ns3/dce.nix {};
+
   root = callPackage ../applications/science/misc/root {
     inherit (darwin.apple_sdk.frameworks) Cocoa OpenGL;
   };
