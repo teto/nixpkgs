@@ -1,4 +1,6 @@
-{ stdenv, fetchFromGitHub, bc, python, fuse, libarchive }:
+{ stdenv, fetchFromGitHub, bc, python, fuse, libarchive,
+btrfs-progs, xfsprogs, stress-ng
+}:
 
 stdenv.mkDerivation rec {
   name = "lkl-2017-11-10";
@@ -6,7 +8,8 @@ stdenv.mkDerivation rec {
 
   outputs = [ "dev" "lib" "out" ];
 
-  nativeBuildInputs = [ bc python ];
+  nativeBuildInputs = [ bc python ]
+    ++ stdenv.lib.optionals doCheck [ btrfs-progs xfsprogs stress-ng];
 
   buildInputs = [ fuse libarchive ];
 
@@ -18,7 +21,10 @@ stdenv.mkDerivation rec {
   };
 
   # Fix a /usr/bin/env reference in here that breaks sandboxed builds
-  prePatch = "patchShebangs arch/lkl/scripts";
+  prePatch = ''
+    patchShebangs arch/lkl/scripts
+    patchShebangs tools/lkl
+  '';
 
   installPhase = ''
     mkdir -p $out/bin $lib/lib $dev
@@ -40,6 +46,14 @@ stdenv.mkDerivation rec {
   makeFlags = "-C tools/lkl";
 
   enableParallelBuilding = true;
+
+  # will ask for sudo
+  checkPhase=''
+    make -C tools/lkl tests
+  '';
+
+  # tests require root access so they can't be automated
+  doCheck=true;
 
   meta = with stdenv.lib; {
     description = "The Linux kernel as a library";
