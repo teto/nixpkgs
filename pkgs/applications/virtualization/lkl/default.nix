@@ -1,5 +1,6 @@
 { stdenv, fetchFromGitHub, bc, python, fuse, libarchive,
-btrfs-progs, xfsprogs, stress-ng
+btrfs-progs ? null, xfsprogs ? null, stress-ng ? null
+, pkgconfig
 }:
 
 stdenv.mkDerivation rec {
@@ -8,7 +9,7 @@ stdenv.mkDerivation rec {
 
   outputs = [ "dev" "lib" "out" ];
 
-  nativeBuildInputs = [ bc python ]
+  nativeBuildInputs = [ bc python pkgconfig ]
     ++ stdenv.lib.optionals doCheck [ btrfs-progs xfsprogs stress-ng];
 
   buildInputs = [ fuse libarchive ];

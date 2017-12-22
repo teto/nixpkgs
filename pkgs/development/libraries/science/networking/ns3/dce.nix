@@ -1,6 +1,7 @@
 { stdenv, fetchFromGitHub, autoreconfHook, libtool, intltool, pkgconfig
 , ns-3, gcc
 , castxml, python3
+, musl-franken
 # pygccxml
 , lib
 , withDoc ? false

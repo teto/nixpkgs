@@ -13461,6 +13461,8 @@ with pkgs;
 
   lkl = callPackage ../applications/virtualization/lkl { };
 
+  lkl-rumprun = callPackage ../applications/virtualization/lkl { };
+
   inherit (callPackages ../os-specific/linux/kernel-headers { })
     linuxHeaders;
 
@@ -13905,6 +13907,36 @@ with pkgs;
 
   nettools = if stdenv.isLinux then callPackage ../os-specific/linux/net-tools { }
              else unixtools.nettools;
+
+
+  # addition for dce
+  frankenlibc = callPackage ../development/tools/frankenlibc {
+    # with lkl
+  };
+
+  # copied from adapters.nix
+  # makeStaticBinaries = stdenv: stdenv //
+  #   { mkDerivation = args: stdenv.mkDerivation (args // {
+  #       NIX_CFLAGS_LINK = "-static";
+  #       configureFlags =
+  #         toString args.configureFlags or ""
+  #         + " --disable-shared"; # brrr...
+  #     });
+  #     isStatic = true;
+  #   };
+  frankenlibcEnv = stdenv: stdenv // {
+    # todo/
+    #
+    # RUMP_VERBOSE=false;
+    NIX_CFLAGS_LINK = "CC=${frankenlibc}/bin/rumprun";
+    # or preConfigure = CC=
+  };
+
+  # musl-franken = musl.overrideAttrs(old: {
+  #   # TODO might add flags
+  #   # use franken branch
+  #   src = /home/teto/musl;
+  # });
 
   nftables = callPackage ../os-specific/linux/nftables { };
 

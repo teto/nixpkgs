@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, openssl, fetchpatch }:
+{ stdenv, fetchurl, openssl, fetchpatch, file}:
 
 stdenv.mkDerivation rec {
   name = "iperf-3.5";
@@ -8,7 +8,7 @@ stdenv.mkDerivation rec {
     sha256 = "1m9cyycv70s8nlbgr1lqwr155ixk17np0nzqgwaw3f51vkndk6sk";
   };
 
-  buildInputs = [ openssl ];
+  buildInputs = [ openssl file ];
 
   patches = stdenv.lib.optionals stdenv.hostPlatform.isMusl [
     (fetchpatch {
@@ -18,12 +18,23 @@ stdenv.mkDerivation rec {
     })
   ];
 
+
+  # TODO move this to a specific dce-packages set
+  postPatch=''
+    substituteInPlace src/Makefile.am --replace "-pg" ""
+  '';
+
+  configureFlags= [ "--disable-shared" ];
+
+  # try with -fPIC
+  # makeFlags = [ ]
+
   postInstall = ''
     ln -s iperf3 $out/bin/iperf
   '';
 
   meta = with stdenv.lib; {
-    homepage = http://software.es.net/iperf/; 
+    homepage = http://software.es.net/iperf/;
     description = "Tool to measure IP bandwidth using UDP or TCP";
     platforms = platforms.unix;
     license = "as-is";
