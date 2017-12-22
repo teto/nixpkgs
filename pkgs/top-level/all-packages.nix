@@ -134,7 +134,7 @@ with pkgs;
 
   ebook2cw = callPackage ../applications/misc/ebook2cw { };
 
-  exch = callPackage ../tools/misc/exch { };
+  exch = callPackage ../tools/misc/exch { python=python3; };
 
   vsenv = callPackage ../build-support/vsenv {
     vs = vs90wrapper;
