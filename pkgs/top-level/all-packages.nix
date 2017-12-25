@@ -13459,7 +13459,11 @@ with pkgs;
 
   # -- Linux kernel expressions ------------------------------------------------
 
-  lkl = callPackage ../applications/virtualization/lkl { };
+  lkl = (callPackage ../applications/virtualization/lkl { }) {
+    host="posix";
+  };
+
+  lkl-dce = callPackage ../applications/virtualization/lkl { };
 
   lkl-rumprun = callPackage ../applications/virtualization/lkl { };
 
@@ -13924,13 +13928,15 @@ with pkgs;
   #     });
   #     isStatic = true;
   #   };
-  frankenlibcEnv = stdenv: stdenv // {
-    # todo/
-    #
-    # RUMP_VERBOSE=false;
-    NIX_CFLAGS_LINK = "CC=${frankenlibc}/bin/rumprun";
-    # or preConfigure = CC=
-  };
+  # overrideCC = stdenv: cc: stdenv.override { allowedRequisites = null; cc = cc; };
+  frankenlibcEnv = overrideCC stdenv ;
+  #stdenv: stdenv // {
+  #  # todo/
+  #  #
+  #  # RUMP_VERBOSE=false;
+  #  NIX_CFLAGS_LINK = "CC=${frankenlibc}/bin/rumprun";
+  #  # or preConfigure = CC=
+  #};
 
   # musl-franken = musl.overrideAttrs(old: {
   #   # TODO might add flags

@@ -13,14 +13,17 @@
 # pygccxml
 }:
 
+let
+  # lkl-franken = lkl.overrideAttrs(;
+in
 stdenv.mkDerivation rec {
   name    = "${pname}-${version}";
   pname   = "frankenlibc";
   version = "20171220";
 
   # src = fetchFromGitHub {
-  #   owner  = "direct-code-execution/";
-  #   repo   = "ns-3-dce";
+  #   owner  = "teto";
+  #   repo   = "frankenlibc";
   #   rev    = "${version}";
   #   sha256 = "1mvn0z1vl4j9drl3dsw2dv0pppqvj29d2m07487dzzi8cbxrqj36";
   # };
@@ -58,6 +61,8 @@ stdenv.mkDerivation rec {
     export TOOLDIR="$PWD/src/tools"
     export RELEASEDIR="$PWD/releasedir"
     export TMPDIR=/tmp
+    # TODO need to patch it
+    export LKL_SRCDIR="${lkl}"
 
     # TODO try to use lkl patched sources at least ?
     export LKL_SRCDIR=/tmp

@@ -1,8 +1,14 @@
 { stdenv, fetchFromGitHub, bc, python, fuse, libarchive,
 btrfs-progs ? null, xfsprogs ? null, stress-ng ? null
 , pkgconfig
+
+# when building LKL with dceHost
+, dce ? null
 }:
 
+# valid values are "dce"/"posix"
+# TODO export dce Headers
+{ host ? "posix" }:
 stdenv.mkDerivation rec {
   name = "lkl-2018-03-10";
   rev  = "8772a4da6064444c5b70766b806fe272b0287c31";
@@ -10,7 +16,9 @@ stdenv.mkDerivation rec {
   outputs = [ "dev" "lib" "out" ];
 
   nativeBuildInputs = [ bc python pkgconfig ]
-    ++ stdenv.lib.optionals doCheck [ btrfs-progs xfsprogs stress-ng];
+  ++ stdenv.lib.optionals doCheck [ btrfs-progs xfsprogs stress-ng]
+  # ++ stdenv.lib.optionals (host == "dce") [dce.dev]
+  ;
 
   buildInputs = [ fuse libarchive ];
 
