@@ -21,13 +21,13 @@ stdenv.mkDerivation rec {
   pname   = "frankenlibc";
   version = "20171220";
 
-  # src = fetchFromGitHub {
-  #   owner  = "teto";
-  #   repo   = "frankenlibc";
-  #   rev    = "${version}";
-  #   sha256 = "1mvn0z1vl4j9drl3dsw2dv0pppqvj29d2m07487dzzi8cbxrqj36";
-  # };
-  src = /home/teto/frankenlibc;
+  src = fetchFromGitHub {
+    owner  = "teto";
+    repo   = "frankenlibc";
+    rev    = "${version}";
+    sha256 = "1mvn0z1vl4j9drl3dsw2dv0pppqvj29d2m07487dzzi8cbxrqj36";
+  };
+  # src = /home/teto/frankenlibc;
 
   buildInputs = []
     # ++ stdenv.lib.optionals
@@ -36,7 +36,7 @@ stdenv.mkDerivation rec {
   # -O2
   # NIX_CFLAGS=""
   # disable hardening else the CC wrapper adds fucking flags that get in the way
-  hardeningDisable = [ "all" ];
+  hardeningDisable = if (lkl?hardeningDisable) then lkl.hardeningDisable else [ "all" ];
 
   # libarchive-dev
   nativeBuildInputs = [ git pkgconfig fuse zlib libarchive.dev ] ++ lkl.nativeBuildInputs;
@@ -54,28 +54,57 @@ stdenv.mkDerivation rec {
     '';
 
 
+  # export LKL_SRCDIR="${lkl}"
   buildPhase = ''
     # else it fails to find
     # TODO set RELEASEDIR
     export HOST_SH="${bash}/bin/sh"
     export TOOLDIR="$PWD/src/tools"
+    # TODO change it ?
     export RELEASEDIR="$PWD/releasedir"
     export TMPDIR=/tmp
     # TODO need to patch it
-    export LKL_SRCDIR="${lkl}"
 
     # TODO try to use lkl patched sources at least ?
-    export LKL_SRCDIR=/tmp
+    # export LKL_SRCDIR=/tmp
     echo "hello wrold"
 
     # -k rumpkernel type = linux
+    # -d installFolder
     # paltform linux
-    ./build.sh -q -k linux linux notests
+    ./build.sh -q -k linux linux notests -d $out -b $out/bin
 
     '';
 
+	# printf "Usage: $0 [-h] [options] [platform]\n"
+	# printf "supported options:\n"
+	# printf "\t-k: type of rump kernel [netbsd|linux]. default linux\n"
+	# printf "\t-L: libraries to link eg net_netinet,net_netinet6. default all\n"
+	# printf "\t-m: hardcode rump memory limit. default from env or unlimited\n"
+	# printf "\t-M: thread stack size. default: 64k\n"
+	# printf "\t-p: huge page size to use eg 2M or 1G\n"
+	# printf "\t-r: release build, without debug settings\n"
+	# printf "\t-s: location of source tree.  default: PWD/rumpsrc\n"
+	# printf "\t-o: location of object files. default PWD/rumpobj\n"
+	# printf "\t-d: location of installed files. default PWD/rump\n"
+	# printf "\t-b: location of binaries. default PWD/rump/bin\n"
+	# printf "\tseccomp|noseccomp: select Linux seccomp (default off)\n"
+	# printf "\texecveat: use new linux execveat call default off)\n"
+	# printf "\tcapsicum|nocapsicum: select FreeBSD capsicum (default on)\n"
+	# printf "\tdeterministic: make deterministic\n"
+	# printf "\tnotests: do not run tests\n"
+	# printf "\tnotools: do not build extra tools\n"
+	# printf "\tclean: clean object directory first\n"
+	# printf "Other options are passed to buildrump.sh\n"
+	# printf "\n"
+	# printf "Supported platforms are currently: linux, netbsd, freebsd, qemu-arm, spike\n"
+	# exit 1
+
+
     # mv from rumprun ?
-  # installPhase=
+  installPhase=''
+    mkdir -p $out/bin
+  '';
 
   # with-ns3 should be install folder
   doCheck=false;

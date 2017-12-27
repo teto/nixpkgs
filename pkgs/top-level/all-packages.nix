@@ -13463,9 +13463,21 @@ with pkgs;
     host="posix";
   };
 
-  lkl-dce = callPackage ../applications/virtualization/lkl { };
+  lkl-dce = callPackage ../applications/virtualization/lkl {
+    host="dce";
+  };
 
-  lkl-rumprun = callPackage ../applications/virtualization/lkl { };
+  # really it is "frankenlibc-ed" instead
+  lkl-rumprun = lkl.overrideAttrs(old: {
+    # maybe configure
+    nativeBuildInputs= old.nativeBuildInputs ++ [ frankenlibc ];
+
+    # replac with prebuild if needed
+    preConfigure=''
+      export CC=${frankenlibc}/rumprun-cc
+      '';
+
+  });
 
   inherit (callPackages ../os-specific/linux/kernel-headers { })
     linuxHeaders;
