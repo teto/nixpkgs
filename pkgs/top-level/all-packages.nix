@@ -13925,6 +13925,17 @@ with pkgs;
              else unixtools.nettools;
 
 
+  musl-frankenlibc = musl.overrideAttrs( old: {
+    src = fetchFromGitHub {
+      owner="libos-nuse";
+      repo="musl";
+      # there is a "franken" branch
+      # rev="";
+      branch="franken";
+      sha256 = "0p2sxrpzd0vsk11zf3kb5h12yl1nq4yypb5mpjrm8ww0cfaijck2";
+    };
+  });
+
   # addition for dce
   frankenlibc = callPackage ../development/tools/frankenlibc {
     # with lkl

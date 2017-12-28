@@ -7,6 +7,7 @@ btrfs-progs ? null, xfsprogs ? null, stress-ng ? null
 }:
 
 # valid values are "dce"/"posix"
+# fetch musl
 # TODO export dce Headers
 { host ? "posix" }:
 stdenv.mkDerivation rec {
@@ -33,6 +34,12 @@ stdenv.mkDerivation rec {
   prePatch = ''
     patchShebangs arch/lkl/scripts
     patchShebangs tools/lkl
+  '';
+
+  postPatch=''
+    #
+    ln -s ${musl-frankenlibc.src} musl
+    ln -s ${lkl.src} linux
   '';
 
   installPhase = ''

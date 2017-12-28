@@ -8,26 +8,31 @@
 , fuse
 , bash
 , zlib
-, lkl
 , libarchive
 # pygccxml
+# todo to make them accessible
+, musl-frankenlibc
+, lkl
 }:
 
 let
   # lkl-franken = lkl.overrideAttrs(;
+  lkl_src = /home/teto/lkl;
+  # musl_src = ;
 in
 stdenv.mkDerivation rec {
   name    = "${pname}-${version}";
   pname   = "frankenlibc";
   version = "20171220";
 
-  src = fetchFromGitHub {
-    owner  = "teto";
-    repo   = "frankenlibc";
-    rev    = "${version}";
-    sha256 = "1mvn0z1vl4j9drl3dsw2dv0pppqvj29d2m07487dzzi8cbxrqj36";
-  };
-  # src = /home/teto/frankenlibc;
+  # src = fetchFromGitHub {
+  #   owner  = "teto";
+  #   repo   = "frankenlibc";
+  #   rev    = "98c005807ba79b6d7027860d523c7e5f77001018";
+  #   sha256 = "1myq0nbhrx2zna0sjazbyk4i0f0hmv3dnvdl9j1hqnfdj4fgj9zr";
+  #   fetchSubmodules=true;
+  # };
+  src = /home/teto/frankenlibc;
 
   buildInputs = []
     # ++ stdenv.lib.optionals
@@ -40,7 +45,7 @@ stdenv.mkDerivation rec {
 
   # libarchive-dev
   nativeBuildInputs = [ git pkgconfig fuse zlib libarchive.dev ] ++ lkl.nativeBuildInputs;
-  # autoreconfHook libtool
+  # autoreconfHook libtoog
 
 
   # CC wrapper must end up in rump/bin/
@@ -56,6 +61,7 @@ stdenv.mkDerivation rec {
 
   # export LKL_SRCDIR="${lkl}"
   buildPhase = ''
+    set -x
     # else it fails to find
     # TODO set RELEASEDIR
     export HOST_SH="${bash}/bin/sh"
@@ -72,8 +78,12 @@ stdenv.mkDerivation rec {
     # -k rumpkernel type = linux
     # -d installFolder
     # paltform linux
-    ./build.sh -q -k linux linux notests -d $out -b $out/bin
-
+    #  -d $out
+    # ./build.sh -q -k linux linux notests
+    # the platform is checked  in PWD/platforms
+    ./build.sh linux notests
+    # -b $out/bin
+    set +x
     '';
 
 	# printf "Usage: $0 [-h] [options] [platform]\n"
@@ -104,6 +114,7 @@ stdenv.mkDerivation rec {
     # mv from rumprun ?
   installPhase=''
     mkdir -p $out/bin
+    cp -r bin $bin
   '';
 
   # with-ns3 should be install folder
