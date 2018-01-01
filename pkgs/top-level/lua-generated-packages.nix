@@ -8,6 +8,21 @@
 }:
 with self;
 rec {
+mpack = buildLuaPackage rec {
+name="mpack";
+meta={
+license=stdenv.lib.licenses.mit;
+description="Lua binding to libmpack";
+homepage="https://github.com/libmpack/libmpack-lua/releases/download/1.0.6/libmpack-lua-1.0.6.tar.gz"; }
+;
+propagatedBuildInputs=[];
+src= fetchurl {
+url="https://luarocks.org/mpack-1.0.6-0.src.rock";
+sha256="0pydlhgdfbchslizm69h5w5ddalhzaq71hlbl5z2miq7yk9xjs4h"; }
+;
+version="1.0.6-0"; }
+;
+
 ansicolors = buildLuaPackage rec {
 propagatedBuildInputs=[ lua];
 name="ansicolors";

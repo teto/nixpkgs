@@ -105,7 +105,7 @@ let
       ncurses
       neovimLibvterm
       unibilium
-#       # luajit
+#    luajit
       luaPackages.lua
       gperf
     ] ++ optional withJemalloc jemalloc
@@ -126,13 +126,7 @@ let
     # LUA_PATH = stdenv.lib.concatStringsSep ";" (map luaPackages.getLuaPath lualibs);
     # LUA_CPATH = stdenv.lib.concatStringsSep ";" (map luaPackages.getLuaCPath lualibs);
 
-<<<<<<< HEAD
-    lualibs = [ luaPackages.mpack luaPackages.lpeg luaPackages.luabitop ];
-||||||| merged common ancestors
-    lualibs = [ luaPackages.mpack luaPackages.lpeg luajitPackages.lpeg luaPackages.luabitop ];
-=======
     lualibs = with luaPackages; [ mpack lpeg luabitop ];
->>>>>>> merging l2tp brnach
 
     cmakeFlags = [
       "-DLUA_PRG=${luaPackages.lua}/bin/lua"

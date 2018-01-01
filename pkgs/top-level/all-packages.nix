@@ -17380,7 +17380,8 @@ with pkgs;
   vimpc = callPackage ../applications/audio/vimpc { };
 
   neovim = callPackage ../applications/editors/neovim {
-    luaPackages = luajitPackages;
+    # only lua52 was modified thus we need to test against it
+    luaPackages = lua52Packages;
   };
 
   neovim-qt = libsForQt5.callPackage ../applications/editors/neovim/qt.nix { };

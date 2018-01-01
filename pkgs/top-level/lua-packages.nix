@@ -78,6 +78,21 @@ let
     inherit buildLuaPackage;
   };
 
+  mediator_lua = buildLuaPackage rec {
+  meta={
+  homepage="http://olivinelabs.com/mediator_lua/";
+  license=stdenv.lib.licenses.mit;
+  description="Event handling through channels"; }
+  ;
+  src= fetchurl {
+  url="http://luarocks.org/manifests/teto/mediator_lua-1.1.2-0.src.rock";
+  sha256="18j49vvs94yfk4fw0xsq4v3j4difr6c99gfba0kxairmcqamd1if"; }
+  ;
+  propagatedBuildInputs=[ lua];
+  version="1.1.2-0";
+  name="mediator_lua"; }
+  ;
+
   luabitop = buildLuaPackage rec {
     version = "1.0.2";
     name = "bitop-${version}";
@@ -644,13 +659,11 @@ let
 
     NIX_DEBUG=1;
 
-    src = fetchrock {
-    # src = fetchzip {
-      stripRoot=false;
-      # name="${name}.zip";
+    src = fetchurl {
+      # stripRoot=false;
       url="https://luarocks.org/manifests/gvvaughan/lpeg-1.0.1-1.src.rock";
-      # url = "http://www.inf.puc-rio.br/~roberto/lpeg/${name}.tar.gz";
-      sha256 = "0a8gw1ma9farlrc4y2ax1jp2s71132jr7gvscxh72xr0bax352ps";
+      # sha256 = "0a8gw1ma9farlrc4y2ax1jp2s71132jr7gvscxh72xr0bax352ps";
+      sha256= "17ganb7sd4cd6l1zy00dr9717pcqngcn8wpafx7nki2m04gf76ql";
       # extraPostFetch = ''
       #   # tar xvf
       #   #       unpackFile "$renamed"
@@ -752,41 +765,41 @@ let
     };
   };
 
-  mpack = buildLuaPackage rec {
-    name = "mpack-${version}";
-    version = "1.0.7";
+  # mpack = buildLuaPackage rec {
+  #   name = "mpack-${version}";
+  #   version = "1.0.7";
 
-    src = fetchFromGitHub {
-      owner = "libmpack";
-      repo = "libmpack-lua";
-      rev = version;
-      sha256 = "1nydi6xbmxwl1fmi32v5v8n74msnmzblzqaqnb102w6vkinampsb";
-    };
+  #   src = fetchFromGitHub {
+  #     owner = "libmpack";
+  #     repo = "libmpack-lua";
+  #     rev = version;
+  #     sha256 = "1nydi6xbmxwl1fmi32v5v8n74msnmzblzqaqnb102w6vkinampsb";
+  #   };
 
-    nativeBuildInputs = [ pkgconfig ];
-    buildInputs = [ libmpack ];
-    dontBuild = true;
+  #   nativeBuildInputs = [ pkgconfig ];
+  #   buildInputs = [ libmpack ];
+  #   dontBuild = true;
 
-    postPatch = stdenv.lib.optionalString stdenv.isDarwin ''
-      substituteInPlace Makefile \
-        --replace '-shared' '-bundle -undefined dynamic_lookup -all_load'
-    '';
+  #   postPatch = stdenv.lib.optionalString stdenv.isDarwin ''
+  #     substituteInPlace Makefile \
+  #       --replace '-shared' '-bundle -undefined dynamic_lookup -all_load'
+  #   '';
 
-    installFlags = [
-      "USE_SYSTEM_LUA=yes"
-      "USE_SYSTEM_MPACK=yes"
-      "MPACK_LUA_VERSION=${lua.version}"
-      "LUA_CMOD_INSTALLDIR=$(out)/lib/lua/${lua.luaversion}"
-    ];
+  #   installFlags = [
+  #     "USE_SYSTEM_LUA=yes"
+  #     "USE_SYSTEM_MPACK=yes"
+  #     "MPACK_LUA_VERSION=${lua.version}"
+  #     "LUA_CMOD_INSTALLDIR=$(out)/lib/lua/${lua.luaversion}"
+  #   ];
 
-    meta = with stdenv.lib; {
-      description = "Lua bindings for libmpack";
-      homepage = "https://github.com/libmpack/libmpack-lua";
-      license = licenses.mit;
-      maintainers = with maintainers; [ vyp ];
-      platforms = with platforms; linux ++ darwin;
-    };
-  };
+  #   meta = with stdenv.lib; {
+  #     description = "Lua bindings for libmpack";
+  #     homepage = "https://github.com/libmpack/libmpack-lua";
+  #     license = licenses.mit;
+  #     maintainers = with maintainers; [ vyp ];
+  #     platforms = with platforms; linux ++ darwin;
+  #   };
+  # };
 
   vicious = stdenv.mkDerivation rec {
     name = "vicious-${version}";

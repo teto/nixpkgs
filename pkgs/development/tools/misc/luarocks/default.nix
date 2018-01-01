@@ -1,5 +1,6 @@
 {stdenv, fetchurl, lua, curl, makeWrapper, which, unzip
 , cjson ? null
+, zip
 }:
 let
   s = # Generated upstream information
@@ -51,7 +52,7 @@ stdenv.mkDerivation {
 
   setupHook = ./setup-hook.sh;
 
-  propagatedBuildInputs = [ unzip ];
+  propagatedBuildInputs = [ zip unzip ];
 
   meta = {
     inherit (s) version;
