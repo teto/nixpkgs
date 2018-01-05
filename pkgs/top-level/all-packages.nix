@@ -13463,9 +13463,11 @@ with pkgs;
     host="posix";
   };
 
-  lkl-dce = callPackage ../applications/virtualization/lkl {
+  lkl-dce = (callPackage ../applications/virtualization/lkl {
     host="dce";
-  };
+  }).overrideAttrs(old:{
+    src=/home/teto/lkl;
+  });
 
   # really it is "frankenlibc-ed" instead
   lkl-rumprun = lkl.overrideAttrs(old: {
@@ -20606,6 +20608,11 @@ with pkgs;
   };
 
   dce = callPackage ../development/libraries/science/networking/ns3/dce.nix {};
+
+  # override to pass a custom lkl, lkl-dce
+  dce-next = dce.overrideAttrs(old: {
+
+  });
 
   root = callPackage ../applications/science/misc/root {
     inherit (darwin.apple_sdk.frameworks) Cocoa OpenGL;

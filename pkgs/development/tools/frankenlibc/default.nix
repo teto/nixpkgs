@@ -58,6 +58,10 @@ stdenv.mkDerivation rec {
     # patchShebangs rump/
     '';
 
+  # preBuild=''
+  # # ln -s ${musl-frankenlibc.src} musl
+  #   # ln -s ${lkl.src} linux
+  #   '';
 
   # export LKL_SRCDIR="${lkl}"
   buildPhase = ''

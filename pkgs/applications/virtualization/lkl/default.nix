@@ -1,7 +1,7 @@
 { stdenv, fetchFromGitHub, bc, python, fuse, libarchive,
 btrfs-progs ? null, xfsprogs ? null, stress-ng ? null
 , pkgconfig
-
+, musl-frankenlibc
 # when building LKL with dceHost
 , dce ? null
 }:
@@ -36,11 +36,10 @@ stdenv.mkDerivation rec {
     patchShebangs tools/lkl
   '';
 
-  postPatch=''
-    #
-    ln -s ${musl-frankenlibc.src} musl
-    ln -s ${lkl.src} linux
-  '';
+
+  #postPatch=''
+  #  #
+  #'';
 
   installPhase = ''
     mkdir -p $out/bin $lib/lib $dev
@@ -60,6 +59,8 @@ stdenv.mkDerivation rec {
   #   crypto/jitterentropy.c:54:3: error: #error "The CPU Jitter random number generator must not be compiled with optimizations. See documentation. Use the compiler switch -O0 for compiling jitterentropy.c."
   hardeningDisable = [ "format" "fortify" ];
 
+  # TODO we should have the host
+  # TODO set OUTPUT_FORMAT !
   makeFlags = "-C tools/lkl";
 
   enableParallelBuilding = true;
@@ -70,7 +71,7 @@ stdenv.mkDerivation rec {
   '';
 
   # tests require root access so they can't be automated
-  doCheck=true;
+  doCheck=false;
 
   meta = with stdenv.lib; {
     description = "The Linux kernel as a library";
