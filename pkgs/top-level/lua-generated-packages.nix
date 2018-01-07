@@ -9,7 +9,7 @@
 with self;
 rec {
 mpack = buildLuaPackage rec {
-name="mpack";
+pname="mpack";
 meta={
 license=stdenv.lib.licenses.mit;
 description="Lua binding to libmpack";
@@ -25,7 +25,7 @@ version="1.0.6-0"; }
 
 ansicolors = buildLuaPackage rec {
 propagatedBuildInputs=[ lua];
-name="ansicolors";
+pname="ansicolors";
 src= fetchurl {
 sha256="1mhmr090y5394x1j8p44ws17sdwixn5a0r4i052bkfgk3982cqfz";
 url="https://luarocks.org/ansicolors-1.0.2-3.src.rock"; }
@@ -38,7 +38,7 @@ description="Library for color Manipulation."; }
 version="1.0.2-3"; }
 ;
 busted = buildLuaPackage rec {
-name="busted";
+pname="busted";
 src= fetchurl {
 url="https://luarocks.org/busted-2.0.rc3-0.src.rock";
 sha256="10z1chfy84k8mrzapn61537lcv1spw3zcr0aq9ib1y4ba9rfds5z"; }
@@ -61,12 +61,12 @@ src= fetchurl {
 sha256="1qy9bzqnb9pf9d48hik4iq8h68aw3270kmax7mmpvvpw7kkyp483";
 url="https://luarocks.org/dkjson-2.5-2.src.rock"; }
 ;
-name="dkjson";
+pname="dkjson";
 propagatedBuildInputs=[ lua];
 version="2.5-2"; }
 ;
 lua-cmsgpack = buildLuaPackage rec {
-name="lua-cmsgpack";
+pname="lua-cmsgpack";
 meta={
 homepage="http://github.com/antirez/lua-cmsgpack";
 description="MessagePack C implementation and bindings for Lua 5.1";
@@ -86,7 +86,7 @@ src= fetchurl {
 sha256="1m17pxirngpm5b1k71rqs8zlwwav1rv52z8d4w8kmj0xn4kvcrfi";
 url="https://luarocks.org/lua_cliargs-3.0-1.src.rock"; }
 ;
-name="lua_cliargs";
+pname="lua_cliargs";
 meta={
 license=stdenv.lib.licenses.mit;
 description="A command-line argument parser.";
@@ -99,7 +99,7 @@ url="https://luarocks.org/luassert-1.7.5-0.src.rock";
 sha256="061si4bdlqgmk5787iqnsny3wibprcp8c53v44v7s54y5r9l2hrq"; }
 ;
 version="1.7.5-0";
-name="luassert";
+pname="luassert";
 propagatedBuildInputs=[ lua say];
 meta={
 description="Lua Assertions Extension";
@@ -117,12 +117,12 @@ src= fetchurl {
 url="https://luarocks.org/lua-term-0.3-1.src.rock";
 sha256="1bxfaskb30hpcaz8jmv5mshp56dgxlc2bm6fgf02z556cdy3kapm"; }
 ;
-name="lua-term";
+pname="lua-term";
 version="0.3-1";
 propagatedBuildInputs=[]; }
 ;
 luasocket = buildLuaPackage rec {
-name="luasocket";
+pname="luasocket";
 propagatedBuildInputs=[ lua];
 version="3.0rc1-2";
 meta={
@@ -142,7 +142,7 @@ sha256="08jqlmmskbi1ml1i34dlmg6hxcs60nlm32dahpxhcrgjnfihmyn8";
 url="https://luarocks.org/ltermbox-0.2-1.src.rock"; }
 ;
 version="0.2-1";
-name="ltermbox";
+pname="ltermbox";
 meta={
 homepage="http://code.google.com/p/termbox";
 description="A termbox library package";
@@ -155,7 +155,7 @@ src= fetchurl {
 url="https://luarocks.org/luafilesystem-1.7.0-2.src.rock";
 sha256="0xhmd08zklsgpnpjr9rjipah35fbs8jd4v4va36xd8bpwlvx9rk5"; }
 ;
-name="luafilesystem";
+pname="luafilesystem";
 propagatedBuildInputs=[ lua];
 meta={
 description="File System Library for the Lua Programming Language";
@@ -165,7 +165,7 @@ homepage="git://github.com/keplerproject/luafilesystem"; }
 ;
 penlight = buildLuaPackage rec {
 version="1.3.1-1";
-name="penlight";
+pname="penlight";
 propagatedBuildInputs=[ luafilesystem];
 src= fetchurl {
 sha256="10w7yf1n3nrr5ima9aggs9zd7mwiynb29df4vl2qb6ca0p2zrihk";

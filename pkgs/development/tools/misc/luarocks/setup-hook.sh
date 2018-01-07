@@ -31,6 +31,6 @@ _trySourceRock() {
     #     mkdir $out
     #   fi
 
-    echo "LUAROCKS UNPACK on $curSrc"
+    echo "FINISHED unpack on $curSrc"
 }
 

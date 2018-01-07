@@ -12,8 +12,9 @@
 , ensureNewerSourcesHook
 }:
 
-{ name
-
+{
+pname
+# name ? "${attrs.pname}-${attrs.version}"
 , version
 # by default prefix `name` e.g. "python3.3-${name}"
 , namePrefix ? lua.name + "-"
@@ -59,7 +60,7 @@
 # Keep extra attributes from `attrs`, e.g., `patchPhase', etc.
 if disabled
 # .executable
-then throw "${name} not supported for interpreter ${lua}"
+then throw "${pname} not supported for interpreter ${lua}"
 else
 
 let
@@ -75,7 +76,8 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
 
   # pname = name;
   # TODO fix
-  pname = namePrefix + name;
+  name = namePrefix + "${attrs.pname}-${attrs.version}";
+  # (builtins.parseDrvName ).name
     # name = "lua${lua.luaversion}-" + attrs.name;
 
   # inherit luaPath;
@@ -127,9 +129,17 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
     # perl -0pe 's/dependencies = {((.|\n)+?)}//g' ${rockspec_name} > ${rockspec_name}
     # perl -0pe 's/dependencies = {((.|\n)+?)}//g'  lua_cliargs-3.0-1.rockspec
   # '';
+
+  # unpackPhase=''
+
+  #   output=$(luarocks unpack --verbose --force "$renamed")
+  #   # TODO look for the
+  #   '';
+
   # that works only for src.rock !
+  # stripVersion
   setSourceRoot=''
-    folder=$(find .  -mindepth 2 -maxdepth 2 -type d -path '*${name}*'|head -n1)
+    folder=$(find . -mindepth 2 -maxdepth 2 -type d -path '*${attrs.pname}*'|head -n1)
     echo "folder found ='$folder'"
     sourceRoot=$folder
   '';
@@ -181,6 +191,7 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
   '';
 
   # count on luarocks to install it
+    # luarocks install --tree $out ${name}
   installPhase = attrs.installPhase or ''
 
     echo "STARTED INSTALL"
@@ -198,7 +209,6 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
     # to prevent collision when creating the environment
     rm $out/lib/luarocks/rocks/manifest
     # install --deps-mode=none should work too
-    # luarocks install --tree $out ${name}
 
 
   #   addToLuaSearchPath LUA_PATH "$out/lib/lua/${lua.luaversion}" "/?.lua"

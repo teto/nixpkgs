@@ -649,7 +649,7 @@ let
   };
 
   lpeg = buildLuaPackage rec {
-    name = "lpeg-${version}";
+    pname = "lpeg";
     version = "0.12";
 
     # src = fetchurl {
