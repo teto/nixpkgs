@@ -112,9 +112,9 @@ let
       ++ lualibs
       # pour les tests il nous faut busted/
       # et penlight
-      ++ optionals doCheck [ luaPackages.busted luaPackages.penlight ];
+      ++ optionals doCheck (with luaPackages;[ busted penlight ]);
 
-    doCheck = false;
+    doCheck = true;
 
     nativeBuildInputs = [
       cmake
@@ -129,6 +129,7 @@ let
     lualibs = with luaPackages; [ mpack lpeg luabitop ];
 
     cmakeFlags = [
+      "-DPREFER_LUA=ON"
       "-DLUA_PRG=${luaPackages.lua}/bin/lua"
     ];
 

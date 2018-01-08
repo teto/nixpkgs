@@ -47,7 +47,9 @@ let
                 # TODO add itself to LUA_PATH
                 echo "remove wrapper"
 
-                # makeWrapper "$path/bin/$prg" "$out/bin/$prg" --set LUA_PATH "$LUA_PATH" --set LUA_CPATH "ZEP:$LUA_CPATH"
+                # TODO fix this value is null there
+                # --set LUA_PATH "$LUA_PATH" --set LUA_CPATH "ZEP:$LUA_CPATH"
+                makeWrapper "$path/bin/$prg" "$out/bin/$prg"
               fi
             fi
           done

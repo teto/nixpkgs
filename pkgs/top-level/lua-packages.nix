@@ -70,6 +70,10 @@ let
 
   luarocks = callPackage ../development/tools/misc/luarocks {
     inherit lua;
+  };
+
+  luarocks-cjson = callPackage ../development/tools/misc/luarocks {
+    inherit lua;
     inherit cjson;
   };
 

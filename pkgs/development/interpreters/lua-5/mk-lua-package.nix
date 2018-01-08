@@ -13,8 +13,8 @@
 }:
 
 {
-pname
-# name ? "${attrs.pname}-${attrs.version}"
+name ? "${attrs.pname}-${attrs.version}"
+
 , version
 # by default prefix `name` e.g. "python3.3-${name}"
 , namePrefix ? lua.name + "-"
@@ -60,7 +60,7 @@ pname
 # Keep extra attributes from `attrs`, e.g., `patchPhase', etc.
 if disabled
 # .executable
-then throw "${pname} not supported for interpreter ${lua}"
+then throw "${name} not supported for interpreter ${lua}"
 else
 
 let
@@ -74,11 +74,7 @@ in
 lua.stdenv.mkDerivation (
 builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
 
-  # pname = name;
-  # TODO fix
-  name = namePrefix + "${attrs.pname}-${attrs.version}";
-  # (builtins.parseDrvName ).name
-    # name = "lua${lua.luaversion}-" + attrs.name;
+  name = namePrefix + name;
 
   # inherit luaPath;
 
@@ -98,10 +94,6 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
   # todo remove it
   # preBuild = ''
   #   '';
-
-  # ERASE preunpack ?
-  # preUnpack= ''
-  #   echo "Preunpack"
 
   # luarocks_cfg = "$(pwd)/luarocks_cfg";
   #   '';
@@ -138,8 +130,10 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
 
   # that works only for src.rock !
   # stripVersion
-  setSourceRoot=''
-    folder=$(find . -mindepth 2 -maxdepth 2 -type d -path '*${attrs.pname}*'|head -n1)
+  setSourceRoot= let
+    name_only=(builtins.parseDrvName name).name;
+    in ''
+    folder=$(find . -mindepth 2 -maxdepth 2 -type d -path '*${name_only}*'|head -n1)
     echo "folder found ='$folder'"
     sourceRoot=$folder
   '';

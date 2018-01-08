@@ -1,6 +1,8 @@
 {stdenv, fetchurl, lua, curl, makeWrapper, which, unzip
+, zip # 'luarocks pack'
+
+# can create a cycle
 , cjson ? null
-, zip
 }:
 let
   s = # Generated upstream information
@@ -15,10 +17,9 @@ let
   buildInputs = [
     lua curl makeWrapper which unzip
 
-  # to prevent cycling dependancy
-  ] ++ stdenv.lib.optionals false [ cjson ];
+  # to prevent cycling dependancy (cjson != null)
+  ] ++ stdenv.lib.optionals (cjson != null) [ cjson ];
 
-  # for unpack hook
 in
 stdenv.mkDerivation {
   inherit (s) name version;
@@ -50,15 +51,16 @@ stdenv.mkDerivation {
     done
   '';
 
+  # unpack hook
   setupHook = ./setup-hook.sh;
 
   propagatedBuildInputs = [ zip unzip ];
 
-  meta = {
+  meta = with stdenv.lib; {
     inherit (s) version;
     description = ''A package manager for Lua'';
-    license = stdenv.lib.licenses.mit ;
-    maintainers = [stdenv.lib.maintainers.raskin];
-    platforms = stdenv.lib.platforms.linux ++ stdenv.lib.platforms.darwin;
+    license = licenses.mit ;
+    maintainers = [maintainers.raskin];
+    platforms = platforms.linux ++ platforms.darwin;
   };
 }
