@@ -206,7 +206,9 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
     # folder=$(find . -mindepth 2 -maxdepth 2 -type d -path '*$}*'|head -n1)
 
     # to prevent collision when creating the environment
-    rm $out/lib/luarocks/rocks/manifest
+    # might be possible to prevent htat with a better default config for luarocks
+    # also added -f as it doesn't always exist
+    rm -rf $out/lib/luarocks
     # install --deps-mode=none should work too
 
   #   addToLuaSearchPath LUA_PATH "$out/lib/lua/${lua.luaversion}" "/?.lua"
