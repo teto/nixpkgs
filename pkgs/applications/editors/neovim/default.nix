@@ -112,7 +112,8 @@ let
       ++ lualibs
       # pour les tests il nous faut busted/
       # et penlight
-      ++ optionals doCheck (with luaPackages;[ busted penlight ]);
+      # lua_cliargs
+      ++ optionals doCheck (with luaPackages;[ busted luafilesystem penlight  ]);
 
     doCheck = true;
 
@@ -129,9 +130,13 @@ let
     lualibs = with luaPackages; [ mpack lpeg luabitop ];
 
     cmakeFlags = [
+
       "-DPREFER_LUA=ON"
       "-DLUA_PRG=${luaPackages.lua}/bin/lua"
-    ];
+    ]
+    ++ optionals doCheck (with luaPackages;[
+      "-DBUSTED_PRG=${busted}/bin/busted"
+    ]);
 
     # triggers on buffer overflow bug while running tests
     hardeningDisable = [ "fortify" ];

@@ -196,14 +196,18 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
     set -x
     # TODO set it as $sourceRoot
 
-    # luarocks make
-    # gcc
-    luarocks make --verbose --tree $out $rockspec
+    # make assumes sources are available in cwd
+    # $rockspec
+    # After the build is complete, it also installs the rock.
+    # If no argument is given, it looks for a rockspec in the current directory
+    # one problem here is that luarocks install packages in subfolders
+    # so we patch luarocks !
+    luarocks make --deps-mode=none --verbose --tree $out
+    # folder=$(find . -mindepth 2 -maxdepth 2 -type d -path '*$}*'|head -n1)
 
     # to prevent collision when creating the environment
     rm $out/lib/luarocks/rocks/manifest
     # install --deps-mode=none should work too
-
 
   #   addToLuaSearchPath LUA_PATH "$out/lib/lua/${lua.luaversion}" "/?.lua"
   #   addToLuaSearchPath LUA_PATH "$out/share/lua/${lua.luaversion}" "/?.lua"
@@ -213,9 +217,7 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
   #   export LUA_PATH="from_install_toto:$LUA_PATH"
   #   export LUA_CPATH="from_install_tata:$LUA_CPATH"
 
-  #   # pushd dist
   #   # /bin/pip install *.whl --no-index --prefix=$out --no-cache
-  #   # popd
 
     runHook postInstall
 

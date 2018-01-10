@@ -8,6 +8,21 @@
 }:
 with self;
 rec {
+say = buildLuaPackage rec {
+src= fetchurl {
+url="http://luarocks.org/manifests/teto/say-1.3-1.src.rock";
+sha256="1fr91d660qvgajxpvriha1ngl826bf4xsz1472y7d4xrak4x6767"; }
+;
+pname="say";
+version="1.3-1";
+propagatedBuildInputs=[ lua];
+meta={
+homepage=http://olivinelabs.com/busted/;
+license=stdenv.lib.licenses.mit;
+description="Lua String Hashing/Indexing Library"; }
+; }
+;
+
 mpack = buildLuaPackage rec {
 pname="mpack";
 meta={

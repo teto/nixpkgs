@@ -24,9 +24,10 @@ in
 stdenv.mkDerivation {
   inherit (s) name version;
   inherit buildInputs;
-  src = fetchurl {
-    inherit (s) url sha256;
-  };
+  src = /home/teto/luarocks;
+  # src = fetchurl {
+  #   inherit (s) url sha256;
+  # };
   preConfigure = ''
     lua -e "" || {
         luajit -e "" && {
