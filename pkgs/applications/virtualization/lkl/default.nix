@@ -23,6 +23,7 @@ stdenv.mkDerivation rec {
 
   buildInputs = [ fuse libarchive ];
 
+  # src = /home/teto/lkl;
   src = fetchFromGitHub {
     inherit rev;
     owner  = "lkl";

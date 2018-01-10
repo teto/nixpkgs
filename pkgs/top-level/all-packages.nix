@@ -20607,7 +20607,7 @@ with pkgs;
     python=python3;
   };
 
-  dce = callPackage ../development/libraries/science/networking/ns3/dce.nix {};
+  dce = python3Packages.callPackage ../development/libraries/science/networking/ns3/dce.nix {};
 
   # override to pass a custom lkl, lkl-dce
   dce-next = dce.overrideAttrs(old: {

@@ -1,13 +1,13 @@
 { stdenv, fetchFromGitHub, autoreconfHook, libtool, intltool, pkgconfig
 , ns-3, gcc
-, castxml, python3
+, castxml, python
+, lkl
 # , musl-frankenlibc
 # pygccxml
 , lib
 , withDoc ? false
 , withManual ? false
 , withExamples ? false
-, withLibOS ? false
 , withBindings ? false
 , ...
 }:
@@ -22,7 +22,7 @@ let
   ;
   ns3forDce = ns-3.override( { inherit modules; });
 
-  pythonEnv = python3.withPackages (ps: with ps; [ pygccxml ]);
+  pythonEnv = python.withPackages (ps: with ps; [ pygccxml ]);
 in
 stdenv.mkDerivation rec {
   name    = "${pname}-${version}";
@@ -37,7 +37,9 @@ stdenv.mkDerivation rec {
   # };
   src = /home/teto/dce;
 
-  buildInputs = [ ns3forDce gcc castxml pythonEnv ]
+  # TODO add after hacking
+  # lkl.dev lkl.lib
+  buildInputs = [ ns3forDce gcc castxml pythonEnv  ]
     # ++ stdenv.lib.optionals
     ;
 
@@ -53,14 +55,19 @@ stdenv.mkDerivation rec {
 
     # make configure
     # TODO limit modules so that it gets faster
-    python3 ./waf configure --prefix=$out \
+    CFLAGS=-I/home/teto/lkl/tools/lkl/include/lkl ${python.interpreter} ./waf configure --prefix=$out \
     --with-ns3=${ns3forDce} \
       ${stdenv.lib.optionalString (!withExamples) "--disable-examples"}
       '' + stdenv.lib.optionalString doCheck " --enable-tests \\" + ''
 
     runHook postConfigure
-  '' ;
+  '';
 
+  buildPhase=''
+    ./waf build
+  '';
+
+  hardeningDisable = [ "all" ];
   # postPatch = ''
   #   sed -i -e 's%"\(/usr/sbin\|/usr/pkg/sbin\|/usr/local/sbin\)/[^"]*",%%g' ./src/nm-l2tp-service.c
 
