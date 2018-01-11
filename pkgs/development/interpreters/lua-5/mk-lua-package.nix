@@ -1,4 +1,4 @@
-/* Generic builder for Python packages that come without a setup.py. */
+# Generic builder for lua packages
 
 { lib
 , lua
@@ -8,7 +8,10 @@
 , unzip
 , writeText
 
-# adds a postUnpackHooks
+# Whether the derivation provides a Python module or not.
+, toLuaModule
+
+# adds a postUnpackHooks (can we discard ?)
 , ensureNewerSourcesHook
 }:
 
@@ -71,61 +74,36 @@ let
     local_cache = ""
     '';
 in
-lua.stdenv.mkDerivation (
+
+# python now does:
+# toPythonModule (python.stdenv.mkDerivation (builtins.removeAttrs attrs [
+#     "disabled" "checkInputs" "doCheck" "doInstallCheck" "dontWrapPythonPrograms" "catchConflicts"
+#   ] // {
+toLuaModule ( lua.stdenv.mkDerivation (
 builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
 
   name = namePrefix + name;
 
-  # inherit luaPath;
 
-  # luarocks
-  buildInputs = [ wrapLua luarocks ] ++ buildInputs
+  buildInputs = [ wrapLua luarocks ]
     # ++ [ (ensureNewerSourcesHook { year = "1980"; }) ]
-    ++ lib.optionals doCheck checkInputs;
+    ++ buildInputs
+    # might get rid of ?
+    ++ lib.optionals doCheck checkInputs
+    ;
 
   # propagate python/setuptools to active setup-hook in nix-shell
   # propagatedBuildInputs = propagatedBuildInputs ++ [ lua ];
-  propagatedNativeBuildInputs = propagatedNativeBuildInputs ++ [ lua ];
+  propagatedBuildInputs = propagatedBuildInputs ++ [ lua ];
   # Python packages don't have a checkPhase, only an installCheckPhase
   doCheck = false;
   doInstallCheck = doCheck;
 
-  # Generate luarocks config file build-support folder
-  # todo remove it
-  # preBuild = ''
-  #   '';
 
   # luarocks_cfg = "$(pwd)/luarocks_cfg";
   #   '';
   # LUAROCKS_CONFIG="${luarocks_cfg}";
-
-  # postUnpackHook is run in stdenv/generic/builder.sh
-  # after cding to sourceRoot
-  # postUnpack = ''
-  #   # $out/
-  #   # set -x
-  #   echo "postunpack stuff "
-  #   # cd $sourceRoot
-  #   echo ">> post unpack PWD=$PWD et out=$out"
-
-  #   '';
-
-  # postUnpack=''
-    # download the rockspec ideally put it in the store ?
-    # luarocks download --rockspec ${name} ${version}
-    # ${name}
-
-    # now remove all dependencies from the rockspec; there is a check on the
-    # filename so it should
-    # TODO replace the archive too
-    # perl -0pe 's/dependencies = {((.|\n)+?)}//g' ${rockspec_name} > ${rockspec_name}
-    # perl -0pe 's/dependencies = {((.|\n)+?)}//g'  lua_cliargs-3.0-1.rockspec
-  # '';
-
-  # unpackPhase=''
-
   #   output=$(luarocks unpack --verbose --force "$renamed")
-  #   # TODO look for the
   #   '';
 
   # that works only for src.rock !
@@ -141,16 +119,10 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
   # TODO fix hooks, run them etc..
   # preBuild
   buildPhase = ''
-    echo "PREBUILD"
     runHook preBuild
     echo "we are in folder $PWD"
-    ls
     export LUAROCKS_CONFIG="$PWD/luarocks_cfg"
     echo "local_cache = '$PWD'" > "$LUAROCKS_CONFIG"
-    # makeFlagsArray=(
-    #   PREFIX=$out
-    #   LUA_LIBDIR="$out/lib/lua/${lua.luaversion}"
-    #   LUA_INC="-I${lua}/include");
   '';
 
 
@@ -208,7 +180,10 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
     # to prevent collision when creating the environment
     # might be possible to prevent htat with a better default config for luarocks
     # also added -f as it doesn't always exist
-    rm -rf $out/lib/luarocks
+# building path(s) ‘/nix/store/jc5ln503d83z24jbbkw91c06dqr54l59-lua-5.2.3-env’
+# collision between `/nix/store/8vzwia4dynqf367psvi517bjsk3pfkys-lua-5.2.3-lua_cliargs-3.0-1/lib/luarocks/rocks-5.2/manifest' and `/nix/store/s24bdjjr506vdpk71isakl600ryg5yfa-lua-5.2.3-busted-2.0.rc12-1/lib/luarocks/rocks-5.2/manifest'
+
+    rm -f $out/lib/luarocks/rocks-5.2/manifest
     # install --deps-mode=none should work too
 
   #   addToLuaSearchPath LUA_PATH "$out/lib/lua/${lua.luaversion}" "/?.lua"
@@ -257,6 +232,6 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
     # add extra maintainer(s) to every package
     maintainers = (meta.maintainers or []) ++ [ ];
     # a marker for release utilities to discover python packages
-    # isBuildPythonPackage = lua.meta.platforms;
+    # isBuildLuaPackage = lua.meta.platforms;
   };
-})
+}))

@@ -5,6 +5,8 @@
 # , luafilesystem, ansicolors
 , fetchurl
 , fetchgit
+, toLuaModule
+, requiredLuaModules
 }:
 with self;
 rec {
@@ -55,11 +57,11 @@ version="1.0.2-3"; }
 busted = buildLuaPackage rec {
 pname="busted";
 src= fetchurl {
-url="https://luarocks.org/busted-2.0.rc3-0.src.rock";
-sha256="10z1chfy84k8mrzapn61537lcv1spw3zcr0aq9ib1y4ba9rfds5z"; }
+url="http://luarocks.org/manifests/teto/busted-2.0.rc12-1.src.rock";
+sha256="18fzdc7ww4nxwinnw9ah5hi329ghrf0h8xrwcy26lk9qcs9n079z"; }
 ;
-propagatedBuildInputs=[ lua lua_cliargs luafilesystem dkjson say luassert ansicolors penlight mediator_lua];
-version="2.0.rc3-0";
+propagatedBuildInputs=[ lua lua_cliargs luafilesystem dkjson say lua-term luassert ansicolors penlight mediator_lua];
+version="2.0.rc12-1";
 meta={
 homepage="http://olivinelabs.com/busted/";
 description="Elegant Lua unit testing.";

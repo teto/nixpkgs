@@ -22,6 +22,31 @@ let
   isLua52 = lua.luaversion == "5.2";
   isLuaJIT = (builtins.parseDrvName lua.name).name == "luajit";
 
+  # Check whether a derivation provides a Python module.
+  hasLuaModule = drv: drv? luaModule
+  # && drv.nModule == python
+  ;
+
+  requiredLuaModules = drvs: with stdenv.lib; let
+    modules =  filter hasLuaModule drvs;
+  in unique ([lua] ++ modules ++ concatLists (catAttrs "requiredLuaModules" modules));
+
+  # Convert derivation to a Python module.
+  toLuaModule = drv:
+    drv.overrideAttrs( oldAttrs: {
+      # Use passthru in order to prevent rebuilds when possible.
+      passthru = (oldAttrs.passthru or {})// {
+        luaModule = lua;
+        # pythonPath = [ ]; # Deprecated, for compatibility.
+        requiredLuaModules = requiredLuaModules drv.propagatedBuildInputs;
+      };
+    });
+
+  # Create a PYTHONPATH from a list of derivations. This function recurses into the items to find derivations
+  # providing Python modules.
+  # makeLuaPath = drvs: stdenv.lib.makeSearchPath python.sitePackages (requiredPythonModules drvs);
+
+
   platformString =
     if stdenv.isDarwin then "macosx"
     else if stdenv.isFreeBSD then "freebsd"
@@ -33,13 +58,15 @@ let
     # recurseForDerivations
 
     generatedPackages = callPackage ./lua-generated-packages.nix {
-      inherit self stdenv fetchurl fetchgit;
+      inherit self stdenv fetchurl fetchgit toLuaModule requiredLuaModules;
     };
 
     self = _self;
     #
   _self = with self; generatedPackages //  rec {
     inherit lua;
+    inherit requiredLuaModules;
+    inherit toLuaModule;
     inherit generatedPackages;
     inherit (stdenv.lib) maintainers;
     # generatedPackages = (import ./lua-generated-packages.nix) { inherit self stdenv fetchurl fetchgit; };
@@ -56,6 +83,7 @@ let
   buildLuaPackage = with pkgs.lib; makeOverridable( callPackage ../development/interpreters/lua-5/mk-lua-package.nix {
     inherit lua;
     inherit wrapLua;
+    inherit toLuaModule;
     # inherit getLuaPath;
     # inherit getLuaCPath;
   });

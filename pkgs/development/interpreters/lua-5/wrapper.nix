@@ -3,6 +3,7 @@
 , postBuild ? ""
 , ignoreCollisions ? false
 , lib
+, requiredLuaModules
 }:
 
 # Create a lua executable that knows about additional packages.
@@ -12,7 +13,7 @@ let
     # I removed recursivePthLoader  but check why
     # closePropagation is in deprecated.nix
     # stdenv.lib.closePropagation
-    paths =  (extraLibs ++ [ lua ] );
+    paths =  requiredLuaModules (extraLibs ++ [ lua ] );
   # here it's supposed to symlink
   in buildEnv {
     name = "${lua.name}-env";
@@ -22,9 +23,10 @@ let
 
     # c la qu'on doit avoir un hook no ?
     # we create wrapper for the binaries in the different packages
+      # echo "paths=${lib.concatList paths}"
     postBuild = ''
       # LUA_PATH est nul la
-      # echo "paths=${lib.concatStringsSep " " paths}
+      # lib.catAttrs " "
 
       # si la tu recharges le truc
       . "${makeWrapper}/nix-support/setup-hook"
@@ -40,7 +42,7 @@ let
 
       # TODO Fix
       # @luaversion@
-      program_LUA_PATH="$out/lib/lua/5.2/?.lua;$out/share/lua/5.2/?.lua"
+      program_LUA_PATH="$out/lib/lua/5.2/?.lua;$out/share/lua/5.2/?.lua;$out/lib/lua/5.2/?/init.lua;$out/share/lua/5.2/?/init.lua"
       program_LUA_CPATH="$out/lib/lua/5.2/?.so;$out/share/lua/5.2/?.so"
 
       echo "program_LUA_PATH=$program_LUA_PATH"
@@ -48,7 +50,7 @@ let
 
       # take every binary from lua packages and put them into the env
       for path in ${stdenv.lib.concatStringsSep " " paths}; do
-        echo "new path = $path"
+        echo "looking for binaries in path = $path"
         if [ -d "$path/bin" ]; then
           cd "$path/bin"
           for prg in *; do
@@ -58,8 +60,8 @@ let
                 # --set LUA_PATH "$out"
                 # todo use --PREFIX instead ?
                 # TODO add itself to LUA_PATH
-                echo "gen wrapper"
-      set -x
+                echo "generating wrapper for $prg"
+      # set -x
 
                 # TODO fix this value is null there
                 # --set LUA_PATH "$LUA_PATH" --set LUA_CPATH "ZEP:$LUA_CPATH"
