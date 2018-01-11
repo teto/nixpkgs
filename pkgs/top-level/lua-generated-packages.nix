@@ -10,19 +10,20 @@
 }:
 with self;
 rec {
-say = buildLuaPackage rec {
+
+luasystem = buildLuaPackage rec {
 src= fetchurl {
-url="http://luarocks.org/manifests/teto/say-1.3-1.src.rock";
-sha256="1fr91d660qvgajxpvriha1ngl826bf4xsz1472y7d4xrak4x6767"; }
+url=https://luarocks.org/luasystem-0.2.1-0.src.rock;
+sha256="091xmp8cijgj0yzfsjrn7vljwznjnjn278ay7z9pjwpwiva0diyi"; }
 ;
-pname="say";
-version="1.3-1";
-propagatedBuildInputs=[ lua];
+pname="luasystem";
+version="0.2.1-0";
 meta={
-homepage=http://olivinelabs.com/busted/;
+description="Platform independent system calls for Lua.";
 license=stdenv.lib.licenses.mit;
-description="Lua String Hashing/Indexing Library"; }
-; }
+homepage=http://olivinelabs.com/luasystem/; }
+;
+propagatedBuildInputs=[ lua]; }
 ;
 
 mpack = buildLuaPackage rec {
@@ -54,13 +55,32 @@ description="Library for color Manipulation."; }
 ;
 version="1.0.2-3"; }
 ;
+
+# older busted
+# busted = buildLuaPackage rec {
+# version="2.0.rc3-0";
+# pname="busted";
+# propagatedBuildInputs=[ lua lua_cliargs luafilesystem dkjson say luassert ansicolors penlight mediator_lua];
+# src= fetchurl {
+# url=https://luarocks.org/busted-2.0.rc3-0.src.rock;
+# sha256="10z1chfy84k8mrzapn61537lcv1spw3zcr0aq9ib1y4ba9rfds5z"; }
+# ;
+# meta={
+# description="Elegant Lua unit testing.";
+# license=stdenv.lib.licenses.mit;
+# homepage=http://olivinelabs.com/busted/; }
+# ; }
+# ;
+
+
 busted = buildLuaPackage rec {
 pname="busted";
 src= fetchurl {
 url="http://luarocks.org/manifests/teto/busted-2.0.rc12-1.src.rock";
 sha256="18fzdc7ww4nxwinnw9ah5hi329ghrf0h8xrwcy26lk9qcs9n079z"; }
 ;
-propagatedBuildInputs=[ lua lua_cliargs luafilesystem dkjson say lua-term luassert ansicolors penlight mediator_lua];
+# lacks luasystem
+propagatedBuildInputs=[ lua luasystem lua_cliargs luafilesystem dkjson say lua-term luassert ansicolors penlight mediator_lua];
 version="2.0.rc12-1";
 meta={
 homepage="http://olivinelabs.com/busted/";
@@ -68,6 +88,7 @@ description="Elegant Lua unit testing.";
 license=stdenv.lib.licenses.mit; }
 ; }
 ;
+
 dkjson = buildLuaPackage rec {
 meta={
 license=stdenv.lib.licenses.mit;
@@ -110,20 +131,37 @@ description="A command-line argument parser.";
 homepage="https://github.com/amireh/lua_cliargs"; }
 ; }
 ;
+
 luassert = buildLuaPackage rec {
-src= fetchurl {
-url="https://luarocks.org/luassert-1.7.5-0.src.rock";
-sha256="061si4bdlqgmk5787iqnsny3wibprcp8c53v44v7s54y5r9l2hrq"; }
-;
-version="1.7.5-0";
+version="1.7.10-0";
 pname="luassert";
 propagatedBuildInputs=[ lua say];
 meta={
+homepage=http://olivinelabs.com/busted/;
 description="Lua Assertions Extension";
-license=stdenv.lib.licenses.mit;
-homepage="http://olivinelabs.com/busted/"; }
+license=stdenv.lib.licenses.mit; }
+;
+src= fetchurl {
+url=http://luarocks.org/manifests/teto/luassert-1.7.10-0.src.rock;
+sha256="03kd0zhpl2ir0r45z12bayvwahy8pbbcwk1vfphf0zx11ik84rss"; }
 ; }
 ;
+
+say = buildLuaPackage rec {
+meta={
+description="Lua String Hashing/Indexing Library";
+homepage=http://olivinelabs.com/busted/;
+license=stdenv.lib.licenses.mit; }
+;
+src= fetchurl {
+sha256="00vvd5yg5f4r1xa0yasb54k452a58sjflbh681cmvr7p0m289ldl";
+url=http://luarocks.org/manifests/teto/say-1.3-1.src.rock; }
+;
+version="1.3-1";
+pname="say";
+propagatedBuildInputs=[ lua]; }
+;
+
 lua-term = buildLuaPackage rec {
 meta={
 description="Terminal functions for Lua";
