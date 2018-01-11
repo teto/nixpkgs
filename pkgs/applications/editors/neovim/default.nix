@@ -113,7 +113,7 @@ let
       # pour les tests il nous faut busted/
       # et penlight
       # lua_cliargs
-      ++ optionals doCheck (with luaPackages;[ busted luafilesystem penlight  ]);
+      ++ optionals doCheck (with luaPackages;[ lpeg busted luafilesystem penlight  ]);
 
     doCheck = true;
 

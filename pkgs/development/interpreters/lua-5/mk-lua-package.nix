@@ -179,8 +179,8 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
     ${preShellHook}
       echo "SHELL HOOK from lua-mk-derivation"
       export MATTATOR="HELLO WORLD"
-    export LUA_PATH="from_hook_toto:$LUA_PATH"
-    export LUA_CPATH="from_hook_tata:$LUA_CPATH"
+    # export LUA_PATH="from_hook_toto:$LUA_PATH"
+    # export LUA_CPATH="from_hook_tata:$LUA_CPATH"
     ${postShellHook}
   '';
 
@@ -193,7 +193,7 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
 
 
     echo "Looking for the folder fron $PWD"
-    set -x
+    # set -x
     # TODO set it as $sourceRoot
 
     # make assumes sources are available in cwd

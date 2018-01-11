@@ -67,7 +67,9 @@ stdenv.mkDerivation rec {
     luaPackages = callPackage ../../../top-level/lua-packages.nix {lua=self; overrides=packageOverrides;};
   in rec {
     # executable = "${libPrefix}m";
-    buildEnv = callPackage ./wrapper.nix { lua = self; };
+    buildEnv = callPackage ./wrapper.nix { lua = self;
+    # inherit (luaPackages) requiredLuaModules;
+    };
     withPackages = import ./with-packages.nix { inherit buildEnv luaPackages;};
     pkgs = luaPackages;
     interpreter = "${self}/bin/lua";

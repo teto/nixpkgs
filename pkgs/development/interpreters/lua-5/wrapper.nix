@@ -1,7 +1,9 @@
 { stdenv, lua, buildEnv, makeWrapper
 , extraLibs ? []
 , postBuild ? ""
-, ignoreCollisions ? false }:
+, ignoreCollisions ? false
+, lib
+}:
 
 # Create a lua executable that knows about additional packages.
 # LUA_PATH should already be built at this point ?!!
@@ -9,7 +11,9 @@ let
   env = let
     # I removed recursivePthLoader  but check why
     # closePropagation is in deprecated.nix
-    paths = stdenv.lib.closePropagation (extraLibs ++ [ lua ] ) ;
+    # stdenv.lib.closePropagation
+    paths =  (extraLibs ++ [ lua ] );
+  # here it's supposed to symlink
   in buildEnv {
     name = "${lua.name}-env";
 
@@ -20,12 +24,13 @@ let
     # we create wrapper for the binaries in the different packages
     postBuild = ''
       # LUA_PATH est nul la
+      # echo "paths=${lib.concatStringsSep " " paths}
 
       # si la tu recharges le truc
       . "${makeWrapper}/nix-support/setup-hook"
-      echo "postBuild wrapper"
-      echo "program_LUA_PATH=$program_LUA_PATH"
-      echo "program_LUA_CPATH=$program_LUA_CPATH"
+      # echo "postBuild wrapper"
+      # echo "LUA_PATH=$LUA_PATH"
+      # echo "LUA_CPATH=$LUA_CPATH"
 
       if [ -L "$out/bin" ]; then
           unlink "$out/bin"
@@ -33,7 +38,15 @@ let
       mkdir -p "$out/bin"
 
 
-      # la le code python il te
+      # TODO Fix
+      # @luaversion@
+      program_LUA_PATH="$out/lib/lua/5.2/?.lua;$out/share/lua/5.2/?.lua"
+      program_LUA_CPATH="$out/lib/lua/5.2/?.so;$out/share/lua/5.2/?.so"
+
+      echo "program_LUA_PATH=$program_LUA_PATH"
+      echo "program_LUA_CPATH=$program_LUA_CPATH"
+
+      # take every binary from lua packages and put them into the env
       for path in ${stdenv.lib.concatStringsSep " " paths}; do
         echo "new path = $path"
         if [ -d "$path/bin" ]; then
@@ -45,11 +58,15 @@ let
                 # --set LUA_PATH "$out"
                 # todo use --PREFIX instead ?
                 # TODO add itself to LUA_PATH
-                echo "remove wrapper"
+                echo "gen wrapper"
+      set -x
 
                 # TODO fix this value is null there
                 # --set LUA_PATH "$LUA_PATH" --set LUA_CPATH "ZEP:$LUA_CPATH"
-                makeWrapper "$path/bin/$prg" "$out/bin/$prg"
+                # use --prefix / suffix LUA_PATH $out/lib/version
+                # --suffix LUA_PATH $program_LUA_PATH  ";" --suffix LUA_CPATH $program_LUA_CPATH ";"
+                # ENV SEP VAL
+                makeWrapper "$path/bin/$prg" "$out/bin/$prg" --suffix LUA_PATH ';' "$program_LUA_PATH"   --suffix LUA_CPATH ';' "$program_LUA_CPATH"
               fi
             fi
           done

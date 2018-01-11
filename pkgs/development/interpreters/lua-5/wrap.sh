@@ -52,7 +52,7 @@ wrapLuaProgramsIn() {
 
     buildLuaPath "$luaPath"
 
-    echo "wrapLuaProgram call witd dir $dir"
+    echo "wrapLuaProgram call with dir $dir"
     # Find all regular files in the output directory that are executable.
     if [ -d "$dir" ]; then
         echo "$dir is a folder"
@@ -110,7 +110,7 @@ addToLuaSearchPathWithCustomDelimiter() {
     local suffix="$4"
     # local dontCheckForDir="${4:-}"
     # if [ -z $dontCheckForDir ] || [ -d "$dir" ]; then
-    echo "===> checking dir $3"
+    echo "=> checking dir $3"
     if  [ -d "$dir" ]; then
         export "${varName}=${!varName:+${!varName}${delimiter}}${dir}${suffix}"
         echo "VALID entry; exporting $3"
@@ -156,7 +156,7 @@ _addToLuaPath() {
             _addToLuaPath "$new_path"
         done
     fi
-	echo "we LUA_PATH=$program_LUA_PATH"
-	echo "we get LUA_CPATH=$program_LUA_CPATH"
+	echo "we program_LUA_PATH=$program_LUA_PATH"
+	echo "we get program_LUA_CPATH=$program_LUA_CPATH"
 }
 
