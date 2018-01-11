@@ -30,9 +30,8 @@ let
 
       # si la tu recharges le truc
       . "${makeWrapper}/nix-support/setup-hook"
+      . ${lua}/nix-support/setup-hook
       # echo "postBuild wrapper"
-      # echo "LUA_PATH=$LUA_PATH"
-      # echo "LUA_CPATH=$LUA_CPATH"
 
       if [ -L "$out/bin" ]; then
           unlink "$out/bin"
@@ -42,11 +41,15 @@ let
 
       # TODO Fix
       # @luaversion@
-      program_LUA_PATH="$out/lib/lua/5.2/?.lua;$out/share/lua/5.2/?.lua;$out/lib/lua/5.2/?/init.lua;$out/share/lua/5.2/?/init.lua"
-      program_LUA_CPATH="$out/lib/lua/5.2/?.so;$out/share/lua/5.2/?.so"
+      # addToLuaSearchPath
+      addToLuaPath $out
+      # program_LUA_PATH="$out/lib/lua/5.2/?.lua;$out/share/lua/5.2/?.lua;$out/lib/lua/5.2/?/init.lua;$out/share/lua/5.2/?/init.lua"
+      # program_LUA_CPATH="$out/lib/lua/5.2/?.so;$out/share/lua/5.2/?.so"
 
-      echo "program_LUA_PATH=$program_LUA_PATH"
-      echo "program_LUA_CPATH=$program_LUA_CPATH"
+      # echo "program_LUA_PATH=$program_LUA_PATH"
+      # echo "program_LUA_CPATH=$program_LUA_CPATH"
+      echo "LUA_PATH=$LUA_PATH"
+      echo "LUA_CPATH=$LUA_CPATH"
 
       # take every binary from lua packages and put them into the env
       for path in ${stdenv.lib.concatStringsSep " " paths}; do
@@ -68,7 +71,8 @@ let
                 # use --prefix / suffix LUA_PATH $out/lib/version
                 # --suffix LUA_PATH $program_LUA_PATH  ";" --suffix LUA_CPATH $program_LUA_CPATH ";"
                 # ENV SEP VAL
-                makeWrapper "$path/bin/$prg" "$out/bin/$prg" --suffix LUA_PATH ';' "$program_LUA_PATH"   --suffix LUA_CPATH ';' "$program_LUA_CPATH"
+                # makeWrapper "$path/bin/$prg" "$out/bin/$prg" --suffix LUA_PATH ';' "$program_LUA_PATH"   --suffix LUA_CPATH ';' "$program_LUA_CPATH"
+                makeWrapper "$path/bin/$prg" "$out/bin/$prg" --suffix LUA_PATH ';' "$LUA_PATH"   --suffix LUA_CPATH ';' "$LUA_CPATH"
               fi
             fi
           done

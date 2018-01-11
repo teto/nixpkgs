@@ -61,8 +61,17 @@ addToLuaPath() {
     # echo "Add to search path $dir/@libFolder@"
   # getPath       = aib : type : "${lib}/lib/lua/${lua.luaversion}/?.${type};${lib}/share/lua/${lua.luaversion}/?.${type}";
   # TODO rename to majorVersion
+  # TODO regroup within
+    # declare -a suffixes=(
+    # )
+    # while subfolder in suffixes[@]; do
+
+    # done
+
     addToLuaSearchPath LUA_PATH "$dir/lib/lua/@luaversion@" "/?.lua"
     addToLuaSearchPath LUA_PATH "$dir/share/lua/@luaversion@" "/?.lua"
+    addToLuaSearchPath LUA_PATH "$dir/share/lua/@luaversion@" "/?/init.lua"
+    addToLuaSearchPath LUA_PATH "$dir/lib/lua/@luaversion@" "/?/init.lua"
     addToLuaSearchPath LUA_CPATH "$dir/lib/lua/@luaversion@" "/?.so"
     addToLuaSearchPath LUA_CPATH "$dir/share/lua/@luaversion@" "/?.so"
     # addToLuaSearchPath program_PATH "$dir/bin"
