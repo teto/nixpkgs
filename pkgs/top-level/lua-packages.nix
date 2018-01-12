@@ -88,13 +88,7 @@ let
     # inherit getLuaCPath;
   });
 
-  # buildLuaApplication = args: buildLuaPackage ({namePrefix="";} // args );
-
-  # buildLuaPackage = callPackage ../development/lua-modules/generic/lua-build-package.nix {
-  #   inherit lua;
-  #   inherit wrapLua;
-  # };
-  # buildLuaApplication = args: buildLuaPackage ({namePrefix="";} // args );
+  buildLuaApplication = args: buildLuaPackage ({namePrefix="";} // args );
 
   luarocks = callPackage ../development/tools/misc/luarocks {
     inherit lua;
