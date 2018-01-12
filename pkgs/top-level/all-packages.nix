@@ -20611,7 +20611,13 @@ with pkgs;
 
   # override to pass a custom lkl, lkl-dce
   dce-next = dce.overrideAttrs(old: {
+    preConfigureHool=''
+      export CXXFLAGS=-I/home/teto/lkl/tools/lkl/include/lkl
+    '';
 
+    # TODO make it multioutputs ? lkl.lib / dev
+    # lkl
+    # buildInputs=old.buildInputs + [  ];
   });
 
   root = callPackage ../applications/science/misc/root {

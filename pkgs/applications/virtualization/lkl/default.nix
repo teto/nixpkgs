@@ -53,6 +53,24 @@ stdenv.mkDerivation rec {
     ln -s cptofs $out/bin/cpfromfs
     cp -r tools/lkl/include $dev/
     cp tools/lkl/liblkl*.{a,so} $lib/lib
+
+    mkdir -p "$out/lib/pkgconfig"
+    cat >"$out/lib/pkgconfig/lkl.pc" <<EOF
+    prefix=$out
+    libdir=$out/lib
+    includedir=$out/include
+    INSTALL_BIN=$out/bin
+    INSTALL_INC=$out/include
+    INSTALL_LIB=$out/lib
+    INSTALL_MAN=$out/man/man1
+
+    Name: LKL
+    Description: The Linux Kernel Library
+    Version: ${version}
+    Requires:
+    Libs: -L$out/lib -llkl
+    Cflags: -I$out/tools/lkl/include
+    EOF
   '';
 
   # We turn off format and fortify because of these errors (fortify implies -O2, which breaks the jitter entropy code):
