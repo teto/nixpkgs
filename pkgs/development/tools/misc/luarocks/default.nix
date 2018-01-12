@@ -1,5 +1,6 @@
 {stdenv, fetchurl, lua, curl, makeWrapper, which, unzip
 , zip # 'luarocks pack'
+, cmake
 
 # can create a cycle
 , cjson ? null
@@ -55,7 +56,10 @@ stdenv.mkDerivation {
   # unpack hook
   setupHook = ./setup-hook.sh;
 
-  propagatedBuildInputs = [ zip unzip ];
+  propagatedBuildInputs = [ zip unzip cmake ];
+
+  # cmake is just to compile packages wit cmake types, not luarocks itself
+  dontUseCmakeConfigure = true;
 
   meta = with stdenv.lib; {
     inherit (s) version;

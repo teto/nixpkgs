@@ -113,7 +113,7 @@ let
       # pour les tests il nous faut busted/
       # et penlight
       # lua_cliargs
-      ++ optionals doCheck (with luaPackages;[ lpeg busted luafilesystem penlight  ]);
+      ++ optionals doCheck (with luaPackages;[ nvim-client luv lpeg coxpcall busted luafilesystem penlight  ]);
 
     doCheck = true;
 
@@ -135,7 +135,7 @@ let
       "-DLUA_PRG=${luaPackages.lua}/bin/lua"
     ]
     ++ optionals doCheck (with luaPackages;[
-      "-DBUSTED_PRG=${busted}/bin/busted"
+      "-DBUSTED_PRG=${luaPackages.busted}/bin/busted"
     ]);
 
     # triggers on buffer overflow bug while running tests

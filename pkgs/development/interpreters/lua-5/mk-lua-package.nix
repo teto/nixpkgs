@@ -116,6 +116,10 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
     sourceRoot=$folder
   '';
 
+  configurePhase = ''
+    echo "Skipping configurePhase as luarocks is in charge"
+    '';
+
   # TODO fix hooks, run them etc..
   # preBuild
   buildPhase = ''
@@ -123,6 +127,12 @@ builtins.removeAttrs attrs ["disabled" "checkInputs"] // {
     echo "we are in folder $PWD"
     export LUAROCKS_CONFIG="$PWD/luarocks_cfg"
     echo "local_cache = '$PWD'" > "$LUAROCKS_CONFIG"
+
+
+    # TODO record in nix package the type of luarocks package it is, if it's make based,
+    # one might want to patch shebangs for instance
+    echo "Patching shebangs"
+    patchShebangs .
   '';
 
 

@@ -147,6 +147,57 @@ sha256="03kd0zhpl2ir0r45z12bayvwahy8pbbcwk1vfphf0zx11ik84rss"; }
 ; }
 ;
 
+luv = buildLuaPackage rec {
+version="1.9.1-1";
+src= fetchurl {
+url=https://luarocks.org/luv-1.9.1-1.src.rock;
+sha256="1b2gjzk7zixm98ah1xi02k1x2rhl109nqkn1w4jyjfwb3lrbhbfp"; }
+;
+meta={
+homepage=https://github.com/luvit/luv;
+license=stdenv.lib.licenses.mit;
+description="Bare libuv bindings for lua"; }
+;
+pname="luv";
+propagatedBuildInputs=[ lua]; }
+;
+
+nvim-client = buildLuaPackage rec {
+meta={
+description="Lua client to Nvim";
+homepage=https://github.com/neovim/lua-client/archive/0.0.1-26.tar.gz;
+license=stdenv.lib.licenses.mit; }
+;
+pname="nvim-client";
+version="0.0.1-26";
+src= fetchurl {
+sha256="1k3rrii6w2zjmwaanldsbm8fb2d5xzzfwzwjipikxsabivhrm9hs";
+url=https://luarocks.org/nvim-client-0.0.1-26.src.rock; }
+;
+propagatedBuildInputs=[ lua mpack luv coxpcall]; }
+;
+
+
+coxpcall = buildLuaPackage rec {
+src= fetchurl {
+
+# url=http://luarocks.org/manifests/teto/coxpcall-scm-1.src.rock;
+# sha256="0cz1m32kxi5zx6s69vxdldaafmzqj5wwr69i93abmlz15nx2bqpf";
+
+url=https://luarocks.org/manifests/hisham/coxpcall-1.15.0-1.src.rock;
+sha256="0x8hzly5vjmj8xbhg6l2hxhj57ysgrz7afb7wss4pmkc187d74zz";
+}
+;
+version="1.15.0-1";
+pname="coxpcall";
+propagatedBuildInputs=[];
+meta={
+license=stdenv.lib.licenses.mit;
+description="Coroutine safe xpcall and pcall";
+homepage=http://keplerproject.github.io/coxpcall; }
+; }
+;
+
 say = buildLuaPackage rec {
 meta={
 description="Lua String Hashing/Indexing Library";
