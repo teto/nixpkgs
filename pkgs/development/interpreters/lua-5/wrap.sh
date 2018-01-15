@@ -27,19 +27,6 @@ buildLuaPath() {
     done
 }
 
-# Patches a Lua script so that it has correct libraries path and executable
-# name.
-patchLuaScript() {
-    local f="$1"
-
-    # The magicalSedExpression will invoke a "$(basename "$f")", so
-    # if you change $f to something else, be sure to also change it
-    # in pkgs/top-level/python-packages.nix!
-    # It also uses $program_LUA_PATH.
-    echo "PATCHING lua script $f"
-
-    # sed -i "$f" -re '@magicalSedExpression@'
-}
 
 # with an executable shell script which will set some environment variables
 # and then call into the original binary (which has been given a .wrapped
@@ -69,10 +56,6 @@ wrapLuaProgramsIn() {
             # if head -n1 "$f" | grep -q '/\.\?\(lua\|pypy\)'; then
                 # dont wrap EGG-INFO scripts since they are called from python
                 # if echo "$f" | grep -qv EGG-INFO/scripts; then
-                    echo "wrapping \`$f'..."
-                    patchLuaScript "$f"
-                    echo "wrapping with LUA_PATH=$program_LUA_PATH"
-                    echo "wrapping with LUA_CPATH=$program_LUA_CPATH"
                     # wrapProgram creates the executable shell script described
                     # above. The script will set LUA_PATH and PATH variables.!
                     # (see pkgs/build-support/setup-hooks/make-wrapper.sh)
@@ -92,24 +75,17 @@ wrapLuaProgramsIn() {
                     # makeWrapperArgs
                     wrapProgram "${wrapProgramArgs[@]}"
 
-                    # wrapProgram "$f" "--prefix PATH ':' "$program_PATH"
-                    #                 --set LUA_PATH "$program_LUA_PATH"
-                    #                 --set LUA_CPATH "$program_LUA_CPATH"
                 # fi
             # fi
         done
     fi
 }
 
-# TODO dupliaced in setup-hook.sh
-
 addToLuaSearchPathWithCustomDelimiter() {
     local delimiter="$1"
     local varName="$2"
     local dir="$3"
     local suffix="$4"
-    # local dontCheckForDir="${4:-}"
-    # if [ -z $dontCheckForDir ] || [ -d "$dir" ]; then
     echo "=> checking dir $3"
     if  [ -d "$dir" ]; then
         export "${varName}=${!varName:+${!varName}${delimiter}}${dir}${suffix}"
@@ -138,15 +114,10 @@ _addToLuaPath() {
         return;
     fi
     luaPathsSeen[$dir]=1
-    # addToLuaSearchPath is defined in stdenv/generic/setup.sh. It will have
-    # the effect of calling `export program_X=$dir/...:$program_X`.
-    # echo "Add to search path $dir/@libFolder@"
-  # getPath       = aib : type : "${lib}/lib/lua/${lua.luaversion}/?.${type};${lib}/share/lua/${lua.luaversion}/?.${type}";
     addToLuaSearchPath program_LUA_PATH "$dir/lib/lua/@luaversion@" "/?.lua"
     addToLuaSearchPath program_LUA_PATH "$dir/share/lua/@luaversion@" "/?.lua"
     addToLuaSearchPath program_LUA_CPATH "$dir/lib/lua/@luaversion@" "/?.so"
     addToLuaSearchPath program_LUA_CPATH "$dir/share/lua/@luaversion@" "/?.so"
-    # addToLuaSearchPath program_PATH "$dir/bin"
 
     # Inspect the propagated inputs (if they exist) and recur on them.
     local prop="$dir/nix-support/propagated-native-build-inputs"

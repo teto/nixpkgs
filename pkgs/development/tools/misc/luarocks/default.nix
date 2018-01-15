@@ -1,10 +1,8 @@
 {stdenv, fetchurl, lua, curl, makeWrapper, which, unzip
 # for 'luarocks pack'
 , zip
-
 # some packages need to be compiled with cmake
 , cmake
-
 }:
 let
   s = # Generated upstream information
