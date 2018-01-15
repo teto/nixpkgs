@@ -10,7 +10,6 @@
 , perl, gtk2, python, glib, gobjectIntrospection, libevent, zlib, autoreconfHook
 , mysql, postgresql, cyrus_sasl
 , fetchFromGitHub, libmpack, which
-, fetchrock
 , pkgs
 , recurseIntoAttrs
 , fetchgit
@@ -131,32 +130,16 @@ let
 
     # src = fetchurl {
     #   url = "http://bitop.luajit.org/download/LuaBitOp-${version}.tar.gz";
-    src = fetchrock {
+    src = fetchurl {
       url = "https://luarocks.org/manifests/luarocks/luabitop-1.0.2-1.src.rock";
-      # url = "http://bitop.luajit.org/download/LuaBitOp-${version}.tar.gz";
       sha256 = "0vpji9a7ab6g3k30hqc4pz8yr51zn455pyfppq9ywqkllmjq0ypw";
     };
 
     buildFlags = stdenv.lib.optionalString stdenv.isDarwin "macosx";
 
     postPatch = stdenv.lib.optionalString stdenv.isDarwin ''
-      echo "POSTPATCH"
       substituteInPlace Makefile --replace 10.4 10.5
     '';
-
-    # TODO that could be done automatically
-    # preBuild = ''
-    #   makeFlagsArray=(
-    #     ${stdenv.lib.optionalString stdenv.cc.isClang "CC=$CC"}
-    #     INCLUDES="-I${lua}/include"
-    #     LUA="${lua}/bin/lua");
-    # '';
-
-    # TODO let mkDerivation do it
-    # installPhase = ''
-    #   mkdir -p $out/lib/lua/${lua.luaversion}
-    #   install -p bit.so $out/lib/lua/${lua.luaversion}
-    # '';
 
     meta = with stdenv.lib; {
       description = "C extension module for Lua which adds bitwise operations on numbers";

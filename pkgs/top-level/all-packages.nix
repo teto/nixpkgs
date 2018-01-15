@@ -205,24 +205,6 @@ with pkgs;
 
   gitRepoToName = callPackage ../build-support/fetchgit/gitrepotoname.nix { };
 
-  # fetches src.rock and .rock
-  # fetchzip doesn't have overrideAttrs
-  # removeAttrs args [ "stripRoot" "extraPostFetch" ]))
-  # fetchrock = fetchzip (x: {nativeBuildInputs = x.nativeBuildInputs++ [ luarocks];});
-  fetchrock = fetchurl;
-  # callPackage ../build-support/fetchrock {
-  #   extraPostFetch = ''
-  #     echo "FETCHROCK postFetch $PWD"
-
-  #   # unpackFile "lpeg-1.0.1.tar.gz"
-  #     '';
-  # };
-  # lib.overrideDerivation ( fetchzip
-  # {nativeBuildInputs, ...} @ args:
-  # removeAttrs args [ nativeBuildInputs] // { nativeBuildInputs= nativeBuildInputs ++ [ luarocks ];}
-  # );
-  # (x: {nativeBuildInputs = x.nativeBuildInputs++ [ luarocks];});
-# callPackage ../build-support/fetchrock { };
 
   fetchFromGitHub = {
     owner, repo, rev, name ? "source",
