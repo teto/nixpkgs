@@ -1,5 +1,4 @@
 # Generic builder for lua packages
-
 { lib
 , lua
 , luarocks
