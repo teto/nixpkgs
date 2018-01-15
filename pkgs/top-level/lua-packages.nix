@@ -740,42 +740,6 @@ let
     };
   };
 
-  # mpack = buildLuaPackage rec {
-  #   name = "mpack-${version}";
-  #   version = "1.0.7";
-
-  #   src = fetchFromGitHub {
-  #     owner = "libmpack";
-  #     repo = "libmpack-lua";
-  #     rev = version;
-  #     sha256 = "1nydi6xbmxwl1fmi32v5v8n74msnmzblzqaqnb102w6vkinampsb";
-  #   };
-
-  #   nativeBuildInputs = [ pkgconfig ];
-  #   buildInputs = [ libmpack ];
-  #   dontBuild = true;
-
-  #   postPatch = stdenv.lib.optionalString stdenv.isDarwin ''
-  #     substituteInPlace Makefile \
-  #       --replace '-shared' '-bundle -undefined dynamic_lookup -all_load'
-  #   '';
-
-  #   installFlags = [
-  #     "USE_SYSTEM_LUA=yes"
-  #     "USE_SYSTEM_MPACK=yes"
-  #     "MPACK_LUA_VERSION=${lua.version}"
-  #     "LUA_CMOD_INSTALLDIR=$(out)/lib/lua/${lua.luaversion}"
-  #   ];
-
-  #   meta = with stdenv.lib; {
-  #     description = "Lua bindings for libmpack";
-  #     homepage = "https://github.com/libmpack/libmpack-lua";
-  #     license = licenses.mit;
-  #     maintainers = with maintainers; [ vyp ];
-  #     platforms = with platforms; linux ++ darwin;
-  #   };
-  # };
-
   vicious = stdenv.mkDerivation rec {
     name = "vicious-${version}";
     version = "2.3.1";
