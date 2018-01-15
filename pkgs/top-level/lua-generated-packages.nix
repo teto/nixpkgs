@@ -1,15 +1,25 @@
 /* ${GENERATED_NIXFILE} is an auto-generated file -- DO NOT EDIT! */
 { self, stdenv
-# , buildLuaPackage
-# temporary as these get generated eventually
-# , luafilesystem, ansicolors
 , fetchurl
-, fetchgit
 , toLuaModule
 , requiredLuaModules
 }:
 with self;
 rec {
+mediator_lua = buildLuaPackage rec {
+meta={
+homepage="http://olivinelabs.com/mediator_lua/";
+license=stdenv.lib.licenses.mit;
+description="Event handling through channels"; }
+;
+src= fetchurl {
+url="http://luarocks.org/manifests/teto/mediator_lua-1.1.2-0.src.rock";
+sha256="18j49vvs94yfk4fw0xsq4v3j4difr6c99gfba0kxairmcqamd1if"; }
+;
+propagatedBuildInputs=[ lua];
+version="1.1.2-0";
+name="mediator_lua"; }
+;
 
 luasystem = buildLuaPackage rec {
 src= fetchurl {
@@ -55,23 +65,6 @@ description="Library for color Manipulation."; }
 ;
 version="1.0.2-3"; }
 ;
-
-# older busted
-# busted = buildLuaPackage rec {
-# version="2.0.rc3-0";
-# pname="busted";
-# propagatedBuildInputs=[ lua lua_cliargs luafilesystem dkjson say luassert ansicolors penlight mediator_lua];
-# src= fetchurl {
-# url=https://luarocks.org/busted-2.0.rc3-0.src.rock;
-# sha256="10z1chfy84k8mrzapn61537lcv1spw3zcr0aq9ib1y4ba9rfds5z"; }
-# ;
-# meta={
-# description="Elegant Lua unit testing.";
-# license=stdenv.lib.licenses.mit;
-# homepage=http://olivinelabs.com/busted/; }
-# ; }
-# ;
-
 
 busted = buildLuaPackage rec {
 pname="busted";

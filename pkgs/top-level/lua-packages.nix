@@ -41,10 +41,6 @@ let
       };
     });
 
-  # Create a PYTHONPATH from a list of derivations. This function recurses into the items to find derivations
-  # providing Python modules.
-  # makeLuaPath = drvs: stdenv.lib.makeSearchPath python.sitePackages (requiredPythonModules drvs);
-
 
   platformString =
     if stdenv.isDarwin then "macosx"
@@ -54,14 +50,11 @@ let
     else throw "unsupported platform";
 
 
-    # recurseForDerivations
-
     generatedPackages = callPackage ./lua-generated-packages.nix {
-      inherit self stdenv fetchurl fetchgit toLuaModule requiredLuaModules;
+      inherit self stdenv fetchurl toLuaModule requiredLuaModules;
     };
 
     self = _self;
-    #
   _self = with self; generatedPackages //  rec {
     inherit lua;
     inherit requiredLuaModules;
@@ -70,12 +63,6 @@ let
     inherit (stdenv.lib) maintainers;
     # generatedPackages = (import ./lua-generated-packages.nix) { inherit self stdenv fetchurl fetchgit; };
 
-  # helper functions for dealing with LUA_PATH and LUA_CPATH
-  # only used in neovim/can be removed
-  # getPath       = aib : type : "${lib}/lib/lua/${lua.luaversion}/?.${type};${lib}/share/lua/${lua.luaversion}/?.${type}";
-  # getLuaPath    = lib : getPath lib "lua";
-  # getLuaCPath   = lib : getPath lib "so";
-
   wrapLua = callPackage ../development/interpreters/lua-5/wrap-lua.nix {inherit lua; inherit (pkgs) makeSetupHook makeWrapper; };
 
   #define build lua package function
@@ -83,25 +70,12 @@ let
     inherit lua;
     inherit wrapLua;
     inherit toLuaModule;
-    # inherit getLuaPath;
-    # inherit getLuaCPath;
   });
 
-  # buildLuaApplication = args: buildLuaPackage ({namePrefix="";} // args );
-
-  # buildLuaPackage = callPackage ../development/lua-modules/generic/lua-build-package.nix {
-  #   inherit lua;
-  #   inherit wrapLua;
-  # };
-  # buildLuaApplication = args: buildLuaPackage ({namePrefix="";} // args );
+  buildLuaApplication = args: buildLuaPackage ({namePrefix="";} // args );
 
   luarocks = callPackage ../development/tools/misc/luarocks {
     inherit lua;
-  };
-
-  luarocks-cjson = callPackage ../development/tools/misc/luarocks {
-    inherit lua;
-    inherit cjson;
   };
 
   cjson = callPackage ../development/lua-modules/cjson {
@@ -109,20 +83,6 @@ let
     inherit buildLuaPackage;
   };
 
-  mediator_lua = buildLuaPackage rec {
-  meta={
-  homepage="http://olivinelabs.com/mediator_lua/";
-  license=stdenv.lib.licenses.mit;
-  description="Event handling through channels"; }
-  ;
-  src= fetchurl {
-  url="http://luarocks.org/manifests/teto/mediator_lua-1.1.2-0.src.rock";
-  sha256="18j49vvs94yfk4fw0xsq4v3j4difr6c99gfba0kxairmcqamd1if"; }
-  ;
-  propagatedBuildInputs=[ lua];
-  version="1.1.2-0";
-  name="mediator_lua"; }
-  ;
 
   luabitop = buildLuaPackage rec {
     version = "1.0.2";

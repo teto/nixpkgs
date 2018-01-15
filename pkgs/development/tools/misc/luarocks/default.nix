@@ -1,9 +1,10 @@
 {stdenv, fetchurl, lua, curl, makeWrapper, which, unzip
-, zip # 'luarocks pack'
+# for 'luarocks pack'
+, zip
+
+# some packages need to be compiled with cmake
 , cmake
 
-# can create a cycle
-, cjson ? null
 }:
 let
   s = # Generated upstream information
@@ -17,18 +18,14 @@ let
   };
   buildInputs = [
     lua curl makeWrapper which unzip
-
-  # to prevent cycling dependancy (cjson != null)
-  ] ++ stdenv.lib.optionals (cjson != null) [ cjson ];
-
+  ];
 in
 stdenv.mkDerivation {
   inherit (s) name version;
   inherit buildInputs;
-  src = /home/teto/luarocks;
-  # src = fetchurl {
-  #   inherit (s) url sha256;
-  # };
+  src = fetchurl {
+    inherit (s) url sha256;
+  };
   preConfigure = ''
     lua -e "" || {
         luajit -e "" && {
@@ -53,10 +50,10 @@ stdenv.mkDerivation {
     done
   '';
 
+  propagatedBuildInputs = [ zip unzip cmake ];
+
   # unpack hook
   setupHook = ./setup-hook.sh;
-
-  propagatedBuildInputs = [ zip unzip cmake ];
 
   # cmake is just to compile packages wit cmake types, not luarocks itself
   dontUseCmakeConfigure = true;

@@ -105,14 +105,10 @@ let
       ncurses
       neovimLibvterm
       unibilium
-#    luajit
       luaPackages.lua
       gperf
     ] ++ optional withJemalloc jemalloc
-      ++ lualibs
-      # pour les tests il nous faut busted/
-      # et penlight
-      # lua_cliargs
+      ++ (with luaPackages; [ mpack lpeg luabitop ])
       ++ optionals doCheck (with luaPackages;[ nvim-client luv lpeg coxpcall busted luafilesystem penlight  ]);
 
     doCheck = true;
@@ -124,13 +120,8 @@ let
       pkgconfig
     ];
 
-    # LUA_PATH = stdenv.lib.concatStringsSep ";" (map luaPackages.getLuaPath lualibs);
-    # LUA_CPATH = stdenv.lib.concatStringsSep ";" (map luaPackages.getLuaCPath lualibs);
-
-    lualibs = with luaPackages; [ mpack lpeg luabitop ];
-
+    # current luajit interpret was not updated in nixos
     cmakeFlags = [
-
       "-DPREFER_LUA=ON"
       "-DLUA_PRG=${luaPackages.lua}/bin/lua"
     ]

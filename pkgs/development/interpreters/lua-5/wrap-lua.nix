@@ -8,9 +8,7 @@ with lib;
 
 
 # defined in trivial-builders.nix
-# makeSetupHook = { deps ? [], substitutions ? {} }: script:
 # imported as wrapLua in lua-packages.nix and pased to mk-lua-derivation to be used as buildInput
-#
 makeSetupHook {
       deps = makeWrapper;
       # substitutions.libPrefix = lua.libPrefix;
@@ -42,7 +40,6 @@ makeSetupHook {
 
         # This preamble does two things:
         # * Sets argv[0] to the original application's name; otherwise it would be .foo-wrapped.
-          # Python doesn't support `exec -a`.
         # * Adds all required libraries to sys.path via `site.addsitedir`. It also handles *.pth files.
         preamble = ''
           sys.argv[0] = '"'$(readlink -f "$f")'"'
