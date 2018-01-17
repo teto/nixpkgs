@@ -56,12 +56,10 @@ stdenv.mkDerivation rec {
     # make configure
     # TODO limit modules so that it gets faster
     echo "rerun with CXXFLAGS=-I/home/teto/lkl/tools/lkl/include"
-    set -x
     ${python.interpreter} ./waf configure --prefix=$out \
-    --with-ns3=${ns3forDce} \
+    --with-ns3=${ns3forDce} --with-python=${pythonEnv}/bin/python \
       ${stdenv.lib.optionalString (!withExamples) "--disable-examples"}
-      '' + stdenv.lib.optionalString doCheck " --enable-tests \\" + ''
-    set +x
+      '' + stdenv.lib.optionalString (!doCheck) " --disable-tests \\" + ''
 
     runHook postConfigure
   '';
