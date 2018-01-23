@@ -1,6 +1,7 @@
 { stdenv, fetchFromGitHub, autoreconfHook, libtool, intltool, pkgconfig
 , ns-3, gcc
-, castxml, python
+, castxml ? null
+, python
 , lkl
 # , musl-frankenlibc
 # pygccxml
@@ -39,7 +40,8 @@ stdenv.mkDerivation rec {
 
   # TODO add after hacking
   # lkl.dev lkl.lib
-  buildInputs = [ ns3forDce gcc castxml pythonEnv  ]
+  # castxml
+  buildInputs = [ ns3forDce gcc  pythonEnv  ]
     # ++ stdenv.lib.optionals
     ;
 

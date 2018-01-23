@@ -13459,15 +13459,13 @@ with pkgs;
 
   # -- Linux kernel expressions ------------------------------------------------
 
-  lkl = (callPackage ../applications/virtualization/lkl { }) {
-    host="posix";
-  };
+  lkl = (callPackage ../applications/virtualization/lkl { }) { host="posix"; };
 
-  lkl-dce = (callPackage ../applications/virtualization/lkl {
-    host="dce";
-  }).overrideAttrs(old:{
-    src=/home/teto/lkl;
-  });
+  # lkl-dce = ( (callPackage ../applications/virtualization/lkl) {
+  #   host="dce";
+  # }).overrideAttrs(old:{
+  #   src=/home/teto/lkl;
+  # });
 
   # really it is "frankenlibc-ed" instead
   lkl-rumprun = lkl.overrideAttrs(old: {
@@ -13932,8 +13930,8 @@ with pkgs;
       owner="libos-nuse";
       repo="musl";
       # there is a "franken" branch
-      # rev="";
-      branch="franken";
+      rev="98c005807ba79b6d7027860d523c7e5f77001018";
+      # branch="franken";
       sha256 = "0p2sxrpzd0vsk11zf3kb5h12yl1nq4yypb5mpjrm8ww0cfaijck2";
     };
   });
@@ -20603,11 +20601,11 @@ with pkgs;
 
   megam = callPackage ../applications/science/misc/megam { };
 
-  ns-3 = callPackage ../development/libraries/science/networking/ns3 {
-    python=python3;
+  ns-3 = python3Packages.callPackage ../development/libraries/science/networking/ns3 {
+    # python=python3;
   };
 
-  dce = pythonPackages.callPackage ../development/libraries/science/networking/ns3/dce.nix {};
+  dce = python3Packages.callPackage ../development/libraries/science/networking/ns3/dce.nix {};
 
   # override to pass a custom lkl, lkl-dce
   dce-next = dce.overrideAttrs(old: {
