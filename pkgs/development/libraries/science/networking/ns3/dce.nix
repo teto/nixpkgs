@@ -58,8 +58,7 @@ stdenv.mkDerivation rec {
     echo "rerun with CXXFLAGS=-I/home/teto/lkl/tools/lkl/include"
     ${python.interpreter} ./waf configure --prefix=$out \
     --with-ns3=${ns3forDce} --with-python=${pythonEnv}/bin/python \
-      ${stdenv.lib.optionalString (!withExamples) "--disable-examples"}
-      '' + stdenv.lib.optionalString (!doCheck) " --disable-tests \\" + ''
+      ${stdenv.lib.optionalString (!withExamples) "--disable-examples "} ${stdenv.lib.optionalString (!doCheck) " --disable-tests" }
 
     runHook postConfigure
   '';
