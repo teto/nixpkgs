@@ -26,6 +26,7 @@ stdenv.mkDerivation rec {
 
   propagatedbuildInputs = [ llvmPackages.libclang ];
 
+  # ncurses really ? /zlib ?
   preConfigure = ''
     cmakeFlagsArray+=(
      ${if withMan then "-DSPHINX_MAN=ON" else ""}
