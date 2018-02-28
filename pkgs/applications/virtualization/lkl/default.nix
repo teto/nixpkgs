@@ -1,6 +1,7 @@
 { stdenv, fetchFromGitHub, bc, python, fuse, libarchive,
 btrfs-progs ? null, xfsprogs ? null, stress-ng ? null
 , pkgconfig
+, gnulib
 , musl-frankenlibc
 # when building LKL with dceHost
 , dce ? null
@@ -21,7 +22,7 @@ stdenv.mkDerivation rec {
   # ++ stdenv.lib.optionals (host == "dce") [dce.dev]
   ;
 
-  buildInputs = [ fuse libarchive ];
+  buildInputs = [ fuse libarchive gnulib ];
 
   # src = /home/teto/lkl;
   src = fetchFromGitHub {
@@ -35,14 +36,32 @@ stdenv.mkDerivation rec {
   prePatch = ''
     patchShebangs arch/lkl/scripts
     patchShebangs tools/lkl
+    # extracted from kernel prepatch code
+    for mf in $(find -name Makefile -o -name Makefile.include -o -name install.sh); do
+        echo "stripping FHS paths in \`$mf'..."
+        sed -i "$mf" -e 's|/usr/bin/||g ; s|/bin/||g ; s|/sbin/||g'
+    done
   '';
 
 
-  #postPatch=''
-  #  #
-  #'';
+  postPatch=''
+      # substituteInPlace tools/scripts/Makefile.include --replace "/bin/pwd" "pwd"
+      # substituteInPlace Makefile --replace "/bin/pwd" "pwd"
+  '';
+  preInstall=''
+    mkdir -p $out/bin
+  '';
 
-  installPhase = ''
+  # installTargets=
+  # makeFlags= [ "O=\"$out\"" ];
+
+  # TODO using export out=$PWD/toto
+  installFlags= [ "O=\"\${out}\" PREFIX=\"$out\"  DESTDIR=\"$out\"" ];
+  # TODO we should have the host
+  # TODO set OUTPUT_FORMAT !
+  makeFlags = ["-C tools/lkl" ];
+  # installPhase = ''
+  postInstall = ''
     mkdir -p $out/bin $lib/lib $dev
 
     cp tools/lkl/bin/lkl-hijack.sh $out/bin
@@ -77,10 +96,6 @@ stdenv.mkDerivation rec {
   #   fs/xfs/xfs_log_recover.c:2575:3: error: format not a string literal and no format arguments [-Werror=format-security]
   #   crypto/jitterentropy.c:54:3: error: #error "The CPU Jitter random number generator must not be compiled with optimizations. See documentation. Use the compiler switch -O0 for compiling jitterentropy.c."
   hardeningDisable = [ "format" "fortify" ];
-
-  # TODO we should have the host
-  # TODO set OUTPUT_FORMAT !
-  makeFlags = "-C tools/lkl";
 
   enableParallelBuilding = true;
 
