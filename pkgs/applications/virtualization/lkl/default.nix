@@ -3,6 +3,7 @@ btrfs-progs ? null, xfsprogs ? null, stress-ng ? null
 , pkgconfig
 , gnulib
 , musl-frankenlibc
+, gperf
 # when building LKL with dceHost
 , dce ? null
 }:
@@ -18,19 +19,19 @@ stdenv.mkDerivation rec {
   outputs = [ "dev" "lib" "out" ];
 
   nativeBuildInputs = [ bc python pkgconfig ]
-  ++ stdenv.lib.optionals doCheck [ btrfs-progs xfsprogs stress-ng]
+  ++ stdenv.lib.optionals doCheck [ btrfs-progs xfsprogs stress-ng ]
   # ++ stdenv.lib.optionals (host == "dce") [dce.dev]
   ;
 
-  buildInputs = [ fuse libarchive gnulib ];
+  buildInputs = [ gperf fuse libarchive gnulib ];
 
-  # src = /home/teto/lkl;
-  src = fetchFromGitHub {
-    inherit rev;
-    owner  = "lkl";
-    repo   = "linux";
-    sha256 = "1m6gh4zcx1q7rv05d0knjpk3ivk2b3kc0kwjndciadqc45kws4wh";
-  };
+  src = stdenv.lib.cleanSource /home/teto/lkl;
+  # src = fetchFromGitHub {
+  #   inherit rev;
+  #   owner  = "lkl";
+  #   repo   = "linux";
+  #   sha256 = "0jvphs6s1qhyzadfrg2bcrzghzi0p4f41xxxkkq1p1pvx528c6cf";
+  # };
 
   # Fix a /usr/bin/env reference in here that breaks sandboxed builds
   prePatch = ''
@@ -47,7 +48,10 @@ stdenv.mkDerivation rec {
   postPatch=''
       # substituteInPlace tools/scripts/Makefile.include --replace "/bin/pwd" "pwd"
       # substituteInPlace Makefile --replace "/bin/pwd" "pwd"
+      export buildRoot=$PWD/build
+      mkdir $buildRoot
   '';
+
   preInstall=''
     mkdir -p $out/bin
   '';
@@ -56,10 +60,11 @@ stdenv.mkDerivation rec {
   # makeFlags= [ "O=\"$out\"" ];
 
   # TODO using export out=$PWD/toto
-  installFlags= [ "O=\"\${out}\" PREFIX=\"$out\"  DESTDIR=\"$out\"" ];
+  # removed 'PREFIX'
+  installFlags= [  "PREFIX=" "DESTDIR=\"$out\"" ];
   # TODO we should have the host
   # TODO set OUTPUT_FORMAT !
-  makeFlags = ["-C tools/lkl" ];
+  makeFlags = ["-C tools/lkl" "O=\"\${buildRoot}\""];
   # installPhase = ''
   postInstall = ''
     mkdir -p $out/bin $lib/lib $dev
@@ -68,20 +73,19 @@ stdenv.mkDerivation rec {
     sed -i $out/bin/lkl-hijack.sh \
         -e "s,LD_LIBRARY_PATH=.*,LD_LIBRARY_PATH=$lib/lib,"
 
-    cp tools/lkl/{cptofs,fs2tar,lklfuse} $out/bin
-    ln -s cptofs $out/bin/cpfromfs
-    cp -r tools/lkl/include $dev/
-    cp tools/lkl/liblkl*.{a,so} $lib/lib
+    # cp tools/lkl/{cptofs,fs2tar,lklfuse} $out/bin
+    # cp -r tools/lkl/include $dev/
+    # cp tools/lkl/liblkl*.{a,so} $lib/lib
 
-    mkdir -p "$out/lib/pkgconfig"
-    cat >"$out/lib/pkgconfig/lkl.pc" <<EOF
+    # INSTALL_MAN=$out/man/man1
+    mkdir -p "$lib/lib/pkgconfig"
+    cat >"$lib/lib/pkgconfig/lkl.pc" <<EOF
     prefix=$out
     libdir=$out/lib
-    includedir=$out/include
+    includedir=$dev/include
     INSTALL_BIN=$out/bin
     INSTALL_INC=$out/include
-    INSTALL_LIB=$out/lib
-    INSTALL_MAN=$out/man/man1
+    INSTALL_LIB=$lib/lib
 
     Name: LKL
     Description: The Linux Kernel Library
@@ -95,7 +99,15 @@ stdenv.mkDerivation rec {
   # We turn off format and fortify because of these errors (fortify implies -O2, which breaks the jitter entropy code):
   #   fs/xfs/xfs_log_recover.c:2575:3: error: format not a string literal and no format arguments [-Werror=format-security]
   #   crypto/jitterentropy.c:54:3: error: #error "The CPU Jitter random number generator must not be compiled with optimizations. See documentation. Use the compiler switch -O0 for compiling jitterentropy.c."
-  hardeningDisable = [ "format" "fortify" ];
+  # hardeningDisable = [ "format" "fortify" ];
+  # ../scripts/kconfig/zconf.tab.c: Dans la fonction « zconfparse »:
+# ../scripts/kconfig/zconf.tab.c:1518:59: error: opérandes invalides pour le + binaire (avec les types « const char * » et « const char * const »)
+  # zconf_error("unexpected option \"%s\"", kconf_id_strings + (yyvsp[-2].id)->name);
+  #                                                          ^ ~~~~~~~~~~~~~~~~~~~~
+# ../scripts/kconfig/zconf.tab.c: Dans la fonction « zconf_endtoken »:
+# ../scripts/kconfig/zconf.tab.c:2271:21: error: opérandes invalides pour le + binaire (avec les types « const char * » et « const char * const »)
+  #   kconf_id_strings + id->name, zconf_tokenname(starttoken));
+  hardeningDisable = [ "all" ];
 
   enableParallelBuilding = true;
 
