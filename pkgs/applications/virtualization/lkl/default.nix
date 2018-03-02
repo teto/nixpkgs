@@ -44,55 +44,48 @@ stdenv.mkDerivation rec {
     done
   '';
 
-
-  postPatch=''
-      # substituteInPlace tools/scripts/Makefile.include --replace "/bin/pwd" "pwd"
-      # substituteInPlace Makefile --replace "/bin/pwd" "pwd"
-      export buildRoot=$PWD/build
-      mkdir $buildRoot
+  # preInstall=''
+  #   mkdir -p $out/bin
+  # '';
+  dontAddPrefix = true;
+  configurePhase=''
+    export buildRoot=$PWD/build
+    mkdir $buildRoot
   '';
-
-  preInstall=''
-    mkdir -p $out/bin
-  '';
-
-  # installTargets=
-  # makeFlags= [ "O=\"$out\"" ];
 
   # TODO using export out=$PWD/toto
   # removed 'PREFIX'
-  installFlags= [  "PREFIX=" "DESTDIR=\"$out\"" ];
+  installFlags= [  "PREFIX=" "DESTDIR=\${out}" ];
   # TODO we should have the host
   # TODO set OUTPUT_FORMAT !
   makeFlags = ["-C tools/lkl" "O=\"\${buildRoot}\""];
-  # installPhase = ''
   postInstall = ''
-    mkdir -p $out/bin $lib/lib $dev
+    mkdir -p $out/bin $lib $dev
 
+    mv $out/lib $lib
+    mv $out/include $dev
+
+    # il n'est pas installe de base, upstreamer ?
     cp tools/lkl/bin/lkl-hijack.sh $out/bin
+
     sed -i $out/bin/lkl-hijack.sh \
         -e "s,LD_LIBRARY_PATH=.*,LD_LIBRARY_PATH=$lib/lib,"
 
-    # cp tools/lkl/{cptofs,fs2tar,lklfuse} $out/bin
-    # cp -r tools/lkl/include $dev/
-    # cp tools/lkl/liblkl*.{a,so} $lib/lib
-
-    # INSTALL_MAN=$out/man/man1
     mkdir -p "$lib/lib/pkgconfig"
     cat >"$lib/lib/pkgconfig/lkl.pc" <<EOF
     prefix=$out
-    libdir=$out/lib
+    libdir=$lib/lib
     includedir=$dev/include
     INSTALL_BIN=$out/bin
-    INSTALL_INC=$out/include
+    INSTALL_INC=$dev/include
     INSTALL_LIB=$lib/lib
 
     Name: LKL
     Description: The Linux Kernel Library
     Version: ${version}
     Requires:
-    Libs: -L$out/lib -llkl
-    Cflags: -I$out/tools/lkl/include
+    Libs: -L$lib/lib -llkl
+    Cflags: -I$dev/include
     EOF
   '';
 
