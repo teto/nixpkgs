@@ -13,8 +13,9 @@ btrfs-progs ? null, xfsprogs ? null, stress-ng ? null
 # TODO export dce Headers
 { host ? "posix" }:
 stdenv.mkDerivation rec {
-  name = "lkl-2018-03-10";
-  rev  = "8772a4da6064444c5b70766b806fe272b0287c31";
+  name = "lkl-${version}";
+  version= "2018-11-10";
+  rev  = "fd7bb8a1c38b0356ffea529de7bae73905d9ca0a";
 
   outputs = [ "dev" "lib" "out" ];
 
@@ -25,13 +26,13 @@ stdenv.mkDerivation rec {
 
   buildInputs = [ gperf fuse libarchive gnulib ];
 
-  src = stdenv.lib.cleanSource /home/teto/lkl;
-  # src = fetchFromGitHub {
-  #   inherit rev;
-  #   owner  = "lkl";
-  #   repo   = "linux";
-  #   sha256 = "0jvphs6s1qhyzadfrg2bcrzghzi0p4f41xxxkkq1p1pvx528c6cf";
-  # };
+  # src = stdenv.lib.cleanSource /home/teto/lkl;
+  src = fetchFromGitHub {
+    inherit rev;
+    owner  = "lkl";
+    repo   = "linux";
+    sha256 = "1ssgj89fkhg2waq8vqnq87qaswajbjv3whdvlvxiyq9w0am9ilym";
+  };
 
   # Fix a /usr/bin/env reference in here that breaks sandboxed builds
   prePatch = ''
