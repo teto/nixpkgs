@@ -55,11 +55,12 @@ stdenv.mkDerivation rec {
 
   # TODO using export out=$PWD/toto
   # removed 'PREFIX'
-  installFlags= [  "PREFIX=" "DESTDIR=\${out}" ];
+  installFlags= [  "PREFIX=\${out}" "DESTDIR=" ];
   # TODO we should have the host
   # TODO set OUTPUT_FORMAT !
   makeFlags = ["-C tools/lkl" "O=\"\${buildRoot}\""];
   postInstall = ''
+    set -x
     mkdir -p $out/bin $lib $dev
 
     mv $out/lib $lib
@@ -87,24 +88,18 @@ stdenv.mkDerivation rec {
     Libs: -L$lib/lib -llkl
     Cflags: -I$dev/include
     EOF
+
+    set +x
   '';
 
   # We turn off format and fortify because of these errors (fortify implies -O2, which breaks the jitter entropy code):
   #   fs/xfs/xfs_log_recover.c:2575:3: error: format not a string literal and no format arguments [-Werror=format-security]
   #   crypto/jitterentropy.c:54:3: error: #error "The CPU Jitter random number generator must not be compiled with optimizations. See documentation. Use the compiler switch -O0 for compiling jitterentropy.c."
-  # hardeningDisable = [ "format" "fortify" ];
-  # ../scripts/kconfig/zconf.tab.c: Dans la fonction « zconfparse »:
-# ../scripts/kconfig/zconf.tab.c:1518:59: error: opérandes invalides pour le + binaire (avec les types « const char * » et « const char * const »)
-  # zconf_error("unexpected option \"%s\"", kconf_id_strings + (yyvsp[-2].id)->name);
-  #                                                          ^ ~~~~~~~~~~~~~~~~~~~~
-# ../scripts/kconfig/zconf.tab.c: Dans la fonction « zconf_endtoken »:
-# ../scripts/kconfig/zconf.tab.c:2271:21: error: opérandes invalides pour le + binaire (avec les types « const char * » et « const char * const »)
-  #   kconf_id_strings + id->name, zconf_tokenname(starttoken));
-  hardeningDisable = [ "all" ];
+  hardeningDisable = [ "format" "fortify" ];
 
   enableParallelBuilding = true;
 
-  # will ask for sudo
+  # will ask for sudo reuseflags ?
   checkPhase=''
     make -C tools/lkl tests
   '';
