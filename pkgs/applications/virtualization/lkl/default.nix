@@ -17,7 +17,7 @@ stdenv.mkDerivation rec {
   version= "2018-11-10";
   rev  = "fd7bb8a1c38b0356ffea529de7bae73905d9ca0a";
 
-  outputs = [ "dev" "lib" "out" ];
+  outputs = [ "out" "dev" "lib" ];
 
   nativeBuildInputs = [ bc python pkgconfig ]
   ++ stdenv.lib.optionals doCheck [ btrfs-progs xfsprogs stress-ng ]
@@ -54,18 +54,15 @@ stdenv.mkDerivation rec {
     mkdir $buildRoot
   '';
 
-  # TODO using export out=$PWD/toto
-  # removed 'PREFIX'
+  # TODO I should be able to pass my own config
   installFlags= [  "PREFIX=\${out}" "DESTDIR=" ];
-  # TODO we should have the host
-  # TODO set OUTPUT_FORMAT !
   makeFlags = ["-C tools/lkl" "O=\"\${buildRoot}\""];
   postInstall = ''
-    set -x
-    mkdir -p $out/bin $lib $dev
+    mkdir -p $lib $dev
 
-    mv $out/lib $lib
-    mv $out/include $dev
+    # TODO use $buildRoot instead here !
+    mv -v $out/lib $lib
+    mv -v $out/include $dev
 
     # il n'est pas installe de base, upstreamer ?
     cp tools/lkl/bin/lkl-hijack.sh $out/bin
@@ -89,8 +86,6 @@ stdenv.mkDerivation rec {
     Libs: -L$lib/lib -llkl
     Cflags: -I$dev/include
     EOF
-
-    set +x
   '';
 
   # We turn off format and fortify because of these errors (fortify implies -O2, which breaks the jitter entropy code):
