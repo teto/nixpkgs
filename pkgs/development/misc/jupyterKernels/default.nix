@@ -10,7 +10,7 @@ let
               scikitlearn
             ]));
     in {
-      displayName = "Python 3";
+      display_name = "Python 3";
       argv = [
         "${env.interpreter}"
         "-m"
@@ -41,8 +41,8 @@ in
         ${concatStringsSep "\n" (mapAttrsToList (kernelName: kernel:
           let
             config = builtins.toJSON {
-              display_name = if (kernel.displayName != "")
-                then kernel.displayName
+              display_name = if (kernel.display_name != "")
+                then kernel.display_name
                 else kernelName;
               argv = kernel.argv;
               language = kernel.language;

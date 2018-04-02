@@ -6,7 +6,7 @@ with lib;
 {
   options = {
 
-    displayName = mkOption {
+    display_name = mkOption {
       type = types.str;
       default = "";
       example = [
