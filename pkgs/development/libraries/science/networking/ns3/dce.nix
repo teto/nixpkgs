@@ -36,7 +36,6 @@ stdenv.mkDerivation rec {
   #   rev    = "${version}";
   #   sha256 = "1mvn0z1vl4j9drl3dsw2dv0pppqvj29d2m07487dzzi8cbxrqj36";
   # };
-  src = /home/teto/dce;
 
   # TODO add after hacking
   # lkl.dev lkl.lib
@@ -55,8 +54,6 @@ stdenv.mkDerivation rec {
   configurePhase = ''
     runHook preConfigure
 
-    # make configure
-    # TODO limit modules so that it gets faster
     echo "rerun with CXXFLAGS=-I/home/teto/lkl/tools/lkl/include"
     ${python.interpreter} ./waf configure --prefix=$out \
     --with-ns3=${ns3forDce} --with-python=${pythonEnv}/bin/python \

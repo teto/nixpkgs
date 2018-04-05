@@ -81,6 +81,10 @@ stdenv.mkDerivation rec {
     in "${flags}"
   ;
 
+  postInstall = ''
+
+  '';
+
   doCheck = true;
 
   # we need to specify the proper interpreter else ns3 can check against a
