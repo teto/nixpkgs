@@ -22,8 +22,8 @@ let
   ++ lib.optionals withExamples []
   ;
 
-  # ns3forDce = ns-3.override( { inherit modules; });
-  ns3forDce = ns-3;
+  ns3forDce = ns-3.override( { inherit modules; });
+  # ns3forDce = ns-3;
 
   pythonEnv = python.withPackages (ps: with ps; [ pygccxml ]);
 in
@@ -32,7 +32,10 @@ stdenv.mkDerivation rec {
   pname   = "direct-code-execution";
   version = "1.10";
 
-  src = /home/teto/dce;
+  # TODO clean cache !
+  src = lib.cleanSourceWith {
+    filter = p: t: lib.cleanSourceFilter p t && baseNameOf p != "build";
+    src=/home/teto/dce; };
   # src = fetchFromGitHub {
   #   owner  = "direct-code-execution";
   #   repo   = "ns-3-dce";
