@@ -113,13 +113,7 @@ with pkgs;
 
   buildMaven = callPackage ../build-support/build-maven.nix {};
 
-  castxml = callPackage ../development/tools/castxml {
-    # stdenv = llvmPackages_5.libcxxStdenv;
-    # clang = clang_5;
-    llvmPackages = llvmPackages_5;
-
-    # stdenv = clangStdenv;
-  };
+  castxml = callPackage ../development/tools/castxml { };
 
   cmark = callPackage ../development/libraries/cmark { };
 
@@ -20603,9 +20597,7 @@ with pkgs;
 
   megam = callPackage ../applications/science/misc/megam { };
 
-  ns-3 = python3Packages.callPackage ../development/libraries/science/networking/ns3 {
-    # python=python3;
-  };
+  ns-3 = callPackage ../development/libraries/science/networking/ns3 { };
 
   dce = python3Packages.callPackage ../development/libraries/science/networking/ns3/dce.nix {};
 

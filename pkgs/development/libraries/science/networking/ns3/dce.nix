@@ -21,34 +21,32 @@ let
   ++ lib.optionals withScripts [ "tap-bridge" "mobility" "flow-monitor"]
   ++ lib.optionals withExamples []
   ;
-  ns3forDce = ns-3.override( { inherit modules; });
+
+  # ns3forDce = ns-3.override( { inherit modules; });
+  ns3forDce = ns-3;
 
   pythonEnv = python.withPackages (ps: with ps; [ pygccxml ]);
 in
 stdenv.mkDerivation rec {
   name    = "${pname}-${version}";
   pname   = "direct-code-execution";
-  version = "1.9";
+  version = "1.10";
 
+  src = /home/teto/dce;
   # src = fetchFromGitHub {
-  #   owner  = "direct-code-execution/";
+  #   owner  = "direct-code-execution";
   #   repo   = "ns-3-dce";
-  #   rev    = "${version}";
+  #   rev    = version;
   #   sha256 = "1mvn0z1vl4j9drl3dsw2dv0pppqvj29d2m07487dzzi8cbxrqj36";
   # };
 
-  # TODO add after hacking
-  # lkl.dev lkl.lib
-  # castxml
   buildInputs = [ ns3forDce gcc  pythonEnv  ]
     # ++ stdenv.lib.optionals
     ;
 
   nativeBuildInputs = [ pkgconfig ];
-  # autoreconfHook libtool
 
-  # with-ns3 should be install folder
-  doCheck=false;
+  doCheck = false;
 
   # TODO set --with-python if bindings enabled
   configurePhase = ''
@@ -56,7 +54,7 @@ stdenv.mkDerivation rec {
 
     echo "rerun with CXXFLAGS=-I/home/teto/lkl/tools/lkl/include"
     ${python.interpreter} ./waf configure --prefix=$out \
-    --with-ns3=${ns3forDce} --with-python=${pythonEnv}/bin/python \
+    --with-ns3=${ns3forDce} --with-python=${pythonEnv.interpreter} \
       ${stdenv.lib.optionalString (!withExamples) "--disable-examples "} ${stdenv.lib.optionalString (!doCheck) " --disable-tests" }
 
     runHook postConfigure
@@ -67,20 +65,6 @@ stdenv.mkDerivation rec {
   '';
 
   hardeningDisable = [ "all" ];
-  # postPatch = ''
-  #   sed -i -e 's%"\(/usr/sbin\|/usr/pkg/sbin\|/usr/local/sbin\)/[^"]*",%%g' ./src/nm-l2tp-service.c
-
-  #   substituteInPlace ./src/nm-l2tp-service.c \
-  #     --replace /sbin/ipsec  ${strongswan}/bin/ipsec \
-  #     --replace /sbin/xl2tpd ${xl2tpd}/bin/xl2tpd
-  # '';
-
-  # preConfigure = ''
-  #   intltoolize -f
-  # '';
-
-  # configureFlags =
-  #   if withGnome then "--with-gnome" else "--without-gnome";
 
   meta = {
     homepage = https://www.nsnam.org/overview/projects/direct-code-execution;
