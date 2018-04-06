@@ -283,6 +283,8 @@ in {
 
   mail-parser = callPackage ../development/python-modules/mail-parser {  };
 
+  mininet = callPackage ../development/python-modules/mininet { };
+
   mpi4py = callPackage ../development/python-modules/mpi4py {
     mpi = pkgs.openmpi;
   };
@@ -16569,10 +16571,6 @@ EOF
   pygccxml = callPackage ../development/python-modules/pygccxml {};
 
   pymacaroons-pynacl = callPackage ../development/python-modules/pymacaroons-pynacl { };
-
-  pybindgen = callPackage ../development/python-modules/pybindgen {};
-
-  pygccxml = callPackage ../development/python-modules/pygccxml {};
 
   pynacl = callPackage ../development/python-modules/pynacl { };
 
