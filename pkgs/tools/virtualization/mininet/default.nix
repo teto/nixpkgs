@@ -1,8 +1,9 @@
-{ lib, fetchFromGitHub
+{ stdenv, lib, fetchFromGitHub
 
 , bash, iperf
 , openvswitch
 , which
+, python
 # mnexec
 }:
 
@@ -10,17 +11,23 @@
   # * A Linux kernel compiled with network namespace support enabled
   # * An compatible software switch such as Open vSwitch or the Linux bridge.
 stdenv.mkDerivation rec {
-  pname = "mininet";
+  name = "mininet-${version}";
   version = "2.2.2";
 
   src = fetchFromGitHub {
     owner = "mininet";
-    repo = pname;
+    repo = "mininet";
     rev = version;
     sha256 = "18w9vfszhnx4j3b8dd1rvrg8xnfk6rgh066hfpzspzqngd5qzakg";
   };
 
-  propagatedBuildInputs = [ bash  iperf openvswitch ];
+  postPatch=''
+    # skip examples
+    patchShebangs bin utils mininet
+
+  '';
+  buildInputs = [ python ];
+  propagatedBuildInputs = [ which bash  iperf openvswitch ];
 
   meta = with lib; {
     description = "Parses log files, generates metrics for Graphite and Ganglia";
