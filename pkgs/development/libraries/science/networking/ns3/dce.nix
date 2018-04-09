@@ -2,14 +2,10 @@
 , ns-3, gcc
 , castxml ? null
 , python
-, lkl
-# , musl-frankenlibc
-# pygccxml
 , lib
-, withDoc ? false
 , withManual ? false
 , withExamples ? false
-, withBindings ? false
+, generateBindings ? false
 , ...
 }:
 
@@ -24,8 +20,10 @@ let
 
   ns3forDce = ns-3.override( { inherit modules; });
   # ns3forDce = ns-3;
-
-  pythonEnv = python.withPackages (ps: with ps; [ pygccxml ]);
+  pythonEnv = python.withPackages(ps:
+    stdenv.lib.optional withManual ps.sphinx
+    ++ lib.optionals generateBindings (with ps;[ pybindgen pygccxml ])
+  );
 in
 stdenv.mkDerivation rec {
   name    = "${pname}-${version}";
@@ -33,29 +31,23 @@ stdenv.mkDerivation rec {
   version = "1.10";
 
   # TODO clean cache !
-  src = lib.cleanSourceWith {
-    filter = p: t: lib.cleanSourceFilter p t && baseNameOf p != "build";
-    src=/home/teto/dce; };
-  # src = fetchFromGitHub {
-  #   owner  = "direct-code-execution";
-  #   repo   = "ns-3-dce";
-  #   rev    = version;
-  #   sha256 = "1mvn0z1vl4j9drl3dsw2dv0pppqvj29d2m07487dzzi8cbxrqj36";
-  # };
+  src = fetchFromGitHub {
+    owner  = "direct-code-execution";
+    repo   = "ns-3-dce";
+    rev    = version;
+    sha256 = "1mvn0z1vl4j9drl3dsw2dv0pppqvj29d2m07487dzzi8cbxrqj36";
+  };
 
-  buildInputs = [ ns3forDce gcc  pythonEnv  ]
-    # ++ stdenv.lib.optionals
-    ;
+  buildInputs = [ ns3forDce gcc pythonEnv ];
 
   nativeBuildInputs = [ pkgconfig ];
 
-  doCheck = false;
+  doCheck = true;
 
-  # TODO set --with-python if bindings enabled
+  # echo "rerun with CXXFLAGS=-I/home/teto/lkl/tools/lkl/include"
   configurePhase = ''
     runHook preConfigure
 
-    echo "rerun with CXXFLAGS=-I/home/teto/lkl/tools/lkl/include"
     ${python.interpreter} ./waf configure --prefix=$out \
     --with-ns3=${ns3forDce} --with-python=${pythonEnv.interpreter} \
       ${stdenv.lib.optionalString (!withExamples) "--disable-examples "} ${stdenv.lib.optionalString (!doCheck) " --disable-tests" }
