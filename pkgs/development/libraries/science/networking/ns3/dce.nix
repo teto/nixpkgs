@@ -1,6 +1,8 @@
 { stdenv, fetchFromGitHub, autoreconfHook, libtool, intltool, pkgconfig
 , ns-3, gcc
 , castxml ? null
+# hidden dependency of waf
+, ncurses
 , python
 , lib
 , withManual ? false
@@ -15,11 +17,9 @@ let
   modules = [ "core" "network" "internet" "point-to-point" "fd-net-device"
   "point-to-point-layout" "netanim"]
   ++ lib.optionals withScripts [ "tap-bridge" "mobility" "flow-monitor"]
-  ++ lib.optionals withExamples []
   ;
 
   ns3forDce = ns-3.override( { inherit modules; });
-  # ns3forDce = ns-3;
   pythonEnv = python.withPackages(ps:
     stdenv.lib.optional withManual ps.sphinx
     ++ lib.optionals generateBindings (with ps;[ pybindgen pygccxml ])
@@ -30,7 +30,6 @@ stdenv.mkDerivation rec {
   pname   = "direct-code-execution";
   version = "1.10";
 
-  # TODO clean cache !
   src = fetchFromGitHub {
     owner  = "direct-code-execution";
     repo   = "ns-3-dce";
@@ -38,25 +37,25 @@ stdenv.mkDerivation rec {
     sha256 = "1mvn0z1vl4j9drl3dsw2dv0pppqvj29d2m07487dzzi8cbxrqj36";
   };
 
-  buildInputs = [ ns3forDce gcc pythonEnv ];
+  buildInputs = [ ns3forDce gcc pythonEnv ]
+    ++ lib.optionals generateBindings [ castxml ncurses ];
 
   nativeBuildInputs = [ pkgconfig ];
 
   doCheck = true;
 
-  # echo "rerun with CXXFLAGS=-I/home/teto/lkl/tools/lkl/include"
   configurePhase = ''
     runHook preConfigure
 
-    ${python.interpreter} ./waf configure --prefix=$out \
+    ${pythonEnv.interpreter} ./waf configure --prefix=$out \
     --with-ns3=${ns3forDce} --with-python=${pythonEnv.interpreter} \
-      ${stdenv.lib.optionalString (!withExamples) "--disable-examples "} ${stdenv.lib.optionalString (!doCheck) " --disable-tests" }
+      ${stdenv.lib.optionalString (!withExamples) "--disable-examples "} ${stdenv.lib.optionalString (!doCheck) " --disable-tests" };
 
     runHook postConfigure
   '';
 
   buildPhase=''
-    ./waf build
+    ${pythonEnv.interpreter} ./waf build
   '';
 
   hardeningDisable = [ "all" ];
