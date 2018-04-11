@@ -1,3 +1,5 @@
+# some dependencies need to be patched
+# http://code.nsnam.org/bake/file/c502b48053dc/bakeconf.xml
 { stdenv, fetchFromGitHub, autoreconfHook, libtool, intltool, pkgconfig
 , ns-3, gcc
 , castxml ? null
@@ -5,8 +7,9 @@
 , ncurses
 , python
 , lib
+, fetchurl
 , withManual ? false
-, withExamples ? false
+, withExamples ? false, openssl ? null, ccnd ? null, iperf ? null
 , generateBindings ? false
 , ...
 }:
@@ -24,8 +27,34 @@ let
     stdenv.lib.optional withManual ps.sphinx
     ++ lib.optionals generateBindings (with ps;[ pybindgen pygccxml ])
   );
-in
-stdenv.mkDerivation rec {
+
+  # need to patch iperf
+  # lib.optional withExamples
+  iperf-dce = iperf.overrideAttrs(old: {
+
+    # choose correct version ?
+    src = fetchurl {
+      url = http://sourceforge.net/projects/iperf/files/iperf-2.0.5.tar.gz;
+      sha256 = "0nr6c81x55ihs7ly2dwq19v9i1n6wiyad1gacw3aikii0kzlwsv3";
+    };
+    # TODO apply patch
+    # patchPhase
+    patches = dce + "/utils/iperf_4_dce.patch";
+  }).override { stdenv=dceStdenv; };
+
+  # TODO write a dce env
+  dceStdenv = stdenv.override rec {
+    #  -fuse-ld=gold
+    # NIX_CFLAGS_LINK = toString (args.NIX_CFLAGS_LINK or "") + " -rdynamic -pie ";
+    # NIX_LDFLAGS=
+    NIX_CFLAGS="-fPIC -U_FORTIFY_SOURCE ";
+    CXXFLAGS=NIX_CFLAGS;
+    NIX_LDFLAGS="-rdynamic -pie";
+  };
+
+
+  # define here
+  dce = stdenv.mkDerivation rec {
   name    = "${pname}-${version}";
   pname   = "direct-code-execution";
   version = "1.10";
@@ -38,7 +67,9 @@ stdenv.mkDerivation rec {
   };
 
   buildInputs = [ ns3forDce gcc pythonEnv ]
-    ++ lib.optionals generateBindings [ castxml ncurses ];
+    ++ lib.optionals generateBindings [ castxml ncurses ]
+    ++ lib.optionals withExamples [ openssl iperf-dce ]
+    ;
 
   nativeBuildInputs = [ pkgconfig ];
 
@@ -66,4 +97,6 @@ stdenv.mkDerivation rec {
     description = "Run real applications/network stacks in the simulator ns-3";
     platforms = with stdenv.lib.platforms; unix;
   };
-}
+};
+in
+  dce
