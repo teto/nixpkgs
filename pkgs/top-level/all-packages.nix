@@ -20599,7 +20599,9 @@ with pkgs;
 
   ns-3 = callPackage ../development/libraries/science/networking/ns3 { };
 
-  dce = python3Packages.callPackage ../development/libraries/science/networking/ns3/dce.nix {};
+  dce = callPackage ../development/libraries/science/networking/ns3/dce.nix {
+    python=python3;
+  };
 
   # override to pass a custom lkl, lkl-dce
   dce-next = dce.overrideAttrs(old: {
