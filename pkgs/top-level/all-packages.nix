@@ -13506,12 +13506,11 @@ with pkgs;
     ];
   };
 
-  # linux mptcp is based on the 4.4 kernel
+  # linux mptcp is based on the 4.14 kernel
   linux_mptcp = callPackage ../os-specific/linux/kernel/linux-mptcp.nix {
     kernelPatches =
       [ kernelPatches.bridge_stp_helper
-        kernelPatches.p9_fixes
-        kernelPatches.cpu-cgroup-v2."4.9"
+        kernelPatches.cpu-cgroup-v2."4.11"
         kernelPatches.modinst_arg_list_too_long
       ];
   };
