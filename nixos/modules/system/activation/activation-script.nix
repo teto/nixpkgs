@@ -118,6 +118,14 @@ in
   config = {
 
     system.activationScripts.stdio = ""; # obsolete
+    # system.activationScripts.iproute = ''
+
+    # '';
+    # environment.etc."iproute2/rt_tables" = { source = pkgs.iproute + "/"; mode = "0644"; };
+
+    system.activationScripts.iproute2 = ''
+      cp -R ${pkgs.iproute}/etc/iproute2 /etc
+    '';
 
     system.activationScripts.var =
       ''
