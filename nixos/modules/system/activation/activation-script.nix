@@ -125,6 +125,7 @@ in
 
     system.activationScripts.iproute2 = ''
       cp -R ${pkgs.iproute}/etc/iproute2 /etc
+      chmod -R 660 ${pkgs.iproute}/etc/iproute2
     '';
 
     system.activationScripts.var =
