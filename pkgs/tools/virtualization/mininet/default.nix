@@ -7,6 +7,7 @@
 # mnexec
 }:
 
+# TODO present it as a program if it needs openvswitch
 # https://github.com/mininet/mininet/blob/master/INSTALL
   # * A Linux kernel compiled with network namespace support enabled
   # * An compatible software switch such as Open vSwitch or the Linux bridge.
