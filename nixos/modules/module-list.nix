@@ -93,6 +93,7 @@
   ./programs/kbdlight.nix
   ./programs/less.nix
   ./programs/light.nix
+  ./programs/mininet.nix
   ./programs/mosh.nix
   ./programs/mtr.nix
   ./programs/nano.nix

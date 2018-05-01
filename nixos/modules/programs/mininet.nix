@@ -16,24 +16,30 @@ in
   options = {
 
     programs.mininet = {
-
-
-      extraConfig = mkOption {
-        type = types.lines;
-        default = "";
+      enable = mkOption { type = types.bool;
+        default = false;
         description = ''
-          Extra configuration text appended to <filename>ssh_config</filename>.
-          See <citerefentry><refentrytitle>ssh_config</refentrytitle><manvolnum>5</manvolnum></citerefentry>
-          for help.
-        '';
+          Whether to enable Open vSwitch. A configuration daemon (ovs-server)
+          will be started.
+          '';
       };
+
+      # extraConfig = mkOption {
+      #   type = types.lines;
+      #   default = "";
+      #   description = ''
+      #     Extra configuration text appended to <filename>ssh_config</filename>.
+      #     See <citerefentry><refentrytitle>ssh_config</refentrytitle><manvolnum>5</manvolnum></citerefentry>
+      #     for help.
+      #   '';
+      # };
 
     };
 
   };
 
   # make it setuid ?
-  config = {
+  config = mkIf cfg.enable {
 
     # programs.ssh.setXAuthLocation =
       # mkDefault (config.services.xserver.enable || config.programs.ssh.forwardX11 || config.services.openssh.forwardX11);
