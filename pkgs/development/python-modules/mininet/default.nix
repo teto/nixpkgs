@@ -28,6 +28,15 @@ buildPythonApplication rec {
 
   # openvswitch / leave it to the module
   # propagatedBuildInputs = [ bash iperf  ];
+  # patchPhase = ''
+  #   patchShebangs util/versioncheck.py
+  # '';
+  postPatch=''
+    # skip examples
+    patchShebangs bin utils mininet
+  '';
+
+  propagatedBuildInputs = [ which ];
 
   meta = with lib; {
     description = "Parses log files, generates metrics for Graphite and Ganglia";

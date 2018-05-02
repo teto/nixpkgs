@@ -13968,6 +13968,8 @@ with pkgs;
 
   nvme-cli = callPackage ../os-specific/linux/nvme-cli { };
 
+  openflowswitch = callPackage ../applications/networking/openflow { };
+
   open-vm-tools = callPackage ../applications/virtualization/open-vm-tools {
     inherit (gnome2) gtk gtkmm;
   };
@@ -20559,7 +20561,8 @@ with pkgs;
     flex = flex_2_5_35;
   };
 
-  mininet = callPackage ../tools/virtualization/mininet { };
+  # mnexec binary is compiled apart from
+  mininet-mnexec = callPackage ../tools/virtualization/mininet { };
 
   msieve = callPackage ../applications/science/math/msieve { };
 

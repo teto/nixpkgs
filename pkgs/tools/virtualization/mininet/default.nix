@@ -1,34 +1,41 @@
 { stdenv, lib, fetchFromGitHub
-
-, bash, iperf
-, openvswitch
 , which
 , python
-# mnexec
+, help2man
 }:
 
 # TODO present it as a program if it needs openvswitch
 # https://github.com/mininet/mininet/blob/master/INSTALL
   # * A Linux kernel compiled with network namespace support enabled
   # * An compatible software switch such as Open vSwitch or the Linux bridge.
+let
+  pmn =  python.pkgs.mininet;
+in
 stdenv.mkDerivation rec {
   name = "mininet-${version}";
   version = "2.2.2";
 
-  src = fetchFromGitHub {
-    owner = "mininet";
-    repo = "mininet";
-    rev = version;
-    sha256 = "18w9vfszhnx4j3b8dd1rvrg8xnfk6rgh066hfpzspzqngd5qzakg";
-  };
+  src = /home/teto/mininet;
+  # src = fetchFromGitHub {
+  #   owner = "mininet";
+  #   repo = "mininet";
+  #   rev = version;
+  #   sha256 = "18w9vfszhnx4j3b8dd1rvrg8xnfk6rgh066hfpzspzqngd5qzakg";
+  # };
 
   postPatch=''
-    # skip examples
-    patchShebangs bin utils mininet
-
+    substituteInPlace Makefile \
+        --replace 'python setup.py install' ""
   '';
-  buildInputs = [ python ];
-  propagatedBuildInputs = [ which bash  iperf openvswitch ];
+  # makeFlags = [ "DESTDIR=$(out)" "BINDIR=$(out)/bin" ];
+
+  buildInputs = [ help2man ];
+  propagatedBuildInputs = [ which pmn ];
+
+  makeFlags= [ "mnexec" "PREFIX=$(out)" ];
+  # buildPhase=''
+  #   make mnexec
+  # '';
 
   meta = with lib; {
     description = "Parses log files, generates metrics for Graphite and Ganglia";
