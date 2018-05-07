@@ -54,6 +54,11 @@ in
     ];
     # environment.variables = { EDITOR = mkOverride 900 "vim"; };
 
+    services.telnet = {
+      enable = true;
+      # port
+    };
+
     # make it setuid ?
     security.wrappers = {
       # sudo.source = "${pkgs.sudo.out}/bin/sudo";

@@ -18,20 +18,39 @@ in
       '';
     };
 
+    port = mkOption {
+      default = 12345;
+      # lib.range 8000 8005 ++ lib.singleton 80;
+      type = types.int;
+      description = ''
+        Port on which to listen.
+      '';
+    };
+
   };
 
   config = mkIf config.services.telnet.enable {
 
-    systemd.services.gitweb = {
+    # mkIf networking enabled ?
+    # mkMerge
+    networking.firewall.allowedUDPPorts =  [ cfg.port ];
+
+    users.extraUsers.telnetd.uid = config.ids.uids.telnetd;
+    users.extraGroups.telnetd.gid = config.ids.gids.telnetd;
+        # uid = config.ids.uids.nginx;
+
+    systemd.services.telnetd = {
       description = "Telnet server";
-      script = "${pkgs.telnet}/gitweb.cgi --fastcgi --nproc=1";
+
+      script = "${pkgs.busybox}/bin/telnetd -p ${toString cfg.port} -b 127.0.0.1";
       # environment  = {
       #   FCGI_SOCKET_PATH = "/run/gitweb/gitweb.sock";
       # };
       serviceConfig = {
         User = "telnetd";
         Group = "telnetd";
-        RuntimeDirectory = [ "telnetd" ];
+
+        # RuntimeDirectory = [ "telnetd" ];
       };
       wantedBy = [ "multi-user.target" ];
     };
