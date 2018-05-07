@@ -39,6 +39,7 @@ in
     users.extraGroups.telnetd.gid = config.ids.gids.telnetd;
         # uid = config.ids.uids.nginx;
 
+
     systemd.services.telnetd = {
       description = "Telnet server";
 
@@ -49,7 +50,7 @@ in
       serviceConfig = {
         User = "telnetd";
         Group = "telnetd";
-
+        CapabilityBoundingSet = "CAP_NET_BIND_SERVICE";
         # RuntimeDirectory = [ "telnetd" ];
       };
       wantedBy = [ "multi-user.target" ];

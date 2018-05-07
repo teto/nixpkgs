@@ -50,7 +50,7 @@ in
             # pyflakes pylint pep8 python-pexpect
     environment.systemPackages = with pkgs; [
       mn iperf mininet-mnexec openflowswitch telnet
-      ethtool iproute2 socat
+      ethtool iproute socat
     ];
     # environment.variables = { EDITOR = mkOverride 900 "vim"; };
 
