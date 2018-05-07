@@ -45,7 +45,13 @@ in
       enable = true;
     };
 
-    environment.systemPackages = with pkgs; [ mn iperf mininet-mnexec openflowswitch telnet ];
+    # $install gcc make socat psmisc xterm ssh iperf iproute2 telnet \
+            # python-setuptools cgroup-bin ethtool help2man \
+            # pyflakes pylint pep8 python-pexpect
+    environment.systemPackages = with pkgs; [
+      mn iperf mininet-mnexec openflowswitch telnet
+      ethtool iproute2 socat
+    ];
     # environment.variables = { EDITOR = mkOverride 900 "vim"; };
 
     # make it setuid ?
