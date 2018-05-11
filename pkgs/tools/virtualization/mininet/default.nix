@@ -26,6 +26,11 @@ stdenv.mkDerivation rec {
   postPatch=''
     substituteInPlace Makefile \
         --replace 'python setup.py install' ""
+
+    # ideally should be necessary only on utils/m ?
+    # exclude examples
+    patchShebangs .
+
   '';
   # makeFlags = [ "DESTDIR=$(out)" "BINDIR=$(out)/bin" ];
 
