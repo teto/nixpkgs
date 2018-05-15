@@ -54,55 +54,55 @@ let
 
   # define here
   dce = stdenv.mkDerivation rec {
-  name    = "${pname}-${version}";
-  pname   = "direct-code-execution";
-  version = "1.10";
+    name    = "${pname}-${version}";
+    pname   = "direct-code-execution";
+    version = "1.10";
 
-  src = fetchFromGitHub {
-    owner  = "direct-code-execution";
-    repo   = "ns-3-dce";
-    rev    = "dce-${version}";
-    sha256 = "0f2g47mql8jjzn2q6lm0cbb5fv62sdqafdvx5g8s3lqri1sca14n";
+    src = fetchFromGitHub {
+      owner  = "direct-code-execution";
+      repo   = "ns-3-dce";
+      rev    = "dce-${version}";
+      sha256 = "0f2g47mql8jjzn2q6lm0cbb5fv62sdqafdvx5g8s3lqri1sca14n";
+    };
+
+    buildInputs = [ ns3forDce gcc pythonEnv ]
+      ++ lib.optionals generateBindings [ castxml ncurses ]
+      ++ lib.optionals withExamples [ openssl iperf-dce ]
+      ;
+
+    nativeBuildInputs = [ pkgconfig ];
+
+    doCheck = true;
+
+    patchPhase = ''
+      patchShebangs test.py
+    '';
+    configurePhase = ''
+      runHook preConfigure
+
+      ${pythonEnv.interpreter} ./waf configure --prefix=$out \
+      --with-ns3=${ns3forDce} --with-python=${pythonEnv.interpreter} \
+        ${stdenv.lib.optionalString (!withExamples) "--disable-examples "} ${stdenv.lib.optionalString (!doCheck) " --disable-tests" };
+
+      runHook postConfigure
+    '';
+
+    buildPhase=''
+      ${pythonEnv.interpreter} ./waf build
+    '';
+
+    hardeningDisable = [ "all" ];
+
+    shellHook= stdenv.lib.optionalString withExamples ''
+      export DCE_PATH=${iperf-dce}/bin
+    '';
+
+    meta = {
+      homepage = https://www.nsnam.org/overview/projects/direct-code-execution;
+      license = stdenv.lib.licenses.gpl3;
+      description = "Run real applications/network stacks in the simulator ns-3";
+      platforms = with stdenv.lib.platforms; unix;
+    };
   };
-
-  buildInputs = [ ns3forDce gcc pythonEnv ]
-    ++ lib.optionals generateBindings [ castxml ncurses ]
-    ++ lib.optionals withExamples [ openssl iperf-dce ]
-    ;
-
-  nativeBuildInputs = [ pkgconfig ];
-
-  doCheck = true;
-
-  patchPhase = ''
-    patchShebangs test.py
-  '';
-  configurePhase = ''
-    runHook preConfigure
-
-    ${pythonEnv.interpreter} ./waf configure --prefix=$out \
-    --with-ns3=${ns3forDce} --with-python=${pythonEnv.interpreter} \
-      ${stdenv.lib.optionalString (!withExamples) "--disable-examples "} ${stdenv.lib.optionalString (!doCheck) " --disable-tests" };
-
-    runHook postConfigure
-  '';
-
-  buildPhase=''
-    ${pythonEnv.interpreter} ./waf build
-  '';
-
-  hardeningDisable = [ "all" ];
-
-  shellHook= stdenv.lib.optionalString withExamples ''
-    export DCE_PATH=${iperf-dce}/bin
-  '';
-
-  meta = {
-    homepage = https://www.nsnam.org/overview/projects/direct-code-execution;
-    license = stdenv.lib.licenses.gpl3;
-    description = "Run real applications/network stacks in the simulator ns-3";
-    platforms = with stdenv.lib.platforms; unix;
-  };
-};
 in
   dce
