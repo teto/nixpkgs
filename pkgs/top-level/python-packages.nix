@@ -283,7 +283,7 @@ in {
 
   mail-parser = callPackage ../development/python-modules/mail-parser {  };
 
-  mininet = callPackage ../development/python-modules/mininet { };
+  mininet-python = callPackage ../development/python-modules/mininet { };
 
   mpi4py = callPackage ../development/python-modules/mpi4py {
     mpi = pkgs.openmpi;

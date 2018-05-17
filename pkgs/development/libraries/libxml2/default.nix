@@ -64,6 +64,7 @@ in stdenv.mkDerivation rec {
   meta = {
     homepage = http://xmlsoft.org/;
     description = "An XML parsing library for C";
+
     license = lib.licenses.mit;
     platforms = lib.platforms.unix;
     maintainers = [ lib.maintainers.eelco ];

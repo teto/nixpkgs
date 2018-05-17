@@ -13960,6 +13960,9 @@ with pkgs;
   #   src = /home/teto/musl;
   # });
 
+  # https://github.com/netgroup-polito/netbee.git
+  netbee =  callPackage ../applications/networking/netbee { };
+
   nftables = callPackage ../os-specific/linux/nftables { };
 
   numactl = callPackage ../os-specific/linux/numactl { };
@@ -13968,7 +13971,9 @@ with pkgs;
 
   nvme-cli = callPackage ../os-specific/linux/nvme-cli { };
 
-  openflowswitch = callPackage ../applications/networking/openflow { };
+  # patched verison for mininet
+  # openflowswitch-mininet = callPackage ../applications/networking/openflow/mininet.nix { };
+  openflowswitch13 = callPackage ../applications/networking/openflow { };
 
   open-vm-tools = callPackage ../applications/virtualization/open-vm-tools {
     inherit (gnome2) gtk gtkmm;

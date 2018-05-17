@@ -2,30 +2,33 @@
 
 stdenv.mkDerivation rec {
   name = "openflowswitch";
-  version = "1.3";
+  version = "1.0";
 
-  # inspired from mininet's install.sh
   src = fetchFromGitHub {
-    owner = "CPqD";
-    repo = "ofsoftswitch13";
+    owner = "mininet";
+    repo = "openflow";
     # rev = "${version}";
-    rev = "e4322f5fb5ec63f0feaf2ae5ea231251ee3108fb";
-    sha256 = "183913n4rv78nvm75mrk5bjgxibl74xq8r89cximpkpn1f2vz224";
+    rev = "9f587fc8e657a248d46b4763cc7e72efaccf8e00";
+    sha256 = "0xrxkf0dmc4ydkzd5jggg8yzr99d1qfhfpp66bl4in5avh9fxgva";
   };
 
+  # TODO patch openflow
+  patches=[]
+  # patch -p1 < $MININET_DIR/mininet/util/openflow-patches/controller.patch
+  # replace ./boot.sh
+  # le autoreconfHook happens in preConfigurePhases
+  # preConfigure= ''
   postUnpack= ''
 
     # sed -e 's/\(.*\)/	\1 \\/' -e '$s/ \\//')
-    # to prevent automake: error: cannot open < debian/automake.mk: No such file or directory
     touch $sourceRoot/debian/automake.mk
 cat $sourceRoot/debian/control.in > $sourceRoot/debian/control
 
   '';
 
-  # netbee
   buildInputs = [ autoreconfHook git pkgconfig perl ];
 
-  hardeningDisable = [ "all" ];
+  # hardeningDisable = [ "format" ];
 
   meta = with stdenv.lib; {
     homepage = https://openflowswitch.org;
