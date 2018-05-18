@@ -8,9 +8,12 @@
 # https://github.com/mininet/mininet/blob/master/INSTALL
   # * A Linux kernel compiled with network namespace support enabled
   # * An compatible software switch such as Open vSwitch or the Linux bridge.
-# let
-#   pmn =  python.pkgs.mininet;
-# in
+let
+  # pmn =  python.pkgs.mininet;
+  pyEnv = python.withPackages(ps: [
+    # ps.setuptools
+  ]);
+in
 stdenv.mkDerivation rec {
   name = "mininet-${version}";
   version = "2.2.2";
@@ -28,13 +31,14 @@ stdenv.mkDerivation rec {
   # };
 
   # TODO move it to an optional output ?
+  # might need to remove the MANPAGE from install
   postPatch=''
     # substituteInPlace Makefile \
     #     --replace 'python setup.py install' ""
 
     # ideally should be necessary only on utils/m ?
     # exclude examples
-    patchShebangs .
+    # patchShebangs .
 
   '';
 
@@ -43,22 +47,40 @@ stdenv.mkDerivation rec {
     ${python.interpreter} setup.py install --prefix=$py
   '';
 
-  # makeFlags = [ "DESTDIR=$(out)" "BINDIR=$(out)/bin" ];
+  # makeFlags = [
+  #   "DESTDIR=$(out)" "BINDIR=$(out)/bin"
+  # ];
+  makeFlags= [
+    "mnexec"
+    "PREFIX=$(out)"
+    # hack
+    # "PYMN=${version}"
+    "VERSION='\"${version}\"'"
+    # "PYMN='$(${pyEnv.interpreter} -B bin/mn)'"
+  ];
+
+  installFlags = [ "install" "PREFIX=$(out)" "PYTHONDIR=$py"
+    "PYTHON=${pyEnv.interpreter}"
+  ];
+
+  doCheck = false;
   # installFlags = lib.optionalString pythonSupport
   #   ''pythondir="$(py)/lib/${python.libPrefix}/site-packages"'';
+  postInstall=''
+    moveToOutput pythondir $py
+  '';
 
-  buildInputs = [ help2man ];
+  buildInputs = [ help2man pyEnv ];
+
   # TODO do we need pmn ?
   propagatedBuildInputs = [ which  ];
 
-  makeFlags= [ "mnexec" "PREFIX=$(out)" ];
-  installFlags = [ "PREFIX=$(out)" "PYTHONDIR=$py" ];
   # buildPhase=''
   #   make mnexec
   # '';
 
   meta = with lib; {
-    description = "Parses log files, generates metrics for Graphite and Ganglia";
+    description = "Emulator for rapid prototyping of Software Defined Networks";
     license = {
       fullName = "Mininet 2.3.0d1 License";
     };

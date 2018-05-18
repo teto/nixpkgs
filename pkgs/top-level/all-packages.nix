@@ -20567,7 +20567,8 @@ with pkgs;
   };
 
   # mnexec binary is compiled apart from
-  mininet-mnexec = callPackage ../tools/virtualization/mininet { };
+  # mininet-mnexec
+  mininet = callPackage ../tools/virtualization/mininet { };
 
   msieve = callPackage ../applications/science/math/msieve { };
 
