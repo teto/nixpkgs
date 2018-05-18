@@ -1,4 +1,12 @@
-{ stdenv, fetchFromGitHub, git, autoreconfHook, pkgconfig }:
+{ stdenv, fetchFromGitHub
+# , git, autoreconfHook,
+# pkgconfig
+, bison, flex
+, libpcap
+, xercesc
+, pcre
+, cmake
+}:
 
 stdenv.mkDerivation rec {
   name = "netbee";
@@ -7,19 +15,30 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "netgroup-polito";
     repo = "netbee";
-    rev = "9f587fc8e657a248d46b4763cc7e72efaccf8e00";
-    sha256 = "0xrxkf0dmc4ydkzd5jggg8yzr99d1qfhfpp66bl4in5avh9fxgva";
+    rev = "369d6ee2893b12dd004170cb0d4d66e413737a5d";
+    sha256 = "09p88naalkbh33cngrgfdw236iy0q1m5r0q4w3ibjpi4qlaw7iis";
   };
+
+  # set it to false => cmakeDir will get overriden
+  # dontUseCmakeBuildDir = true;
+  # we set it to false and do our thing instead
+  # preConfigure = ''
+  #       mkdir -p build
+  #       cd build
+  # '';
+  dontFixCmake = true;
+  cmakeDir="../src";
 
   # $ sudo apt-get install libpcap-dev libxerces-c2-dev libpcre3-dev flex bison libboost-all-dev
   # https://github.com/CPqD/ofsoftswitch13/wiki/OpenFlow-1.3-Tutorial
+  buildInputs = [ cmake bison flex xercesc libpcap pcre.dev ];
 
   # TODO
   meta = with stdenv.lib; {
     homepage = https://openflowswitch.org;
-    description = "Tool to measure IP bandwidth using UDP or TCP";
+    description = "Advanced library for packet processing. Includes NetVM, NetPDL, and NetPFL.";
     platforms = platforms.unix;
-    license = licenses.mit;
+    license = licenses.lgpl2;
   };
 
 }
