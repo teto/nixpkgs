@@ -1,4 +1,8 @@
-{ stdenv, fetchFromGitHub, git, autoreconfHook, pkgconfig, perl }:
+{ stdenv, fetchFromGitHub, git, autoreconfHook, pkgconfig, perl
+, boost
+# new package
+, netbee
+}:
 
 stdenv.mkDerivation rec {
   name = "openflowswitch";
@@ -17,18 +21,22 @@ stdenv.mkDerivation rec {
 
 # --with-rundir
 # --with-logdir
+  #  this is hack because netbee has no pkgconfig
+  # NIX_CFLAGS_COMPILE
+  # makeFlags=[ CFLAGS="-I${netbee}/include" ];
+  # LDFLAGS="-I${netbee}/include";
+  NIX_CFLAGS_COMPILE = "-I${netbee}/include";
+  NIX_CFLAGS_LINK = "-L${netbee}/lib ";
 
   postUnpack= ''
-
     # sed -e 's/\(.*\)/	\1 \\/' -e '$s/ \\//')
     # to prevent automake: error: cannot open < debian/automake.mk: No such file or directory
     touch $sourceRoot/debian/automake.mk
-cat $sourceRoot/debian/control.in > $sourceRoot/debian/control
-
+    cat $sourceRoot/debian/control.in > $sourceRoot/debian/control
   '';
 
   # netbee
-  buildInputs = [ autoreconfHook git pkgconfig perl ];
+  buildInputs = [ autoreconfHook git pkgconfig perl netbee boost ];
 
   hardeningDisable = [ "all" ];
 

@@ -65,6 +65,7 @@ stdenv.mkDerivation rec {
   installPhase=''
     mkdir -p $out/lib
     cp ../bin/* $out/lib/
+    cp -r ../include $out
   '';
 
   # TODO
