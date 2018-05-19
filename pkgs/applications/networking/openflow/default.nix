@@ -5,13 +5,18 @@ stdenv.mkDerivation rec {
   version = "1.3";
 
   # inspired from mininet's install.sh
-  src = fetchFromGitHub {
-    owner = "CPqD";
-    repo = "ofsoftswitch13";
-    # rev = "${version}";
-    rev = "e4322f5fb5ec63f0feaf2ae5ea231251ee3108fb";
-    sha256 = "183913n4rv78nvm75mrk5bjgxibl74xq8r89cximpkpn1f2vz224";
-  };
+  # src = fetchFromGitHub {
+  #   owner = "CPqD";
+  #   repo = "ofsoftswitch13";
+  #   # rev = "${version}";
+  #   rev = "e4322f5fb5ec63f0feaf2ae5ea231251ee3108fb";
+  #   sha256 = "183913n4rv78nvm75mrk5bjgxibl74xq8r89cximpkpn1f2vz224";
+  # };
+
+  src = /home/teto/ofsoftswitch13;
+
+# --with-rundir
+# --with-logdir
 
   postUnpack= ''
 
