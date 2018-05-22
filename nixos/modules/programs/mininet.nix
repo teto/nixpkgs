@@ -8,7 +8,7 @@ let
   cfg  = config.programs.mininet;
   # cfgOvs = config.virtualisation.vswitch;
 
-  mn = pkgs.pythonPackages.mininet;
+  mn = pkgs.pythonPackages.mininet-python;
 
 in
 {
@@ -49,7 +49,8 @@ in
             # python-setuptools cgroup-bin ethtool help2man \
             # pyflakes pylint pep8 python-pexpect
     environment.systemPackages = with pkgs; [
-      mn iperf mininet-mnexec openflowswitch telnet
+      # mn
+      iperf mininet openflowswitch telnet
       ethtool iproute socat
     ];
     # environment.variables = { EDITOR = mkOverride 900 "vim"; };
@@ -60,11 +61,10 @@ in
     };
 
     # make it setuid ?
-    security.wrappers = {
-      # sudo.source = "${pkgs.sudo.out}/bin/sudo";
-      # todo use mininet
-      mn.source = "${mn.out}/bin/mn";
-    };
+    # sudo.source = "${pkgs.sudo.out}/bin/sudo";
+    # security.wrappers = {
+    #   mn.source = "${mn.out}/bin/mn";
+    # };
   };
 }
 

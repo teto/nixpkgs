@@ -13971,9 +13971,9 @@ with pkgs;
 
   nvme-cli = callPackage ../os-specific/linux/nvme-cli { };
 
-  # patched verison for mininet
+  # older patched verison for mininet
   # openflowswitch-mininet = callPackage ../applications/networking/openflow/mininet.nix { };
-  openflowswitch13 = callPackage ../applications/networking/openflow { };
+  openflowswitch = callPackage ../applications/networking/openflow { };
 
   open-vm-tools = callPackage ../applications/virtualization/open-vm-tools {
     inherit (gnome2) gtk gtkmm;

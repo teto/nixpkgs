@@ -11,7 +11,7 @@
 let
   # pmn =  python.pkgs.mininet;
   pyEnv = python.withPackages(ps: [
-    # ps.setuptools
+    ps.setuptools
   ]);
 in
 stdenv.mkDerivation rec {
@@ -20,7 +20,7 @@ stdenv.mkDerivation rec {
 
   propagatedBuildOutputs = "out bin py";
 
-  outputs = [ "bin" "dev" "out" "man" "doc" "py" ];
+  outputs = [ "out" "py" ];
 
   src = /home/teto/mininet;
   # src = fetchFromGitHub {
@@ -42,16 +42,18 @@ stdenv.mkDerivation rec {
 
   '';
 
-  postBuild= ''
-
-    ${python.interpreter} setup.py install --prefix=$py
-  '';
+  # postBuild = ''
+  #   set -x
+  #   ${python.interpreter} setup.py install --prefix=$py
+  #   set -x
+  # '';
 
   # makeFlags = [
   #   "DESTDIR=$(out)" "BINDIR=$(out)/bin"
   # ];
-  makeFlags= [
+  makeFlags = [
     "mnexec"
+    "PYTHON=${pyEnv.interpreter}"
     "PREFIX=$(out)"
     # hack
     # "PYMN=${version}"
@@ -59,25 +61,24 @@ stdenv.mkDerivation rec {
     # "PYMN='$(${pyEnv.interpreter} -B bin/mn)'"
   ];
 
-  installFlags = [ "install" "PREFIX=$(out)" "PYTHONDIR=$py"
+  installFlags = [ "install"
+    "PREFIX=$(out)"
+    "PYTHONDIR=$(py)"
     "PYTHON=${pyEnv.interpreter}"
   ];
 
-  doCheck = false;
-  # installFlags = lib.optionalString pythonSupport
-  #   ''pythondir="$(py)/lib/${python.libPrefix}/site-packages"'';
-  postInstall=''
-    moveToOutput pythondir $py
+  preInstall= ''
+    mkdir -p $py
   '';
 
-  buildInputs = [ help2man pyEnv ];
-
-  # TODO do we need pmn ?
-  propagatedBuildInputs = [ which  ];
-
-  # buildPhase=''
-  #   make mnexec
+  doCheck = false;
+  # postInstall=''
+  #   moveToOutput pythondir $py
   # '';
+
+  buildInputs = [ which help2man pyEnv ];
+
+  # propagatedBuildInputs = [  ];
 
   meta = with lib; {
     description = "Emulator for rapid prototyping of Software Defined Networks";
