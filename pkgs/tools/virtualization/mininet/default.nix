@@ -71,6 +71,10 @@ stdenv.mkDerivation rec {
     mkdir -p $py
   '';
 
+  postInstall= ''
+    rm -rf $py/bin
+  '';
+
   doCheck = false;
   # postInstall=''
   #   moveToOutput pythondir $py
