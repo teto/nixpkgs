@@ -284,7 +284,7 @@ in {
   mail-parser = callPackage ../development/python-modules/mail-parser {  };
 
   mininet-python = disabledIf isPy3k
-    toPythonModule (pkgs.mininet.override{ inherit python;}).py;
+    (toPythonModule (pkgs.mininet.override{ inherit python;})).py;
 
   mpi4py = callPackage ../development/python-modules/mpi4py {
     mpi = pkgs.openmpi;

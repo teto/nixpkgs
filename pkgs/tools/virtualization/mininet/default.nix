@@ -61,6 +61,8 @@ stdenv.mkDerivation rec {
     # "PYMN='$(${pyEnv.interpreter} -B bin/mn)'"
   ];
 
+  PYTHONUSERBASE="$py";
+
   installFlags = [ "install"
     "PREFIX=$(out)"
     "PYTHONDIR=$(py)"
