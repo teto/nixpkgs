@@ -73,9 +73,9 @@ stdenv.mkDerivation rec {
     mkdir -p $py
   '';
 
-  postInstall= ''
-    rm -rf $py/bin
-  '';
+  # postInstall= ''
+  #   rm -rf $py/bin
+  # '';
 
   doCheck = false;
   # postInstall=''

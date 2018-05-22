@@ -8,7 +8,8 @@ let
   cfg  = config.programs.mininet;
   # cfgOvs = config.virtualisation.vswitch;
 
-  mn = pkgs.pythonPackages.mininet-python;
+  # mn = pkgs.pythonPackages.mininet-python;
+  pyEnv = pkgs.python.withPackages(ps: [ ps.mininet-python ]);
 
 in
 {
@@ -17,13 +18,13 @@ in
   options = {
 
     programs.mininet = {
-      enable = mkOption { type = types.bool;
-        default = false;
-        description = ''
+      enable = mkEnableOption
+        # default = false;
+        # description =
+        ''
           Whether to enable Open vSwitch. A configuration daemon (ovs-server)
           will be started.
           '';
-      };
 
       # extraConfig = mkOption {
       #   type = types.lines;
@@ -39,6 +40,12 @@ in
 
   };
 
+  # TODO check kernel has
+# NAMESPACES=y
+# UTS_NS=y
+# IPC_NS=y
+# USER_NS=y
+
   config = mkIf cfg.enable {
 
     virtualisation.vswitch = {
@@ -48,10 +55,13 @@ in
     # $install gcc make socat psmisc xterm ssh iperf iproute2 telnet \
             # python-setuptools cgroup-bin ethtool help2man \
             # pyflakes pylint pep8 python-pexpect
+
+    # mininet package holds jjj
     environment.systemPackages = with pkgs; [
       # mn
       iperf mininet openflowswitch telnet
       ethtool iproute socat
+      pyEnv
     ];
     # environment.variables = { EDITOR = mkOverride 900 "vim"; };
 
@@ -62,9 +72,9 @@ in
 
     # make it setuid ?
     # sudo.source = "${pkgs.sudo.out}/bin/sudo";
-    # security.wrappers = {
-    #   mn.source = "${mn.out}/bin/mn";
-    # };
+    security.wrappers = {
+      mn.source = "${pyEnv}/bin/mn";
+    };
   };
 }
 
