@@ -303,6 +303,9 @@ in {
 
   monty = callPackage ../development/python-modules/monty { };
 
+  mininet-python = disabledIf isPy3k
+    (toPythonModule (pkgs.mininet.override{ inherit python; })).py;
+
   mpi4py = callPackage ../development/python-modules/mpi4py {
     mpi = pkgs.openmpi;
   };
