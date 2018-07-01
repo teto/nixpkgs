@@ -68,6 +68,15 @@ in {
 
     boot.kernelModules = [ "tun" "openvswitch" ];
 
+    boot.kernelPatches = [ {
+         name = "openvswitch";
+         patch = null;
+         # convert specs to the old format strings
+         # but we could convert all kernelPatches to accept sets instead
+         extraConfig = lib.kernel.generateKConf pkgs.openvswitch.passthru.kernelExtraConfig;
+       }
+     ];
+
     boot.extraModulePackages = [ cfg.package ];
 
     systemd.services.ovsdb = {
