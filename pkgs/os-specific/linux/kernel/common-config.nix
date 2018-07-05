@@ -28,9 +28,13 @@ assert (mkValueOverride == null) || (builtins.isFunction mkValueOverride);
 
 with stdenv.lib;
 
-with import ../../../../lib/kernel.nix { inherit (stdenv) lib; inherit version; };
+# inherit version;
+with import ../../../../lib/kernel.nix { inherit (stdenv) lib; };
 
 let
+  whenAtLeast = ver: when (versionAtLeast version ver);
+  whenOlder   = ver: when (versionOlder version ver);
+  whenBetween = verLow: verHigh: when (versionAtLeast version verLow && versionOlder version verHigh);
 
   # configuration items have to be part of a subattrs
   flattenKConf =  nested: mapAttrs (_: head) (zipAttrs (attrValues nested));

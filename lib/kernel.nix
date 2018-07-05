@@ -1,17 +1,15 @@
 { lib
 # we pass the kernel version here to keep a nice syntax `whenOlder "4.13"`
 # kernelVersion, e.g., config.boot.kernelPackages.version
-, version
+# , version ? null
 , mkValuePreprocess ? null
 }:
 
 with lib;
 rec {
   # Common patterns
+  # TODO move to common-config.nix
   when        = cond: opt: if cond then opt else null;
-  whenAtLeast = ver: when (versionAtLeast version ver);
-  whenOlder   = ver: when (versionOlder version ver);
-  whenBetween = verLow: verHigh: when (versionAtLeast version verLow && versionOlder version verHigh);
 
   # Keeping these around in case we decide to change this horrible implementation :)
   option = x: if x == null then null else "?${x}";
