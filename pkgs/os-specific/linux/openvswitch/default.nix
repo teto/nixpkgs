@@ -57,8 +57,9 @@ in stdenv.mkDerivation rec {
       --replace "self.cert_dir" "root_prefix + self.cert_dir"
   '';
 
-  passthru.kernelExtraConfig = with import ../../../../lib/kernel.nix { inherit (kernel) version; lib = stdenv.lib; }; {
-    OPENVSWITCH  = whenAtLeast "2.0" yes;
+  passthru.kernelExtraConfig = with lib.kernel;
+  {
+    OPENVSWITCH = yes;
   };
 
   meta = with stdenv.lib; {
