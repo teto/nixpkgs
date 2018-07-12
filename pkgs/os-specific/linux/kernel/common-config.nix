@@ -32,6 +32,7 @@ with stdenv.lib;
 with import ../../../../lib/kernel.nix { inherit (stdenv) lib; };
 
 let
+
   whenAtLeast = ver: when (versionAtLeast version ver);
   whenOlder   = ver: when (versionOlder version ver);
   whenBetween = verLow: verHigh: when (versionAtLeast version verLow && versionOlder version verHigh);
@@ -245,7 +246,7 @@ let
       FANOTIFY        = yes;
       TMPFS           = yes;
       TMPFS_POSIX_ACL = yes;
-      FS_ENCRYPTION   = option (whenAtLeast "4.9" module);
+      FS_ENCRYPTION   = whenAtLeast "4.9" (option module);
 
       EXT2_FS_XATTR     = yes;
       EXT2_FS_POSIX_ACL = yes;
@@ -318,7 +319,7 @@ let
 
       # Native Language Support modules, needed by some filesystems
       NLS              = yes;
-      NLS_DEFAULT      = "utf8";
+      NLS_DEFAULT      = { answer = "utf8";};
       NLS_UTF8         = module;
       NLS_CODEPAGE_437 = module; # VFAT default for the codepage= mount option
       NLS_ISO8859_1    = module; # VFAT default for the iocharset= mount option
@@ -328,10 +329,10 @@ let
 
     security = {
       # Detect writes to read-only module pages
-      DEBUG_SET_MODULE_RONX            = option (whenOlder "4.11" yes);
+      DEBUG_SET_MODULE_RONX            = whenOlder "4.11" (option yes);
       RANDOMIZE_BASE                   = option yes;
       STRICT_DEVMEM                    = option yes; # Filter access to /dev/mem
-      SECURITY_SELINUX_BOOTPARAM_VALUE = "0"; # Disable SELinux by default
+      SECURITY_SELINUX_BOOTPARAM_VALUE = { answer = "0";}; # Disable SELinux by default
       # Prevent processes from ptracing non-children processes
       SECURITY_YAMA                    = option yes;
       DEVKMEM                          = when (!features.grsecurity) no; # Disable /dev/kmem
@@ -344,7 +345,7 @@ let
     } // optionalAttrs (!stdenv.hostPlatform.isAarch32) {
 
       # Detect buffer overflows on the stack
-      CC_STACKPROTECTOR_REGULAR = option (whenOlder "4.18" yes);
+      CC_STACKPROTECTOR_REGULAR = whenOlder "4.18" (option yes);
     };
 
     microcode = {
@@ -398,8 +399,8 @@ let
       FTRACE_SYSCALLS       = yes;
       SCHED_TRACER          = yes;
       STACK_TRACER          = yes;
-      UPROBE_EVENT          = option (whenOlder "4.11" yes);
-      UPROBE_EVENTS         = option (whenAtLeast "4.11" yes);
+      UPROBE_EVENT          = whenOlder "4.11" (option yes);
+      UPROBE_EVENTS         = whenAtLeast "4.11" (option yes);
       BPF_SYSCALL           = whenAtLeast "4.4" yes;
       BPF_EVENTS            = whenAtLeast "4.4" yes;
       FUNCTION_PROFILER     = yes;
@@ -414,8 +415,8 @@ let
 
       KVM_APIC_ARCHITECTURE             = whenOlder "4.8" yes;
       KVM_ASYNC_PF                      = yes;
-      KVM_COMPAT                        = option (whenBetween "4.0" "4.12"  yes);
-      KVM_DEVICE_ASSIGNMENT             = option (whenBetween "3.10" "4.12" yes);
+      KVM_COMPAT                        = whenBetween "4.0" "4.12" (option yes);
+      KVM_DEVICE_ASSIGNMENT             = whenBetween "3.10" "4.12" (option yes);
       KVM_GENERIC_DIRTYLOG_READ_PROTECT = whenAtLeast "4.0"  yes;
       KVM_GUEST                         = when (!features.grsecurity) yes;
       KVM_MMIO                          = yes;
@@ -423,7 +424,7 @@ let
       KSM = yes;
       VIRT_DRIVERS = yes;
       # We nneed 64 GB (PAE) support for Xen guest support
-      HIGHMEM64G = option (when (!stdenv.is64bit) yes);
+      HIGHMEM64G = when (!stdenv.is64bit) (option yes);
 
       VFIO_PCI_VGA = when stdenv.is64bit yes;
 
@@ -533,8 +534,8 @@ let
       CRYPTO_TEST              = option no;
       EFI_TEST                 = option no;
       GLOB_SELFTEST            = option no;
-      DRM_DEBUG_MM_SELFTEST    = option (whenOlder "4.18" no);
-      LNET_SELFTEST            = option (whenOlder "4.18" no);
+      DRM_DEBUG_MM_SELFTEST    = whenOlder "4.18" (option no);
+      LNET_SELFTEST            = whenOlder "4.18" (option no);
       LOCK_TORTURE_TEST        = option no;
       MTD_TESTS                = option no;
       NOTIFIER_ERROR_INJECTION = option no;
@@ -589,7 +590,7 @@ let
       AIC79XX_DEBUG_ENABLE = no;
       AIC7XXX_DEBUG_ENABLE = no;
       AIC94XX_DEBUG = no;
-      B43_PCMCIA = option (whenOlder "4.4" yes);
+      B43_PCMCIA =  whenOlder "4.4" (option yes);
 
       BLK_DEV_INTEGRITY       = yes;
 
@@ -641,7 +642,7 @@ let
       # GPIO on Intel Bay Trail, for some Chromebook internal eMMC disks
       PINCTRL_BAYTRAIL   = yes;
       # 8 is default. Modern gpt tables on eMMC may go far beyond 8.
-      MMC_BLOCK_MINORS   = "32";
+      MMC_BLOCK_MINORS   = { answer = "32"; };
 
       REGULATOR  = yes; # Voltage and Current Regulator Support
       RC_DEVICES = option yes; # Enable IR devices
@@ -680,7 +681,7 @@ let
     } // optionalAttrs (stdenv.hostPlatform.system == "x86_64-linux" || stdenv.hostPlatform.system == "aarch64-linux") {
       # Bump the maximum number of CPUs to support systems like EC2 x1.*
       # instances and Xeon Phi.
-      NR_CPUS = "384";
+      NR_CPUS = { answer = "384";};
     };
   };
-in (generateNixKConf ((flattenKConf options) // structuredExtraConfig) mkValueOverride) + extraConfig
+in (generateNixKConf ( (mergeStructuredConf (flattenKConf options) structuredExtraConfig)) mkValueOverride) + extraConfig

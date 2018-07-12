@@ -58,9 +58,9 @@ in stdenv.mkDerivation rec {
   '';
 
   passthru.kernelExtraConfig = with lib.kernel;
-  {
-    OPENVSWITCH = yes;
-  };
+  [
+    OPENVSWITCH
+  ];
 
   meta = with stdenv.lib; {
     platforms = platforms.linux;

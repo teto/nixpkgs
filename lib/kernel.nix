@@ -12,17 +12,19 @@ rec {
   when        = cond: opt: if cond then opt else null;
 
   # Keeping these around in case we decide to change this horrible implementation :)
-  option = x: if x == null then null else "?${x}";
-  yes    = "y";
-  no     = "n";
-  module = "m";
+  option = x:
+    # if x == null then null else "?${x}";
+      x // { optional = true; };
+  yes    = { answer = "y"; };
+  no     = { answer = "n"; };
+  module = { answer = "m"; };
 
   mkValue = val:
   let
     isNumber = c: elem c ["0" "1" "2" "3" "4" "5" "6" "7" "8" "9"];
   in
     if val == "" then "\"\""
-    else if val == yes || val == module || val == no then val
+    else if val == "y" || val == "m" || val == "n" then val
     else if all isNumber (stringToCharacters val) then val
     else if substring 0 2 val == "0x" then val
     else val; # FIXME: fix quoting one day
@@ -42,14 +44,22 @@ rec {
   generateNixKConf = exprs: mkValuePreprocess:
   let
     mkConfigLine = key: rawval:
-    let
-      val = if builtins.isFunction mkValuePreprocess then mkValuePreprocess rawval else rawval;
-    in
-      if val == null
-        then ""
-        else if hasPrefix "?" val
-          then "${key}? ${mkValue (removePrefix "?" val)}\n"
-          else "${key} ${mkValue val}\n";
+      let
+        # val = if builtins.isFunction mkValuePreprocess then mkValuePreprocess rawval else rawval;
+        val = builtins.trace key rawval;
+      in
+        if val == null
+          then ""
+          else if (val ? optional)
+            then "${key}? ${mkValue val.answer}\n"
+            else "${key} ${mkValue val.answer}\n";
+
     mkConf = cfg: concatStrings (mapAttrsToList mkConfigLine cfg);
   in mkConf exprs;
+
+  # overrideExisting
+  mergeStructuredConf = c1: c2:
+    # c2 params should override c1 ones
+    lib.recursiveUpdate c1 c2;
+
 }
