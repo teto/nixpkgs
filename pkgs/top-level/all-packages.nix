@@ -14044,7 +14044,7 @@ with pkgs;
 
   # Hardened linux
   hardenedLinuxPackagesFor = kernel: linuxPackagesFor (kernel.override {
-    extraConfig = import ../os-specific/linux/kernel/hardened-config.nix {
+    extraStructuredConfig = import ../os-specific/linux/kernel/hardened-config.nix {
       inherit stdenv;
       inherit (kernel) version;
     };

@@ -18,29 +18,28 @@ buildLinux (rec {
     sha256 = "01y3jf5awdxcv6vfpr30n0vaa8w1wgip0whiv88d610550299hkv";
   };
 
-  extraConfig = ''
-    IPV6 y
-    MPTCP y
-    IP_MULTIPLE_TABLES y
+  extraStructuredConfig = with stdenv.lib.kernel; {
+    IPV6               = yes;
+    MPTCP              = yes;
+    IP_MULTIPLE_TABLES = yes;
 
     # Enable advanced path-managers...
-    MPTCP_PM_ADVANCED y
-    MPTCP_FULLMESH y
-    MPTCP_NDIFFPORTS y
+    MPTCP_PM_ADVANCED = yes;
+    MPTCP_FULLMESH = yes;
+    MPTCP_NDIFFPORTS = yes;
     # ... but use none by default.
     # The default is safer if source policy routing is not setup.
-    DEFAULT_DUMMY y
-    DEFAULT_MPTCP_PM default
+    DEFAULT_DUMMY = yes;
+    DEFAULT_MPTCP_PM = "default";
 
     # MPTCP scheduler selection.
-    MPTCP_SCHED_ADVANCED y
-    DEFAULT_MPTCP_SCHED default
+    MPTCP_SCHED_ADVANCED = yes;
+    DEFAULT_MPTCP_SCHED = "default";
 
     # Smarter TCP congestion controllers
-    TCP_CONG_LIA m
-    TCP_CONG_OLIA m
-    TCP_CONG_WVEGAS m
-    TCP_CONG_BALIA m
-
-  '' + (args.extraConfig or "");
+    TCP_CONG_LIA = module;
+    TCP_CONG_OLIA = module;
+    TCP_CONG_WVEGAS = module;
+    TCP_CONG_BALIA = module;
+  } // (args.extraStructuredConfig or {});
 } // args)
