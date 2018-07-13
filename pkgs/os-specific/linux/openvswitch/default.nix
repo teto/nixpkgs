@@ -59,6 +59,7 @@ in stdenv.mkDerivation rec {
 
   passthru.kernelExtraConfig = with lib.kernel;
   [
+    # OPENVSWITCH = yes;
     OPENVSWITCH
   ];
 

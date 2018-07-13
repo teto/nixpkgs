@@ -8,8 +8,6 @@
 with lib;
 rec {
   # Common patterns
-  # TODO move to common-config.nix
-  when        = cond: opt: if cond then opt else null;
 
   # Keeping these around in case we decide to change this horrible implementation :)
   option = x:
@@ -18,6 +16,13 @@ rec {
   yes    = { answer = "y"; };
   no     = { answer = "n"; };
   module = { answer = "m"; };
+
+  # might want to copy/move from kernel.nix the isEnabled/isYes etc
+  mergeConfigItem = c1: c2:
+    {
+      optional = (c1 ? optional) && (c2 ? optional);
+      answer   = c2.answer;
+    };
 
   mkValue = val:
   let
@@ -60,6 +65,11 @@ rec {
   # overrideExisting
   mergeStructuredConf = c1: c2:
     # c2 params should override c1 ones
-    lib.recursiveUpdate c1 c2;
+    # lib.recursiveUpdate c1 c2;
+
+    # foldAttrs
+       # foldAttrs (n: a: [n] ++ a) [] [{ a = 2; } { a = 3; }]
+       # => { a = [ 2 3 ]; }
+    lib.foldAttrs mergeConfigItem [] [c1 c2];
 
 }

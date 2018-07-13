@@ -32,6 +32,7 @@ with stdenv.lib;
 with import ../../../../lib/kernel.nix { inherit (stdenv) lib; };
 
 let
+  when        = cond: opt: if cond then opt else null;
 
   whenAtLeast = ver: when (versionAtLeast version ver);
   whenOlder   = ver: when (versionOlder version ver);
