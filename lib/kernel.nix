@@ -9,6 +9,9 @@ with lib;
 rec {
   # Common patterns
   # TODO asset when version is not available ?
+  # when        = cond: opt: if cond then opt else null;
+  # TODO merge condition if opt has one condition ( with and )
+  # TODO record cond in  opt // { conditions = cond ++ lib.optionals (opt ? conditions) conditions  ; }
   when        = cond: opt: if cond then opt else null;
   whenAtLeast = ver: when (versionAtLeast version ver);
   whenOlder   = ver: when (versionOlder version ver);
@@ -25,15 +28,19 @@ rec {
   # might want to copy/move from kernel.nix the isEnabled/isYes etc
   mergeConfigItem = c1: c2:
     {
+      # builtins.isAttrs
+      # TODO merge conditions too
       optional = (c1 ? optional) && (c2 ? optional);
-      answer   = c2.answer;
+      # for now take c2 answer
+      answer   = builtins.trace c2 (c2 ? answer);
     };
 
   mkValue = val:
   let
     isNumber = c: elem c ["0" "1" "2" "3" "4" "5" "6" "7" "8" "9"];
+
   in
-    if val == "" then "\"\""
+    if (builtins.trace val (val == "")) then "\"\""
     else if val == "y" || val == "m" || val == "n" then val
     else if all isNumber (stringToCharacters val) then val
     else if substring 0 2 val == "0x" then val
@@ -56,13 +63,14 @@ rec {
     mkConfigLine = key: rawval:
       let
         # val = if builtins.isFunction mkValuePreprocess then mkValuePreprocess rawval else rawval;
-        val = builtins.trace key rawval;
+        val_temp = builtins.trace key rawval;
+        val = if builtins.isAttrs val_temp then val_temp.answer else val_temp;
       in
         if val == null
           then ""
           else if (val ? optional)
-            then "${key}? ${mkValue val.answer}\n"
-            else "${key} ${mkValue val.answer}\n";
+            then "${key}? ${mkValue val}\n"
+            else "${key} ${mkValue val}\n";
 
     mkConf = cfg: concatStrings (mapAttrsToList mkConfigLine cfg);
   in mkConf exprs;
@@ -75,6 +83,6 @@ rec {
     # foldAttrs
        # foldAttrs (n: a: [n] ++ a) [] [{ a = 2; } { a = 3; }]
        # => { a = [ 2 3 ]; }
-    lib.foldAttrs mergeConfigItem [] [c1 c2];
+    lib.foldAttrs mergeConfigItem {} [c1 c2];
 
 }

@@ -18,7 +18,7 @@ assert (versionAtLeast version "4.9");
   # Report BUG() conditions and kill the offending process.
   BUG = yes;
 
-  BUG_ON_DATA_CORRUPTION = versionAtLeast version "4.10" yes;
+  BUG_ON_DATA_CORRUPTION = versionAtLeast "4.10" yes;
 
   # Safer page access permissions (wrt. code injection).  Default on >=4.11.
   DEBUG_RODATA = versionOlder "4.11" yes;
