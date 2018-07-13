@@ -21,17 +21,17 @@ assert (versionAtLeast version "4.9");
   BUG_ON_DATA_CORRUPTION = versionAtLeast version "4.10" yes;
 
   # Safer page access permissions (wrt. code injection).  Default on >=4.11.
-  DEBUG_RODATA = versionOlder version "4.11" yes;
-  DEBUG_SET_MODULE_RONX = versionOlder version "4.11" yes;
+  DEBUG_RODATA = versionOlder "4.11" yes;
+  DEBUG_SET_MODULE_RONX = versionOlder "4.11" yes;
 
-# Mark LSM hooks read-only after init.  Conflicts with SECURITY_SELINUX_DISABLE
-# (disabling SELinux at runtime); hence, SELinux can only be disabled at boot
-# via the selinux=0 boot parameter.
-  SECURITY_SELINUX_DISABLE = versionAtLeast version "4.12" no;
+  # Mark LSM hooks read-only after init.  Conflicts with SECURITY_SELINUX_DISABLE
+  # (disabling SELinux at runtime); hence, SELinux can only be disabled at boot
+  # via the selinux=0 boot parameter.
+  SECURITY_SELINUX_DISABLE = versionAtLeast "4.12" no;
 
   SECURITY_WRITABLE_HOOKS = versionBetween "4.12" "4.17" no;
 
-DEBUG_WX = yes; # boot-time warning on RWX mappings
+  DEBUG_WX = yes; # boot-time warning on RWX mappings
 
   # Stricter /dev/mem
   STRICT_DEVMEM    = option yes;
@@ -45,16 +45,16 @@ DEBUG_WX = yes; # boot-time warning on RWX mappings
   DEBUG_SG              = yes;
   SCHED_STACK_END_CHECK = yes;
 
-  REFCOUNT_FULL = versionAtLeast version "4.13" yes;
+  REFCOUNT_FULL = versionAtLeast "4.13" yes;
 
   # Perform usercopy bounds checking.
   HARDENED_USERCOPY = yes;
-  HARDENED_USERCOPY_FALLBACK = versionAtLeast version "4.16" no;
+  HARDENED_USERCOPY_FALLBACK = versionAtLeast "4.16" no;
 
   # Randomize allocator freelists.
   SLAB_FREELIST_RANDOM = yes;
 
-  SLAB_FREELIST_HARDENED = versionAtLeast version "4.14" yes;
+  SLAB_FREELIST_HARDENED = versionAtLeast "4.14" yes;
 
   # Wipe higher-level memory allocations on free() with page_poison=1
   PAGE_POISONING           = yes;
@@ -70,8 +70,8 @@ DEBUG_WX = yes; # boot-time warning on RWX mappings
   # Gather additional entropy at boot time for systems that may = no;ot have appropriate entropy sources.
   GCC_PLUGIN_LATENT_ENTROPY = yes;
 
-  GCC_PLUGIN_STRUCTLEAK = versionAtLeast version "4.11" yes; # A port of the PaX structleak plugin
-  GCC_PLUGIN_STRUCTLEAK_BYREF_ALL = versionAtLeast version "4.14" yes; # Also cover structs passed by address
+  GCC_PLUGIN_STRUCTLEAK = versionAtLeast "4.11" yes; # A port of the PaX structleak plugin
+  GCC_PLUGIN_STRUCTLEAK_BYREF_ALL = versionAtLeast "4.14" yes; # Also cover structs passed by address
 
   # Disable various dangerous settings
   ACPI_CUSTOM_METHOD = no; # Allows writing directly to physical memory
@@ -83,18 +83,18 @@ DEBUG_WX = yes; # boot-time warning on RWX mappings
   CC_STACKPROTECTOR_STRONG  = yes;
 
   # Enable compile/run-time buffer overflow detection ala glibc's _FORTIFY_SOURCE
-  FORTIFY_SOURCE = versionAtLeast version "4.13" yes;
+  FORTIFY_SOURCE = versionAtLeast "4.13" yes;
 } // optionalAttrs (stdenv.platform.kernelArch == "x86_64") {
   DEFAULT_MMAP_MIN_ADDR = "65536";  # Prevent allocation of first 64K of memory
 
   # Reduce attack surface by disabling various emulations
   IA32_EMULATION     = no;
   X86_X32            = no;
-  MODIFY_LDT_SYSCALL = versionOlder version "4.17" (optional no);
+  MODIFY_LDT_SYSCALL = versionOlder "4.17" (optional no);
   VMAP_STACK         = yes; # Catch kernel stack overflows
 
   # Randomize position of kernel and memory.
-  RANDOMIZE_BASE = yes;
+  RANDOMIZE_BASE   = yes;
   RANDOMIZE_MEMORY = yes;
 
   # Disable legacy virtual syscalls by default (modern glibc use vDSO instead).

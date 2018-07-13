@@ -8,6 +8,11 @@
 with lib;
 rec {
   # Common patterns
+  # TODO asset when version is not available ?
+  when        = cond: opt: if cond then opt else null;
+  whenAtLeast = ver: when (versionAtLeast version ver);
+  whenOlder   = ver: when (versionOlder version ver);
+  whenBetween = verLow: verHigh: when (versionAtLeast version verLow && versionOlder version verHigh);
 
   # Keeping these around in case we decide to change this horrible implementation :)
   option = x:
