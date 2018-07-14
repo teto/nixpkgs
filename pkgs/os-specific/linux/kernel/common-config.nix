@@ -315,7 +315,7 @@ let
 
       # Native Language Support modules, needed by some filesystems
       NLS              = yes;
-      NLS_DEFAULT      = { answer = "utf8";};
+      NLS_DEFAULT      = "utf8";
       NLS_UTF8         = module;
       NLS_CODEPAGE_437 = module; # VFAT default for the codepage= mount option
       NLS_ISO8859_1    = module; # VFAT default for the iocharset= mount option
@@ -328,7 +328,7 @@ let
       DEBUG_SET_MODULE_RONX            = whenOlder "4.11" (option yes);
       RANDOMIZE_BASE                   = option yes;
       STRICT_DEVMEM                    = option yes; # Filter access to /dev/mem
-      SECURITY_SELINUX_BOOTPARAM_VALUE = { answer = "0";}; # Disable SELinux by default
+      SECURITY_SELINUX_BOOTPARAM_VALUE = "0"; # Disable SELinux by default
       # Prevent processes from ptracing non-children processes
       SECURITY_YAMA                    = option yes;
       DEVKMEM                          = when (!features.grsecurity) no; # Disable /dev/kmem
@@ -638,7 +638,7 @@ let
       # GPIO on Intel Bay Trail, for some Chromebook internal eMMC disks
       PINCTRL_BAYTRAIL   = yes;
       # 8 is default. Modern gpt tables on eMMC may go far beyond 8.
-      MMC_BLOCK_MINORS   = { answer = "32"; };
+      MMC_BLOCK_MINORS   = "32";
 
       REGULATOR  = yes; # Voltage and Current Regulator Support
       RC_DEVICES = option yes; # Enable IR devices
@@ -677,7 +677,7 @@ let
     } // optionalAttrs (stdenv.hostPlatform.system == "x86_64-linux" || stdenv.hostPlatform.system == "aarch64-linux") {
       # Bump the maximum number of CPUs to support systems like EC2 x1.*
       # instances and Xeon Phi.
-      NR_CPUS = { answer = "384";};
+      NR_CPUS = "384";
     };
   };
 in (generateNixKConf ( (mergeStructuredConf (flattenKConf options) structuredExtraConfig)) mkValueOverride) + extraConfig

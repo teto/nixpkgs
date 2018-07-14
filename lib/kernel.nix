@@ -20,20 +20,29 @@ rec {
   # Keeping these around in case we decide to change this horrible implementation :)
   option = x:
     # if x == null then null else "?${x}";
-      x // { optional = true; };
+      mergeConfigItem x { optional = true; };
   yes    = { answer = "y"; };
   no     = { answer = "n"; };
   module = { answer = "m"; };
 
+  # convert into attrSet if doesn't exist
+  configItemAsAttr = item:
+    if builtins.isAttrs item then item else { answer = item; optional = false; };
+
   # might want to copy/move from kernel.nix the isEnabled/isYes etc
-  mergeConfigItem = c1: c2:
-    {
+  mergeConfigItem = config1: config2:
+  let
+    c1 = builtins.trace "c1" (traceValSeq (configItemAsAttr config1));
+    c2 = builtins.trace "c2" (traceValSeq (configItemAsAttr config2));
+  in
+    builtins.trace "merged config:" (traceValSeq {
       # builtins.isAttrs
       # TODO merge conditions too
       optional = (c1 ? optional) && (c2 ? optional);
       # for now take c2 answer
-      answer   = builtins.trace c2 (c2 ? answer);
-    };
+      # answer   =  (if (c2.answer != null) then c2.answer else c1.answer);
+      answer   =  (c2.answer or c1.answer);
+    });
 
   mkValue = val:
   let
@@ -63,8 +72,10 @@ rec {
     mkConfigLine = key: rawval:
       let
         # val = if builtins.isFunction mkValuePreprocess then mkValuePreprocess rawval else rawval;
-        val_temp = builtins.trace key rawval;
-        val = if builtins.isAttrs val_temp then val_temp.answer else val_temp;
+        # val_temp = builtins.trace key rawval;
+        # val = if builtins.isAttrs val_temp then val_temp.answer else val_temp;
+        item = builtins.trace key (configItemAsAttr rawval);
+        val = item.answer;
       in
         if val == null
           then ""
@@ -83,6 +94,9 @@ rec {
     # foldAttrs
        # foldAttrs (n: a: [n] ++ a) [] [{ a = 2; } { a = 3; }]
        # => { a = [ 2 3 ]; }
-    lib.foldAttrs mergeConfigItem {} [c1 c2];
+
+    # nul can be called as second
+    # answer = null;
+    lib.foldAttrs mergeConfigItem {  } [c1 c2];
 
 }
