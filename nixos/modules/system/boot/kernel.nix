@@ -21,6 +21,13 @@ in
 
   options = {
 
+    boot.kernelConfig = mkOption {
+
+      type = types.attrsOf types.attrs;
+      default =
+
+    };
+
     boot.kernel.features = mkOption {
       default = {};
       example = literalExample "{ debug = true; }";

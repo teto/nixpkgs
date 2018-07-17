@@ -7,6 +7,39 @@
 
 with lib;
 rec {
+
+  kernelItem = types.submodule {
+    options = {
+      answer = mkOption {
+        type = types.bool;
+        default = true;
+        description = ''
+          Whether to enable TLS/SSL.
+        '';
+      };
+
+      optional = mkOption {
+        type = types.bool;
+        default = false;
+        description = ''
+          Wether it should fail if not asked.
+        '';
+      };
+
+      # conditions
+      # certificatesFile = mkOption {
+      #   type = types.nullOr types.path;
+      #   default = null;
+      #   description = ''
+      #     Path to file containing certificate authorities that should
+      #     be used to validate the connection authenticity. If
+      #     <literal>null</literal> then the system default is used.
+      #     Note, if set then the system default may still be accepted.
+      #   '';
+      # };
+    };
+  };
+
   # Common patterns
   when        = cond: opt: if cond then opt else null;
   whenAtLeast = ver: when (versionAtLeast version ver);

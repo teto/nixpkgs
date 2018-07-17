@@ -679,4 +679,6 @@ let
       NR_CPUS = "384";
     };
   };
-in (generateNixKConf ((flattenKConf options) // structuredExtraConfig) mkValueOverride) + extraConfig
+in
+  flattenKConf options
+  # (generateNixKConf ((flattenKConf options) // structuredExtraConfig) mkValueOverride) + extraConfig
