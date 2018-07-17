@@ -77,10 +77,19 @@ let
   extraConfig = extraConfig + lib.optionalString (hostPlatform.platform ? kernelExtraConfig) hostPlatform.platform.kernelExtraConfig;
 
   intermediateNixConfig = let
-    structuredConfig = stdenv.lib.mkMerge [ commonStructuredConfig structuredExtraConfig ];
+    structuredConfig =
+      # stdenv.lib.mkMerge [
+      stdenv.lib.attrsets.mapAttrs (name: value: stdenv.lib.kernel.configItemAsAttr value) commonStructuredConfig
+      # {}
+      # to ease testing
+      # structuredExtraConfig
+    # ]
+    ;
   in
     # mkValueOverride
-    (stdenv.lib.generateNixKConf structuredConfig null) + extraConfig;
+    (stdenv.lib.kernel.generateNixKConf structuredConfig null)
+    # + extraConfig
+    ;
 
   kernelConfigFun = baseConfig:
     let

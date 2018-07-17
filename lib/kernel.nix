@@ -7,20 +7,54 @@
 
 with lib;
 rec {
+
+  kernelItem = types.submodule {
+    options = {
+      answer = mkOption {
+        type = types.str;
+        default = null;
+        description = ''
+          For most options "y" or "m" or "n" but freeform.
+        '';
+      };
+
+      optional = mkOption {
+        type = types.bool;
+        default = false;
+        description = ''
+          Wether it should fail if not asked.
+        '';
+      };
+
+      # conditions
+      # certificatesFile = mkOption {
+      #   type = types.nullOr types.path;
+      #   default = null;
+      #   description = ''
+      #     Path to file containing certificate authorities that should
+      #     be used to validate the connection authenticity. If
+      #     <literal>null</literal> then the system default is used.
+      #     Note, if set then the system default may still be accepted.
+      #   '';
+      # };
+    };
+  };
+
   # Common patterns
   # TODO asset when version is not available ?
   # when        = cond: opt: if cond then opt else null;
   # TODO merge condition if opt has one condition ( with and )
   # TODO record cond in  opt // { conditions = cond ++ lib.optionals (opt ? conditions) conditions  ; }
   when        = cond: opt: if cond then opt else null;
-  whenAtLeast = ver: when (versionAtLeast version ver);
-  whenOlder   = ver: when (versionOlder version ver);
-  whenBetween = verLow: verHigh: when (versionAtLeast version verLow && versionOlder version verHigh);
+  # whenAtLeast = ver: when (versionAtLeast version ver);
+  # whenOlder   = ver: when (versionOlder version ver);
+  # whenBetween = verLow: verHigh: when (versionAtLeast version verLow && versionOlder version verHigh);
 
   # Keeping these around in case we decide to change this horrible implementation :)
   option = x:
     # if x == null then null else "?${x}";
-      mergeConfigItem x { optional = true; };
+      traceValSeq (mkMerge [ x { optional = true; } ]);
+
   yes    = { answer = "y"; };
   no     = { answer = "n"; };
   module = { answer = "m"; };
@@ -30,19 +64,19 @@ rec {
     if builtins.isAttrs item then item else { answer = item; optional = false; };
 
   # might want to copy/move from kernel.nix the isEnabled/isYes etc
-  mergeConfigItem = config1: config2:
-  let
-    c1 = builtins.trace "c1" (traceValSeq (configItemAsAttr config1));
-    c2 = builtins.trace "c2" (traceValSeq (configItemAsAttr config2));
-  in
-    builtins.trace "merged config:" (traceValSeq {
-      # builtins.isAttrs
-      # TODO merge conditions too
-      optional = (c1 ? optional) && (c2 ? optional);
-      # for now take c2 answer
-      # answer   =  (if (c2.answer != null) then c2.answer else c1.answer);
-      answer   =  (c2.answer or c1.answer);
-    });
+  # mergeConfigItem = config1: config2:
+  # let
+  #   c1 = builtins.trace "c1" (traceValSeq (configItemAsAttr config1));
+  #   c2 = builtins.trace "c2" (traceValSeq (configItemAsAttr config2));
+  # in
+  #   builtins.trace "merged config:" (traceValSeq {
+  #     # builtins.isAttrs
+  #     # TODO merge conditions too
+  #     optional = (c1 ? optional) && (c2 ? optional);
+  #     # for now take c2 answer
+  #     # answer   =  (if (c2.answer != null) then c2.answer else c1.answer);
+  #     answer   =  (c2.answer or c1.answer);
+  #   });
 
   mkValue = val:
   let
@@ -87,16 +121,13 @@ rec {
   in mkConf exprs;
 
   # overrideExisting
-  mergeStructuredConf = c1: c2:
-    # c2 params should override c1 ones
-    # lib.recursiveUpdate c1 c2;
+  # mergeStructuredConf = c1: c2:
+  #   # c2 params should override c1 ones
+  #   # lib.recursiveUpdate c1 c2;
 
-    # foldAttrs
-       # foldAttrs (n: a: [n] ++ a) [] [{ a = 2; } { a = 3; }]
-       # => { a = [ 2 3 ]; }
-
-    # nul can be called as second
-    # answer = null;
-    lib.foldAttrs mergeConfigItem {  } [c1 c2];
+  #   # foldAttrs
+  #      # foldAttrs (n: a: [n] ++ a) [] [{ a = 2; } { a = 3; }]
+  #      # => { a = [ 2 3 ]; }
+  #   lib.foldAttrs mergeConfigItem {} [c1 c2];
 
 }

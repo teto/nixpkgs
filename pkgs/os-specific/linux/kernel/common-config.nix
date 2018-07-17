@@ -24,13 +24,19 @@
 , features ? { grsecurity = false; xen_dom0 = false; }
 }:
 
-assert (mkValueOverride == null) || (builtins.isFunction mkValueOverride);
+# assert (mkValueOverride == null) || (builtins.isFunction mkValueOverride);
 
 with stdenv.lib;
 
-with import ../../../../lib/kernel.nix { inherit (stdenv) lib; inherit version; };
+  with import ../../../../lib/kernel.nix { inherit (stdenv) lib;
+    # inherit version;
+  };
 
 let
+
+  whenAtLeast = ver: when (versionAtLeast version ver);
+  whenOlder   = ver: when (versionOlder version ver);
+  whenBetween = verLow: verHigh: when (versionAtLeast version verLow && versionOlder version verHigh);
 
   # configuration items have to be part of a subattrs
   flattenKConf =  nested: mapAttrs (_: head) (zipAttrs (attrValues nested));
@@ -230,7 +236,7 @@ let
     };
 
     usb = {
-      USB_DEBUG            = option (whenOlder "4.18" no);
+      USB_DEBUG            = whenOlder "4.18" (option no);
       USB_EHCI_ROOT_HUB_TT = yes; # Root Hub Transaction Translators
       USB_EHCI_TT_NEWSCHED = yes; # Improved transaction translator scheduling
     };
@@ -405,7 +411,7 @@ let
     virtualisation = {
       PARAVIRT = option yes;
 
-      HYPERVISOR_GUEST = yes;
+      HYPERVISOR_GUEST = when (!features.grsecurity) yes;
       PARAVIRT_SPINLOCKS  = option yes;
 
       KVM_APIC_ARCHITECTURE             = whenOlder "4.8" yes;
