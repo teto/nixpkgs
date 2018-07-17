@@ -65,14 +65,22 @@ let
     xen_dom0 = false;
   } // features) kernelPatches;
 
-  intermediateNixConfig = import ./common-config.nix {
-    inherit stdenv version structuredExtraConfig mkValueOverride;
-
-    # append extraConfig for backwards compatibility but also means the user can't override the kernelExtraConfig part
-    extraConfig = extraConfig + lib.optionalString (hostPlatform.platform ? kernelExtraConfig) hostPlatform.platform.kernelExtraConfig;
+  # TODO use boot.kernel.config
+  # structuredExtraConfig
+  commonStructuredConfig = import ./common-config.nix {
+    inherit stdenv version ;
 
     features = kernelFeatures; # Ensure we know of all extra patches, etc.
   };
+
+  # extra config in legacy string format
+  extraConfig = extraConfig + lib.optionalString (hostPlatform.platform ? kernelExtraConfig) hostPlatform.platform.kernelExtraConfig;
+
+  intermediateNixConfig = let
+    structuredConfig = stdenv.lib.mkMerge [ commonStructuredConfig structuredExtraConfig ];
+  in
+    # mkValueOverride
+    (stdenv.lib.generateNixKConf structuredConfig null) + extraConfig;
 
   kernelConfigFun = baseConfig:
     let

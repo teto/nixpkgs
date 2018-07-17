@@ -13,13 +13,13 @@
 { stdenv, version
 
 # to let user override values, aka converting modules to included and vice-versa
-, mkValueOverride ? null
+# , mkValueOverride ? null
 
 # new extraConfig as a flattened set
-, structuredExtraConfig ? {}
+# , structuredExtraConfig ? {}
 
 # legacy extraConfig as string
-, extraConfig ? ""
+# , extraConfig ? ""
 
 , features ? { grsecurity = false; xen_dom0 = false; }
 }:
@@ -28,8 +28,7 @@ assert (mkValueOverride == null) || (builtins.isFunction mkValueOverride);
 
 with stdenv.lib;
 
-# inherit version;
-with import ../../../../lib/kernel.nix { inherit (stdenv) lib; };
+with import ../../../../lib/kernel.nix { inherit (stdenv) lib; inherit version; };
 
 let
 
@@ -242,7 +241,7 @@ let
       FANOTIFY        = yes;
       TMPFS           = yes;
       TMPFS_POSIX_ACL = yes;
-      FS_ENCRYPTION   = whenAtLeast "4.9" (option module);
+      FS_ENCRYPTION   = option (whenAtLeast "4.9" module);
 
       EXT2_FS_XATTR     = yes;
       EXT2_FS_POSIX_ACL = yes;
@@ -406,7 +405,7 @@ let
     virtualisation = {
       PARAVIRT = option yes;
 
-      HYPERVISOR_GUEST = when (!features.grsecurity) yes;
+      HYPERVISOR_GUEST = yes;
       PARAVIRT_SPINLOCKS  = option yes;
 
       KVM_APIC_ARCHITECTURE             = whenOlder "4.8" yes;
@@ -414,7 +413,7 @@ let
       KVM_COMPAT                        = whenBetween "4.0" "4.12" (option yes);
       KVM_DEVICE_ASSIGNMENT             = whenBetween "3.10" "4.12" (option yes);
       KVM_GENERIC_DIRTYLOG_READ_PROTECT = whenAtLeast "4.0"  yes;
-      KVM_GUEST                         = when (!features.grsecurity) yes;
+      KVM_GUEST                         = yes;
       KVM_MMIO                          = yes;
       KVM_VFIO                          = yes;
       KSM = yes;
@@ -680,4 +679,5 @@ let
       NR_CPUS = "384";
     };
   };
-in (generateNixKConf ( (mergeStructuredConf (flattenKConf options) structuredExtraConfig)) mkValueOverride) + extraConfig
+in
+  flattenKConf options
