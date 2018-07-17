@@ -78,8 +78,9 @@ let
 
   intermediateNixConfig = let
     structuredConfig =
+      commonStructuredConfig
       # stdenv.lib.mkMerge [
-      stdenv.lib.attrsets.mapAttrs (name: value: stdenv.lib.kernel.configItemAsAttr value) commonStructuredConfig
+      # stdenv.lib.attrsets.mapAttrs (name: value: stdenv.lib.kernel.configItemAsAttr value) commonStructuredConfig
       # {}
       # to ease testing
       # structuredExtraConfig

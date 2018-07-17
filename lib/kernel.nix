@@ -25,26 +25,12 @@ rec {
           Wether it should fail if not asked.
         '';
       };
-
-      # conditions
-      # certificatesFile = mkOption {
-      #   type = types.nullOr types.path;
-      #   default = null;
-      #   description = ''
-      #     Path to file containing certificate authorities that should
-      #     be used to validate the connection authenticity. If
-      #     <literal>null</literal> then the system default is used.
-      #     Note, if set then the system default may still be accepted.
-      #   '';
-      # };
     };
   };
 
   # Common patterns
   # TODO asset when version is not available ?
   # when        = cond: opt: if cond then opt else null;
-  # TODO merge condition if opt has one condition ( with and )
-  # TODO record cond in  opt // { conditions = cond ++ lib.optionals (opt ? conditions) conditions  ; }
   when        = cond: opt: if cond then opt else null;
   # whenAtLeast = ver: when (versionAtLeast version ver);
   # whenOlder   = ver: when (versionOlder version ver);
@@ -52,8 +38,17 @@ rec {
 
   # Keeping these around in case we decide to change this horrible implementation :)
   option = x:
-    # if x == null then null else "?${x}";
-      traceValSeq (mkMerge [ x { optional = true; } ]);
+    # look at mergeDefinitions / mergedValue
+    # dischargeProperties /
+    # mkIf for features
+    # evalOptionValue
+     # 'loc' is the list of attribute names where the option is located.
+     # 'opts' is a list of modules.  Each module has an options attribute which
+    traceValSeq (
+      # merge = loc: defs:
+      # look at mergeEqualOption to see how it's done
+      kernelItem.merge [] [ x { optional = true; } ]
+    );
 
   yes    = { answer = "y"; };
   no     = { answer = "n"; };
