@@ -9,10 +9,12 @@ with lib;
 rec {
 
   kernelItem = types.submodule {
+# visible = false;
     options = {
       answer = mkOption {
         type = types.str;
         default = null;
+        internal = true;
         description = ''
           For most options "y" or "m" or "n" but freeform.
         '';
@@ -21,6 +23,7 @@ rec {
       optional = mkOption {
         type = types.bool;
         default = false;
+        internal = true;
         description = ''
           Wether it should fail if not asked.
         '';
@@ -36,6 +39,16 @@ rec {
   # whenOlder   = ver: when (versionOlder version ver);
   # whenBetween = verLow: verHigh: when (versionAtLeast version verLow && versionOlder version verHigh);
 
+  # typ<C-r>=deoplete#mapping#_complete()<CR>e.<C-r>=deoplete#mapping#_complete()<CR>me<C-r>=deoplete#mapping#_complete()<CR>rge =>
+
+   # Merge a list of definitions together into a single value.
+      # This function is called with two arguments: the location of
+      # the option in the configuration as a list of strings
+      # (e.g. ["boot" "loader "grub" "enable"]), and a list of
+      # definition values and locations (e.g. [ { file = "/foo.nix";
+      # value = 1; } { file = "/bar.nix"; value = 2 } ]).
+
+
   # Keeping these around in case we decide to change this horrible implementation :)
   option = x:
     # look at mergeDefinitions / mergedValue
@@ -47,7 +60,7 @@ rec {
     traceValSeq (
       # merge = loc: defs:
       # look at mergeEqualOption to see how it's done
-      kernelItem.merge [] [ x { optional = true; } ]
+      kernelItem.merge [] [ { file= "toto"; value = x;} { file="toto"; value = { optional = true; }; } ]
     );
 
   yes    = { answer = "y"; };
