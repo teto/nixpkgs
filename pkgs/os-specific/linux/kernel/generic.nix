@@ -147,6 +147,7 @@ let
 
   kernel = (callPackage ./manual-config.nix {}) {
     inherit version modDirVersion src kernelPatches stdenv extraMeta configfile hostPlatform;
+    structuredConfig = commonStructuredConfig;
 
     config = { CONFIG_MODULES = "y"; CONFIG_FW_LOADER = "m"; };
   };
