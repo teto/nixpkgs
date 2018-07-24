@@ -14034,6 +14034,34 @@ with pkgs;
     };
     in tinyLinuxPackages.kernel;
 
+
+
+  # look for this to generate a structuredConfig
+  # https://discourse.nixos.org/t/use-lib-types-system-to-merge-attrsets-without-the-module-system/534/6
+
+  # { stdenv, lib }:
+  commonConfigStr = stdenv.mkDerivation rec {
+    # ...
+    passthru = rec {
+
+      module = import ../../nixos/modules/system/boot/kernel_config.nix;
+      # The result is a set of two attributes
+      configFile = cfg: (lib.evalModules {
+        modules = [
+          module
+          cfg
+        ];
+      }).config.file;
+    };
+
+    textStr = passthru.configFile {
+      params.NET_9P_VIRTIO = yes;
+      # params = {
+      #   NET_9P_VIRTIO = yes;
+      # };
+    };
+  };
+
   # Build a kernel with bcachefs module
   linuxPackages_testing_bcachefs = recurseIntoAttrs (linuxPackagesFor pkgs.linux_testing_bcachefs);
 

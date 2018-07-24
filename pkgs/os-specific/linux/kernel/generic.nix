@@ -88,6 +88,7 @@ let
     ;
   in
     # mkValueOverride
+    # should try some kind of mkMerge/move the
     (stdenv.lib.kernel.generateNixKConf structuredConfig null)
     # + extraConfig
     ;
@@ -147,13 +148,13 @@ let
 
   kernel = (callPackage ./manual-config.nix {}) {
     inherit version modDirVersion src kernelPatches stdenv extraMeta configfile hostPlatform;
-    structuredConfig = commonStructuredConfig;
 
     config = { CONFIG_MODULES = "y"; CONFIG_FW_LOADER = "m"; };
   };
 
   passthru = {
     features = kernelFeatures;
+    inherit commonStructuredConfig;
     passthru = kernel.passthru // (removeAttrs passthru [ "passthru" ]);
   };
 

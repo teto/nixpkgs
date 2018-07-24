@@ -39,7 +39,6 @@ rec {
   # whenOlder   = ver: when (versionOlder version ver);
   # whenBetween = verLow: verHigh: when (versionAtLeast version verLow && versionOlder version verHigh);
 
-  # typ<C-r>=deoplete#mapping#_complete()<CR>e.<C-r>=deoplete#mapping#_complete()<CR>me<C-r>=deoplete#mapping#_complete()<CR>rge =>
 
    # Merge a list of definitions together into a single value.
       # This function is called with two arguments: the location of
@@ -60,7 +59,8 @@ rec {
     traceValSeq (
       # merge = loc: defs:
       # look at mergeEqualOption to see how it's done
-      kernelItem.merge [] [ { file= "toto"; value = x;} { file="toto"; value = { optional = true; }; } ]
+      # kernelItem.merge [] [ { file= "toto"; value = x;} { file="toto"; value = { optional = true; }; } ]
+      x // { optional = true; }
     );
 
   yes    = { answer = "y"; };
