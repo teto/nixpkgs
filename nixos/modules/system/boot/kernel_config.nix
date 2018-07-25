@@ -6,16 +6,27 @@ with lib;
 {
 
   options = {
-    file = mkOption {
-      type = types.path;
-    };
+    # file = mkOption {
+    #   type = types.path;
+    #   readOnly = true;
+    # };
+
     fileContents = mkOption {
       readOnly = true;
+      # default = "toto";
       type = types.lines;
     };
 
     # list of
     params = mkOption {
+      # merge is here to
+      # merge =
+      # defaultTypeMerge
+      # A function to merge multiple type declarations. Takes the type to merge
+      # <literal>functor</literal> as parameter. A <literal>null</literal> return
+      # value means that type cannot be merged.
+      typeMerge = t1: t2:
+          ;
       type = types.attrsOf lib.kernel.kernelItem;
     };
   };
@@ -23,8 +34,11 @@ with lib;
   config = {
 
     # TODO convert structured config to string
-    file = builtins.toFile "toto";
-      # config.fileContents;
-    fileContents = throw "Some function to convert config.params to a string, possibly with some assertions";
+    # Store the string <replaceable>s</replaceable> in a
+# file in the Nix store and return its path
+    # file = (builtins.toFile "toto");
+# config.fileContents;
+    # fileContents = throw "Some function to convert config.params to a string, possibly with some assertions";
+    fileContents = kernel.generateNixKConf config.params null;
   };
 }

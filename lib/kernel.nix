@@ -10,11 +10,13 @@ rec {
 
   kernelItem = types.submodule {
 # visible = false;
+    # merge function defined in mkOption
+    # merge =
     options = {
       answer = mkOption {
         type = types.str;
         default = null;
-        internal = true;
+        # internal = true;
         description = ''
           For most options "y" or "m" or "n" but freeform.
         '';
@@ -23,7 +25,7 @@ rec {
       optional = mkOption {
         type = types.bool;
         default = false;
-        internal = true;
+        # internal = true;
         description = ''
           Wether it should fail if not asked.
         '';

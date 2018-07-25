@@ -14049,18 +14049,47 @@ with pkgs;
       configFile = cfg: (lib.evalModules {
         modules = [
           module
-          cfg
-        ];
-      }).config.file;
+        ] ++ cfg;
+      }).config.fileContents;
     };
 
-    textStr = passthru.configFile {
+    textStr = with lib.kernel; passthru.configFile [ {
       params.NET_9P_VIRTIO = yes;
+    } { params.BUG = yes; }
+  { params.BUG = option yes; }
+    ];
+  };
+
+
+  commonConfigStr2 = stdenv.mkDerivation rec {
+    # ...
+    passthru = rec {
+
+      module = import ../../nixos/modules/system/boot/kernel_config.nix;
+      # The result is a set of two attributes
+      configFile = cfg: (lib.evalModules {
+        modules = [
+          module
+          cfg
+        ];
+      }).config.fileContents;
+    };
+
+    textStr = with lib.kernel; passthru.configFile {
+      params.NET_ZOZO = yes;
       # params = {
       #   NET_9P_VIRTIO = yes;
       # };
     };
+
+    # textStr = with lib.kernel; passthru.configFile {
+    #   params.NET_ZOZO = yes;
+    #   # params = {
+    #   #   NET_9P_VIRTIO = yes;
+    #   # };
+    # };
   };
+
 
   # Build a kernel with bcachefs module
   linuxPackages_testing_bcachefs = recurseIntoAttrs (linuxPackagesFor pkgs.linux_testing_bcachefs);
