@@ -7,6 +7,33 @@
 
 with lib;
 rec {
+  # mergeAsModule / mergeAsNo / mergeAsYes
+  # winOrder is a list [ "y" "m" "n"]
+  findWinner = candidates: winner:
+    any winner candidates;
+
+  mergeAnswer = winners: loc: defs:
+    let
+      values = map (x: x.value) defs;
+      # any/count/partition
+      # hasNo = any (x: x == "n") values;
+      # hasPositive = any (x: x == "m" || x == "y") values;
+      # groups = partition (x: x == "n") values;
+      # differentAnswers = unique map (x: x.value) defs;
+      inter = intersectLists values winOrder;
+      winner = head winners;
+      # winner = any
+    in
+    if defs == [] then abort "This case should never happen."
+    else if winner == [] then abort "Give a valid list of winner"
+    else if findWinner values winner then
+      winner
+    else
+      mergeAnswer (tail winners) locs defs;
+
+    # else
+    # throw "The unique option `${showOption loc}' is defined multiple times, in ${showFiles (getFiles defs)}."
+    # else (head inter).value;
 
   kernelItem = types.submodule {
 # visible = false;
@@ -17,7 +44,8 @@ rec {
         type = types.str // {
         # mergeOneOption
         # traceValSeqFn (x: "answer ${x}")
-        merge = locs: defs: builtins.trace "test" mergeOneOption locs defs;
+        # merge = locs: defs: builtins.trace "test" mergeOneOption locs defs;
+        merge = locs: defs: builtins.trace "test" mergeAnswer [ "y" "m" "n" ] locs defs;
 
         };
         default = null;
