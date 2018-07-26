@@ -11,12 +11,18 @@ rec {
   kernelItem = types.submodule {
 # visible = false;
     # merge function defined in mkOption
-    # merge =
+    # merge = x: "toto";
     options = {
       answer = mkOption {
-        type = types.str;
+        type = types.str // {
+        # mergeOneOption
+        # traceValSeqFn (x: "answer ${x}")
+        merge = locs: defs: builtins.trace "test" mergeOneOption locs defs;
+
+        };
         default = null;
         # internal = true;
+        # visible = true;
         description = ''
           For most options "y" or "m" or "n" but freeform.
         '';
@@ -31,6 +37,11 @@ rec {
         '';
       };
     };
+  } // {
+
+    # merge
+    # merge = f1: f2: builtins.trace "merge" expandingMerge ;
+    # typeMerge = f1: f2: builtins.trace "typeMerge" expandingMerge ;
   };
 
   # Common patterns

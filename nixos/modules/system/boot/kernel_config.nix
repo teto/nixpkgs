@@ -3,6 +3,12 @@
 { lib, config, ... }:
 
 with lib;
+  let
+    # takes two type functors and return the merged type
+    expandingMerge = t1: t2:
+      traceValSeq t1;
+    # mkOptionType
+    in
 {
 
   options = {
@@ -25,9 +31,13 @@ with lib;
       # A function to merge multiple type declarations. Takes the type to merge
       # <literal>functor</literal> as parameter. A <literal>null</literal> return
       # value means that type cannot be merged.
-      typeMerge = t1: t2:
-          ;
-      type = types.attrsOf lib.kernel.kernelItem;
+      # typeMerge = builtins.trace "typeMerge" expandingMerge ;
+      type = (types.attrsOf lib.kernel.kernelItem )
+      # // {
+      #   typeMerge = builtins.trace "typeMerge" expandingMerge ;
+      #   merge = builtins.trace "Uerge" expandingMerge ;
+      # }
+    ;
     };
   };
 
