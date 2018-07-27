@@ -14055,8 +14055,10 @@ with pkgs;
 
     textStr = with lib.kernel; passthru.configFile [ {
       params.NET_9P_VIRTIO = yes;
-    } { params.BUG = yes; }
-  { params.BUG = option yes; }
+  }
+      { params.BUG = yes; }
+      { params.BUG = option yes; }
+      { params.BUG = no; }
     ];
   };
 

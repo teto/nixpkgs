@@ -10,9 +10,9 @@ rec {
   # mergeAsModule / mergeAsNo / mergeAsYes
   # winOrder is a list [ "y" "m" "n"]
   findWinner = candidates: winner:
-    any winner candidates;
+    any (x: x == winner) candidates;
 
-  mergeAnswer = winners: loc: defs:
+  mergeAnswer = winners: locs: defs:
     let
       values = map (x: x.value) defs;
       # any/count/partition
@@ -45,7 +45,7 @@ rec {
         # mergeOneOption
         # traceValSeqFn (x: "answer ${x}")
         # merge = locs: defs: builtins.trace "test" mergeOneOption locs defs;
-        merge = locs: defs: builtins.trace "test" mergeAnswer [ "y" "m" "n" ] locs defs;
+        merge = locs: defs: builtins.trace "test" (mergeAnswer [ "y" "m" "n" ] locs defs);
 
         };
         default = null;
