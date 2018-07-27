@@ -76,22 +76,10 @@ let
   # extra config in legacy string format
   extraConfig = extraConfig + lib.optionalString (hostPlatform.platform ? kernelExtraConfig) hostPlatform.platform.kernelExtraConfig;
 
-  intermediateNixConfig = let
-    structuredConfig =
-      commonStructuredConfig
-      # stdenv.lib.mkMerge [
-      # stdenv.lib.attrsets.mapAttrs (name: value: stdenv.lib.kernel.configItemAsAttr value) commonStructuredConfig
-      # {}
-      # to ease testing
-      # structuredExtraConfig
-    # ]
-    ;
-  in
-    # mkValueOverride
-    # should try some kind of mkMerge/move the
-    (stdenv.lib.kernel.generateNixKConf structuredConfig null)
-    # + extraConfig
-    ;
+  intermediateNixConfig = (stdenv.lib.kernel.generateNixKConf configfile.structuredConfig null);
+
+  structuredConfigFromPatches =
+        map ({extraStructuredConfig ? "", ...}: extraStructuredConfig) kernelPatches;
 
   kernelConfigFun = baseConfig:
     let
@@ -144,7 +132,30 @@ let
     installPhase = "mv $buildRoot/.config $out";
 
     enableParallelBuilding = true;
-  };
+
+    passthru = rec {
+
+      module = import ../../../../nixos/modules/system/boot/kernel_config.nix;
+      # The result is a set of two attributes
+      configFile = cfg: (lib.evalModules {
+        modules = [
+          module
+        ] ++ cfg;
+      }).config.fileContents;
+
+      structuredConfig = with lib.kernel; configFile [
+        commonStructuredConfig
+        structuredExtraConfig
+        structuredConfigFromPatches
+        # { params.NET_9P_VIRTIO = yes; }
+        # { params.BUG = yes; }
+        # { params.BUG = option yes; }
+        # { params.BUG = no; }
+      ];
+    };
+
+
+  }; # end of configfile derivation
 
   kernel = (callPackage ./manual-config.nix {}) {
     inherit version modDirVersion src kernelPatches stdenv extraMeta configfile hostPlatform;
