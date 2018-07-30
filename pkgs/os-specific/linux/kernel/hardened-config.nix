@@ -63,7 +63,7 @@ assert (versionAtLeast version "4.9");
 
   # Reboot devices immediately if kernel experiences an Oops.
   PANIC_ON_OOPS = yes;
-  PANIC_TIMEOUT = "-1";
+  PANIC_TIMEOUT = freeform "-1";
 
   GCC_PLUGINS = yes; # Enable gcc plugin options
 

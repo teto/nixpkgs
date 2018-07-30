@@ -138,17 +138,20 @@ let
       module = import ../../../../nixos/modules/system/boot/kernel_config.nix;
       # The result is a set of two attributes
       configFile = cfg: (lib.evalModules {
+        # prefix =
         modules = [
           module
         ] ++ cfg;
-      }).config.fileContents;
+      }).config.settings;
 
       structuredConfig = with lib.kernel; configFile [
-        commonStructuredConfig
-        structuredExtraConfig
-        structuredConfigFromPatches
-        # { params.NET_9P_VIRTIO = yes; }
-        # { params.BUG = yes; }
+        # commonStructuredConfig
+        # structuredExtraConfig
+        # structuredConfigFromPatches
+        { settings = commonStructuredConfig; }
+
+        # { settings.NET_9P_VIRTIO = yes; }
+        # { settings.BUG = yes; }
         # { params.BUG = option yes; }
         # { params.BUG = no; }
       ];

@@ -3,12 +3,11 @@
 { lib, config, ... }:
 
 with lib;
-  let
-    # takes two type functors and return the merged type
-    expandingMerge = t1: t2:
-      traceValSeq t1;
-    # mkOptionType
-    in
+  # let
+  #   # takes two type functors and return the merged type
+  #   expandingMerge = t1: t2:
+  #     traceValSeq t1;
+  #   in
 {
 
   options = {
@@ -23,21 +22,15 @@ with lib;
       type = types.lines;
     };
 
-    # list of
-    params = mkOption {
-      # merge is here to
-      # merge =
-      # defaultTypeMerge
-      # A function to merge multiple type declarations. Takes the type to merge
-      # <literal>functor</literal> as parameter. A <literal>null</literal> return
-      # value means that type cannot be merged.
-      # typeMerge = builtins.trace "typeMerge" expandingMerge ;
-      type = (types.attrsOf lib.kernel.kernelItem )
-      # // {
-      #   typeMerge = builtins.trace "typeMerge" expandingMerge ;
-      #   merge = builtins.trace "Uerge" expandingMerge ;
-      # }
-    ;
+    settings = mkOption {
+      type = (types.attrsOf lib.kernel.kernelItem );
+      example = literalExample '' with lib.kernel; {
+        "9P_NET" = yes;
+        USB = optional yes;
+      }'';
+      description = ''
+        Attribute set
+      '';
     };
   };
 
@@ -49,6 +42,6 @@ with lib;
     # file = (builtins.toFile "toto");
 # config.fileContents;
     # fileContents = throw "Some function to convert config.params to a string, possibly with some assertions";
-    fileContents = kernel.generateNixKConf config.params null;
+    fileContents = kernel.generateNixKConf config.settings null;
   };
 }

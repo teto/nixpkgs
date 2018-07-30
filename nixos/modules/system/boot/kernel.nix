@@ -24,19 +24,23 @@ in
     # TODO follow up of https://discourse.nixos.org/t/use-lib-types-system-to-merge-attrsets-without-the-module-system/534/7
     boot.kernel.config = mkOption {
       internal = true;
-      default = pkgs.linuxPackages;
-      apply = kernelPackages: kernelPackages.extend (self: super: {
-        kernel = super.kernel.override {
-          kernelPatches = super.kernel.kernelPatches ++ kernelPatches;
-          features = lib.recursiveUpdate super.kernel.features features;
-        };
-      });
+      type = types.listOf kernel.kernelItem;
+
+      # load common config
+      default = import ../../../../pkgs/os-specific/linux/kernel/common-config.nix {};
+
+      # apply = kernelPackages: kernelPackages.extend (self: super: {
+      #   kernel = super.kernel.override {
+      #     kernelPatches = super.kernel.kernelPatches ++ kernelPatches;
+      #     features = lib.recursiveUpdate super.kernel.features features;
+      #   };
+      # });
       # We don't want to evaluate all of linuxPackages for the manual
       # - some of it might not even evaluate correctly.
-      defaultText = "pkgs.linuxPackages";
-      example = literalExample "pkgs.linuxPackages_2_6_25";
+      defaultText = "{ NET = yes;}";
+      # example = literalExample "pkgs.linuxPackages_2_6_25";
       description = ''
-        This option allows you to override the Linux kernel used by
+        This option allows you to override the Linux kernel configuration
       '';
     };
 

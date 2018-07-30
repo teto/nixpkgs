@@ -12,15 +12,6 @@
 # Configuration
 { stdenv, version
 
-# to let user override values, aka converting modules to included and vice-versa
-# , mkValueOverride ? null
-
-# new extraConfig as a flattened set
-# , structuredExtraConfig ? {}
-
-# legacy extraConfig as string
-# , extraConfig ? ""
-
 , features ? { grsecurity = false; xen_dom0 = false; }
 }:
 
@@ -34,9 +25,9 @@ with stdenv.lib;
 
 let
 
-  whenAtLeast = ver: when (versionAtLeast version ver);
-  whenOlder   = ver: when (versionOlder version ver);
-  whenBetween = verLow: verHigh: when (versionAtLeast version verLow && versionOlder version verHigh);
+  whenAtLeast = ver: mkIf (versionAtLeast version ver);
+  whenOlder   = ver: mkIf (versionOlder version ver);
+  whenBetween = verLow: verHigh: mkIf (versionAtLeast version verLow && versionOlder version verHigh);
 
   # configuration items have to be part of a subattrs
   flattenKConf =  nested: mapAttrs (_: head) (zipAttrs (attrValues nested));
@@ -52,7 +43,7 @@ let
       DEBUG_NX_TEST             = whenOlder "4.11" no;
       CPU_NOTIFIER_ERROR_INJECT = whenOlder "4.4" (option no);
       DEBUG_STACK_USAGE         = no;
-      DEBUG_STACKOVERFLOW       = when (!features.grsecurity) no;
+      DEBUG_STACKOVERFLOW       = mkIf (!features.grsecurity) no;
       RCU_TORTURE_TEST          = no;
       SCHEDSTATS                = no;
       DETECT_HUNG_TASK          = yes;
@@ -119,7 +110,7 @@ let
       IP_DCCP_CCID3      = no; # experimental
       CLS_U32_PERF       = yes;
       CLS_U32_MARK       = yes;
-      BPF_JIT            = when (stdenv.system == "x86_64-linux") yes;
+      BPF_JIT            = mkIf (stdenv.system == "x86_64-linux") yes;
       WAN                = yes;
       # Required by systemd per-cgroup firewalling
       CGROUP_BPF                  = option yes;
@@ -181,7 +172,7 @@ let
       FB_VESA             = yes;
       FRAMEBUFFER_CONSOLE = yes;
       FRAMEBUFFER_CONSOLE_ROTATION = yes;
-      FB_GEODE            = when (stdenv.system == "i686-linux") yes;
+      FB_GEODE            = mkIf (stdenv.system == "i686-linux") yes;
     };
 
     video = {
@@ -320,7 +311,7 @@ let
 
       # Native Language Support modules, needed by some filesystems
       NLS              = yes;
-      NLS_DEFAULT      = "utf8";
+      NLS_DEFAULT      = freeform "utf8";
       NLS_UTF8         = module;
       NLS_CODEPAGE_437 = module; # VFAT default for the codepage= mount option
       NLS_ISO8859_1    = module; # VFAT default for the iocharset= mount option
@@ -333,10 +324,10 @@ let
       DEBUG_SET_MODULE_RONX            = whenOlder "4.11" (option yes);
       RANDOMIZE_BASE                   = option yes;
       STRICT_DEVMEM                    = option yes; # Filter access to /dev/mem
-      SECURITY_SELINUX_BOOTPARAM_VALUE = "0"; # Disable SELinux by default
+      SECURITY_SELINUX_BOOTPARAM_VALUE = freeform "0"; # Disable SELinux by default
       # Prevent processes from ptracing non-children processes
       SECURITY_YAMA                    = option yes;
-      DEVKMEM                          = when (!features.grsecurity) no; # Disable /dev/kmem
+      DEVKMEM                          = mkIf (!features.grsecurity) no; # Disable /dev/kmem
 
       USER_NS                          = yes; # Support for user namespaces
 
@@ -411,7 +402,7 @@ let
     virtualisation = {
       PARAVIRT = option yes;
 
-      HYPERVISOR_GUEST = when (!features.grsecurity) yes;
+      HYPERVISOR_GUEST = mkIf (!features.grsecurity) yes;
       PARAVIRT_SPINLOCKS  = option yes;
 
       KVM_APIC_ARCHITECTURE             = whenOlder "4.8" yes;
@@ -425,9 +416,9 @@ let
       KSM = yes;
       VIRT_DRIVERS = yes;
       # We nneed 64 GB (PAE) support for Xen guest support
-      HIGHMEM64G = when (!stdenv.is64bit) (option yes);
+      HIGHMEM64G = mkIf (!stdenv.is64bit) (option yes);
 
-      VFIO_PCI_VGA = when stdenv.is64bit yes;
+      VFIO_PCI_VGA = mkIf stdenv.is64bit yes;
 
     } // optionalAttrs (stdenv.isx86_64 || stdenv.isi686) ({
       XEN = option yes;
@@ -591,7 +582,12 @@ let
       AIC79XX_DEBUG_ENABLE = no;
       AIC7XXX_DEBUG_ENABLE = no;
       AIC94XX_DEBUG = no;
+      # TODO testing
+      # this works !
+      # B43_PCMCIA =  mkIf (versionOlder version "4.4")  (option yes);
+      # B43_PCMCIA =  mkIf (versionOlder version "4.4")  (option yes);
       B43_PCMCIA =  whenOlder "4.4" (option yes);
+      # B43_PCMCIA =  option yes;
 
       BLK_DEV_INTEGRITY       = yes;
 
@@ -643,7 +639,7 @@ let
       # GPIO on Intel Bay Trail, for some Chromebook internal eMMC disks
       PINCTRL_BAYTRAIL   = yes;
       # 8 is default. Modern gpt tables on eMMC may go far beyond 8.
-      MMC_BLOCK_MINORS   = "32";
+      MMC_BLOCK_MINORS   = freeform "32";
 
       REGULATOR  = yes; # Voltage and Current Regulator Support
       RC_DEVICES = option yes; # Enable IR devices
@@ -682,7 +678,7 @@ let
     } // optionalAttrs (stdenv.hostPlatform.system == "x86_64-linux" || stdenv.hostPlatform.system == "aarch64-linux") {
       # Bump the maximum number of CPUs to support systems like EC2 x1.*
       # instances and Xeon Phi.
-      NR_CPUS = "384";
+      NR_CPUS = freeform "384";
     };
   };
 in

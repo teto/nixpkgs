@@ -20,12 +20,14 @@ rec {
       # hasPositive = any (x: x == "m" || x == "y") values;
       # groups = partition (x: x == "n") values;
       # differentAnswers = unique map (x: x.value) defs;
-      inter = intersectLists values winOrder;
+      freeformAnswer = intersectLists values winners;
+      inter = intersectLists values winners;
       winner = head winners;
       # winner = any
     in
     if defs == [] then abort "This case should never happen."
     else if winner == [] then abort "Give a valid list of winner"
+    else if inter == [] then traceValSeq (mergeOneOption locs defs)
     else if findWinner values winner then
       winner
     else
@@ -55,6 +57,16 @@ rec {
           For most options "y" or "m" or "n" but freeform.
         '';
       };
+
+      # freeform = mkOption {
+      #   type = types.bool;
+      #   readonly = true;
+      #   default = false;
+      #   # internal = true;
+      #   description = ''
+      #     if it's != then y/
+      #   '';
+      # };
 
       optional = mkOption {
         type = types.bool;
@@ -107,10 +119,14 @@ rec {
   yes    = { answer = "y"; };
   no     = { answer = "n"; };
   module = { answer = "m"; };
+  freeform = x: { answer = x; };
 
   # convert into attrSet if doesn't exist
   configItemAsAttr = item:
-    if builtins.isAttrs item then item else { answer = item; optional = false; };
+    if builtins.isAttrs item then item
+    # unknownModule = "<unknown-file>";
+    else trace item (packSubmodule "toto" { answer = item; optional = false; });
+    # packSubmodule "toto"
 
   # might want to copy/move from kernel.nix the isEnabled/isYes etc
   # mergeConfigItem = config1: config2:
@@ -157,7 +173,8 @@ rec {
         # val = if builtins.isFunction mkValuePreprocess then mkValuePreprocess rawval else rawval;
         # val_temp = builtins.trace key rawval;
         # val = if builtins.isAttrs val_temp then val_temp.answer else val_temp;
-        item = builtins.trace key (configItemAsAttr rawval);
+        # + " raw=${rawval}"
+        item = builtins.trace (key ) (configItemAsAttr rawval);
         val = item.answer;
       in
         if val == null
