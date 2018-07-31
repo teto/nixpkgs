@@ -123,6 +123,7 @@ rec {
 
   # convert into attrSet if doesn't exist
   configItemAsAttr = item:
+  # isType submodule
     if builtins.isAttrs item then item
     # unknownModule = "<unknown-file>";
     else trace item (packSubmodule "toto" { answer = item; optional = false; });
