@@ -85,7 +85,7 @@ assert (versionAtLeast version "4.9");
   # Enable compile/run-time buffer overflow detection ala glibc's _FORTIFY_SOURCE
   FORTIFY_SOURCE = versionAtLeast "4.13" yes;
 } // optionalAttrs (stdenv.platform.kernelArch == "x86_64") {
-  DEFAULT_MMAP_MIN_ADDR = "65536";  # Prevent allocation of first 64K of memory
+  DEFAULT_MMAP_MIN_ADDR = freeform "65536";  # Prevent allocation of first 64K of memory
 
   # Reduce attack surface by disabling various emulations
   IA32_EMULATION     = no;

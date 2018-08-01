@@ -175,12 +175,12 @@ rec {
         # val_temp = builtins.trace key rawval;
         # val = if builtins.isAttrs val_temp then val_temp.answer else val_temp;
         # + " raw=${rawval}"
-        item = builtins.trace (key ) (configItemAsAttr rawval);
+        item = builtins.trace (key) (configItemAsAttr rawval);
         val = item.answer;
       in
         if val == null
           then ""
-          else if (val ? optional)
+          else if (item.optional)
             then "${key}? ${mkValue val}\n"
             else "${key} ${mkValue val}\n";
 

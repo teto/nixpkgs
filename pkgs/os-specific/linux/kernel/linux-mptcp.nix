@@ -4,7 +4,6 @@ buildLinux (rec {
   mptcpVersion = "0.94";
   modDirVersion = "4.14.24";
   version = "${modDirVersion}-mptcp_v${mptcpVersion}";
-  # autoModules= true;
 
   extraMeta = {
     branch = "4.4";

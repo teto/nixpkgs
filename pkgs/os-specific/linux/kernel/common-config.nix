@@ -227,7 +227,7 @@ let
     };
 
     usb = {
-      USB_DEBUG            = whenOlder "4.18" (option no);
+      USB_DEBUG = mkMerge [ { optional = true; } (whenOlder "4.18" no) ];
       USB_EHCI_ROOT_HUB_TT = yes; # Root Hub Transaction Translators
       USB_EHCI_TT_NEWSCHED = yes; # Improved transaction translator scheduling
     };
@@ -238,7 +238,7 @@ let
       FANOTIFY        = yes;
       TMPFS           = yes;
       TMPFS_POSIX_ACL = yes;
-      FS_ENCRYPTION   = option (whenAtLeast "4.9" module);
+      FS_ENCRYPTION   = mkMerge [ { optional = true; } (whenAtLeast "4.9" module) ];
 
       EXT2_FS_XATTR     = yes;
       EXT2_FS_POSIX_ACL = yes;
@@ -321,7 +321,7 @@ let
 
     security = {
       # Detect writes to read-only module pages
-      DEBUG_SET_MODULE_RONX            = whenOlder "4.11" (option yes);
+      DEBUG_SET_MODULE_RONX            = whenOlder "4.11" { optional = true; answer = "y"; };
       RANDOMIZE_BASE                   = option yes;
       STRICT_DEVMEM                    = option yes; # Filter access to /dev/mem
       SECURITY_SELINUX_BOOTPARAM_VALUE = freeform "0"; # Disable SELinux by default
@@ -337,7 +337,7 @@ let
     } // optionalAttrs (!stdenv.hostPlatform.isAarch32) {
 
       # Detect buffer overflows on the stack
-      CC_STACKPROTECTOR_REGULAR = whenOlder "4.18" (option yes);
+      CC_STACKPROTECTOR_REGULAR = mkMerge [ ({optional = true;}) (whenOlder "4.18" { answer = "y";}) ];
     };
 
     microcode = {
@@ -582,12 +582,7 @@ let
       AIC79XX_DEBUG_ENABLE = no;
       AIC7XXX_DEBUG_ENABLE = no;
       AIC94XX_DEBUG = no;
-      # TODO testing
-      # this works !
-      # B43_PCMCIA =  mkIf (versionOlder version "4.4")  (option yes);
-      # B43_PCMCIA =  mkIf (versionOlder version "4.4")  (option yes);
-      B43_PCMCIA =  whenOlder "4.4" (option yes);
-      # B43_PCMCIA =  option yes;
+      B43_PCMCIA =  whenOlder "4.4" ( { optional=true; answer = "y";});
 
       BLK_DEV_INTEGRITY       = yes;
 
