@@ -4,7 +4,7 @@
 with lib;
 
 {
-  options = {
+  options = rec {
 
     displayName = mkOption {
       type = types.str;
@@ -17,6 +17,8 @@ with lib;
         Name that will be shown to the user.
       '';
     };
+
+    display_name = displayName;
 
     argv = mkOption {
       type = types.listOf types.str;
