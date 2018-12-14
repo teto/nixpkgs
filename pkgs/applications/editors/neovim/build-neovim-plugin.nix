@@ -28,17 +28,13 @@ let
     version = attrs.version or oa.version;
     rockspecVersion = oa.rockspecVersion;
 
-    extraConfig = ''
-      -- to create a flat hierarchy
-      lua_modules_path = "lua"
+        luarocksConfig = lib.recursiveUpdate oa.luarocksConfig {
+          # to create a flat hierarchy
+          lua_modules_path = "lua";
     '';
   });
 
-  finalDrv = toVimPlugin (
-    luaDrv.overrideAttrs (
-      oa:
-      attrs
-      // {
+      finalDrv = toVimPlugin (luaDrv.overrideAttrs(oa: attrs // {
         nativeBuildInputs = oa.nativeBuildInputs or [ ] ++ [
           lua.pkgs.luarocksMoveDataFolder
         ];

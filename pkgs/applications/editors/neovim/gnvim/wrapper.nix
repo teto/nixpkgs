@@ -2,10 +2,11 @@
   lib,
   stdenv,
   gnvim-unwrapped,
-  neovim,
+  # neovim,
   makeWrapper,
 }:
 
+neovim:
 stdenv.mkDerivation {
   pname = "gnvim";
   version = gnvim-unwrapped.version;

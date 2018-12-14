@@ -118,6 +118,7 @@
   # typst-preview dependencies
   tinymist,
   websocat,
+  llm-ls
 }:
 self: super:
 let
@@ -355,6 +356,14 @@ in
       plenary-nvim
     ];
   };
+
+  # just for testing
+  lush-nvim = super.lush-nvim.overrideAttrs(oa: {
+    preCheck = ''
+      echo "PRECHECK"
+      nvim --version
+    '';
+  });
 
   clang_complete = super.clang_complete.overrideAttrs {
     # In addition to the arguments you pass to your compiler, you also need to
@@ -1440,6 +1449,22 @@ in
     dependencies = [ self.nvim-treesitter ];
   };
 
+  # WIP
+  # kui-nvim = super.kui-nvim.overrideAttrs(oa: {
+
+  #   propagatedBuildInputs = oa.propagatedBuildInputs or [] ++ [
+  #     cairo
+  #   ];
+
+  #   # local C = ffi.load'cairo'
+
+  #     preFixup = ''
+  #       substituteInPlace "$out"/lua/kui/cairo/cairo.lua \
+  #         --replace "ffi.load'cairo'" "ffi.load'${cairo}/lib/libcairo.so'"
+  #     '';
+
+  # });
+
   jedi-vim = super.jedi-vim.overrideAttrs {
     # checking for python3 support in vim would be neat, too, but nobody else seems to care
     buildInputs = [ python3.pkgs.jedi ];
@@ -1611,6 +1636,11 @@ in
 
   lf-vim = super.lf-vim.overrideAttrs {
     dependencies = [ self.vim-floaterm ];
+  };
+
+  llm-nvim = super.llm-nvim.overrideAttrs {
+    # dependencies = [ self.vim-floaterm ];
+    runtimeDeps = [ llm-ls ];
   };
 
   lightline-bufferline = super.lightline-bufferline.overrideAttrs {
@@ -2532,6 +2562,19 @@ in
     ];
   };
 
+  # disabled because of bug in update script
+  # nvim-telescope-zeal-cli = super.nvim-telescope-zeal-cli.overrideAttrs( oa: {
+  #   # postPatch = ''
+  #   #   substituteInPlace lua/tealmaker/init.lua \
+  #   #     --replace cyan ${luaPackages.cyan}/bin/cyan
+  #   # '';
+  #   # vimCommandCheck = "TealBuild";
+  #   # https://gitlab.com/ivan-cukic/nvim-telescope-zeal-cli
+  #   dependencies = [ self.hotpot-nvim self.telescope-nvim ];
+  #   propagatedBuildInputs = [ pkgs.zeal-cli ];
+
+  # });
+
   nvim-treesitter = super.nvim-treesitter.overrideAttrs (
     callPackage ./nvim-treesitter/overrides.nix { } self super
   );
@@ -3272,6 +3315,13 @@ in
 
   telescope-project-nvim = super.telescope-project-nvim.overrideAttrs {
     dependencies = [ self.plenary-nvim ];
+  };
+
+  telescope-manix = super.telescope-manix.overrideAttrs {
+    dependencies = [ self.telescope-nvim ];
+
+    doInstallCheck = true;
+    nvimRequireCheck = "telescope-manix";
   };
 
   telescope-smart-history-nvim = super.telescope-smart-history-nvim.overrideAttrs {

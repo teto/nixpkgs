@@ -25,6 +25,9 @@ buildNpmPackage {
     runHook postInstall
   '';
 
+  doCheck = true;
+  doInstallCheck = true;
+
   meta = {
     description = "Self-hosted photo and video backup solution (command line interface)";
     homepage = "https://immich.app/docs/features/command-line-interface";

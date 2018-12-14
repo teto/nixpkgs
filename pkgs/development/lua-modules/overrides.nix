@@ -83,6 +83,26 @@ in
       runHook postCheck
     '';
   });
+
+  nui-nvim = prev.nui-nvim.overrideAttrs(oa: {
+
+    doCheck = false;
+    checkInputs = [
+      neovim-unwrapped
+      final.busted
+      final.plenary-nvim
+    ];
+
+    # export LUA_PATH="src/?.lua;$LUA_PATH"
+    #       nvim --headless --noplugin -u tests/init.lua -c "lua require('plenary.busted').run('./tests/nui/input_spec.lua')"
+
+    checkPhase = ''
+      ls -l tests/nui
+      echo $PWD
+      nvim --headless --noplugin -u tests/init.lua -c "lua require('plenary.test_harness').test_directory('./tests/input/', { minimal_init = 'tests/init.lua', sequential = true })"
+    '';
+  });
+
   ##########################################3
   #### manual fixes for generated packages
   ##########################################3
@@ -90,6 +110,10 @@ in
     nativeBuildInputs = oa.nativeBuildInputs ++ [
       installShellFiles
     ];
+
+    # hack to remove
+    propagatedBuildInputs = oa.propagatedBuildInputs ++ [ final.luafilesystem ];
+
     postConfigure = ''
       substituteInPlace ''${rockspecFilename} \
         --replace-fail "'lua_cliargs = 3.0'," "'lua_cliargs >= 3.0-1',"
@@ -246,8 +270,8 @@ in
 
   image-nvim = prev.image-nvim.overrideAttrs (oa: {
     propagatedBuildInputs = [
-      lua
-      luajitPackages.magick
+      # lua
+      lua.pkgs.magick
     ];
   });
 
@@ -501,7 +525,7 @@ in
       rev = "532c757e51c86f546a85730b71c9fef15ffa633d";
       sha256 = "1nwx6sh56zfq99rcs7sph0296jf6a9z72mxknn0ysw9fd7m1r8ig";
     };
-    knownRockspec = with prev.luaffi; "${pname}-${version}.rockspec";
+    knownRockspec = "${oa.pname}-${oa.version}.rockspec";
     meta.broken = luaOlder "5.1" || luaAtLeast "5.4" || isLuaJIT;
   });
 
@@ -926,6 +950,7 @@ in
 
   nlua = prev.nlua.overrideAttrs (oa: {
 
+    dontWrapLuaPrograms = false;
     # patchShebang removes the nvim in nlua's shebang so we hardcode one
     postFixup = ''
       sed -i -e "1 s|.*|#\!${coreutils}/bin/env -S ${neovim-unwrapped}/bin/nvim -l|" "$out/bin/nlua"
