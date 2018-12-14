@@ -414,6 +414,7 @@ in
 
       serviceConfig = commonServiceConfig // {
         LoadCredential = secretsReplacement.credentials;
+        # Description = "Photo and video hosting service.";
         ExecStart = lib.getExe cfg.package;
         EnvironmentFile = mkIf (cfg.secretsFile != null) cfg.secretsFile;
         Slice = "system-immich.slice";

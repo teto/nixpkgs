@@ -276,6 +276,13 @@ in
     ];
   };
 
+  image-nvim = prev.image-nvim.overrideAttrs {
+    propagatedBuildInputs = [
+      # lua
+      lua.pkgs.magick
+    ];
+  };
+
   ldbus = prev.ldbus.overrideAttrs (old: {
     luarocksConfig = old.luarocksConfig // {
       variables = {
@@ -840,12 +847,6 @@ in
   });
 
   lux-lua = final.callPackage ./lux-lua.nix { inherit lua; };
-
-  lyaml = prev.lyaml.overrideAttrs {
-    buildInputs = [
-      libyaml
-    ];
-  };
 
   lz-n = prev.lz-n.overrideAttrs {
     doCheck = lua.luaversion == "5.1";

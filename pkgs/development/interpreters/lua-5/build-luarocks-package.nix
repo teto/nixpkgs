@@ -212,6 +212,9 @@ let
           ''
           + attrs.postFixup or "";
 
+        # TODO move comments out of nix code
+        # deps-mode=all tells luarocks to use every configured rocks_trees
+
         installPhase = ''
           runHook preInstall
 
