@@ -121,6 +121,9 @@ stdenv.mkDerivation (
       ./system_rplugin_manifest.patch
     ];
 
+    dontFixCmake = true;
+
+    inherit neovimLuaEnv;
     inherit lua;
     treesitter-parsers =
       lib.mapAttrs
@@ -176,7 +179,9 @@ stdenv.mkDerivation (
     # make oldtests too
     checkPhase = ''
       runHook preCheck
-      make functionaltest
+      nvim -l <(echo "print(package.path)")
+      # make functionaltest
+
       runHook postCheck
     '';
 

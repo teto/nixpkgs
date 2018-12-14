@@ -9,8 +9,8 @@
   packages,
   fontconfig,
 }:
-
-runCommand (rstudio.name + "-wrapper")
+let
+  drv = runCommand (rstudio.name + "-wrapper")
   {
     preferLocalBuild = true;
     allowSubstitutes = false;
@@ -66,4 +66,6 @@ runCommand (rstudio.name + "-wrapper")
             --set R_PROFILE $out/$fixLibsR
         ''
     )
-  )
+  );
+  in
+    drv // { inherit (rstudio) meta; }

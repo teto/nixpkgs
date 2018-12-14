@@ -102,7 +102,7 @@ let
         generatedRockspecFilename = "./${self.pname}-${self.rockspecVersion}.rockspec";
 
         nativeBuildInputs = [
-          lua # for lua.h
+          lua  # for lua.h
           wrapLua
           luarocks_bootstrap
         ]
@@ -211,6 +211,9 @@ let
             wrapLuaPrograms
           ''
           + attrs.postFixup or "";
+
+        # TODO move comments out of nix code
+        # deps-mode=all tells luarocks to use every configured rocks_trees
 
         installPhase = ''
           runHook preInstall

@@ -7,6 +7,7 @@
   stdenv,
   writableTmpDirAsHomeHook,
   xdg-utils,
+  bashInteractive
 }:
 buildGoModule (finalAttrs: {
   pname = "aws-vault";
@@ -27,6 +28,18 @@ buildGoModule (finalAttrs: {
     makeWrapper
     writableTmpDirAsHomeHook
   ];
+
+  env.CGO_ENABLED = "0";
+
+  buildInputs = [
+    bashInteractive
+  ];
+
+  preFixup = ''
+
+    export PATH=${bashInteractive}/bin:$PATH
+    echo "PATH=$PATH"
+  '';
 
   postInstall = ''
     # make xdg-open overrideable at runtime

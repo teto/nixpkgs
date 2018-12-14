@@ -29,9 +29,9 @@ let
     __intentionallyOverridingVersion = true;
     rockspecVersion = old.rockspecVersion;
 
-    extraConfig = ''
-      -- to create a flat hierarchy
-      lua_modules_path = "lua"
+        luarocksConfig = lib.recursiveUpdate oa.luarocksConfig {
+          # to create a flat hierarchy
+          lua_modules_path = "lua";
     '';
   });
 
