@@ -124,6 +124,13 @@ let
         patchShebangs scripts/ld-version.sh
       '';
 
+        # # just to debug config
+        # ls scripts/
+        # ls scripts/kconfig
+        # # substituteInPlace scripts/kconfig/parser.y \
+        # substituteInPlace scripts/kconfig/zconf.y \
+        #   --replace 'int cdebug = PRINTD;' 'int cdebug = DEBUG_PARSE;'
+
       postPatch = ''
         # Set randstruct seed to a deterministic but diversified value. Note:
         # we could have instead patched gen-random-seed.sh to take input from

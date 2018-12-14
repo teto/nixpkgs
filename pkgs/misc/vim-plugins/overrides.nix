@@ -104,6 +104,24 @@ self: super: {
     src = skim.vim;
   };
 
+  pdf-scribe-nvim = buildVimPluginFrom2Nix {
+    pname = "pdf-scribe";
+    version = "unstable";
+    src = builtins.fetchGit "https://github.com/wbthomason/pdf-scribe.nvim.git";
+    # src = fetchFromGitHub {
+    #   owner="wbthomason";
+    #   version = "";
+    #   repo = "pdf-scribe.nvim";
+    #   # sha256 = "1ccq6akkm8n612ni5g7w7v5gv73g7p1d9i92k0bnsy33fvi3pmnh";
+    # };
+    # libpoppler-glib.so
+    propagatedBuildInputs = [ pkgs.poppler ];
+
+    # concat with ;
+    # LUA_CPATH = "${pkgs.poppler}/ rg";
+  };
+
+
   LanguageClient-neovim =
     let
       version = "0.1.160";
@@ -334,6 +352,17 @@ self: super: {
 
   nvim-lsputils = super.nvim-lsputils.overrideAttrs (old: {
     dependencies = with super; [ popfix ];
+  });
+
+  nvim-markdown-preview = super.nvim-markdown-preview.overrideAttrs(old: {
+    buildInputs = [ nodePackages.live-server pkgs.pandoc ];
+    preFixup = ''
+      substituteInPlace $out/share/vim-plugins/nvim-markdown-preview/ftplugin/markdown.vim --replace "executable('live-server')" \
+          "executable('${nodePackages.live-server}/bin/live-server')"
+
+      substituteInPlace $out/share/vim-plugins/nvim-markdown-preview/autoload/markdown.vim --replace "live-server" \
+          "${nodePackages.live-server}/bin/live-server"
+      '';
   });
 
   fzf-vim = super.fzf-vim.overrideAttrs (old: {
@@ -691,7 +720,7 @@ self: super: {
       buildPhase = ''
         cp "${unicode-data}" autoload/unicode/UnicodeData.txt
         echo "Building unicode cache"
-        ${vim}/bin/vim --cmd ":set rtp^=$PWD" -c 'ru plugin/unicode.vim' -c 'UnicodeCache' -c ':echohl Normal' -c ':q' > /dev/null
+        ${vim}/bin/vim --cmd ":set rtp^=$PWD" -c 'ru plugin/unicode.vim' -c 'UnicodeCache' -c ':echohl Normal' -c ':q'
       '';
     });
 

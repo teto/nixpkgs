@@ -159,7 +159,7 @@ in {
 
     # libvirtd runs qemu as this user and group by default
     users.extraGroups.qemu-libvirtd.gid = config.ids.gids.qemu-libvirtd;
-    users.extraUsers.qemu-libvirtd = {
+    users.users.qemu-libvirtd = {
       uid = config.ids.uids.qemu-libvirtd;
       isNormalUser = false;
       group = "qemu-libvirtd";

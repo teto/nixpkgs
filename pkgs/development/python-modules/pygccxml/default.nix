@@ -11,6 +11,10 @@ buildPythonPackage rec {
     sha256 = "02ip03s0vmp7czzflbvf7qnybibfrd0rzqbc5zfmq3zmpnck3hvm";
   };
 
+  patches = [
+    # see https://github.com/gccxml/pygccxml/issues/106
+    ./ns-3.patch
+  ];
   buildInputs = [ castxml llvmPackages.libcxxStdenv];
 
   # running the suite is hard, needs to generate xml_generator.cfg

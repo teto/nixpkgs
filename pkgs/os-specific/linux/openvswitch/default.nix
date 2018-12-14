@@ -46,6 +46,7 @@ in stdenv.mkDerivation rec {
 
   meta = with lib; {
     platforms = platforms.linux;
+    # requiredKernelConfig = [ (kernel.isEnabled "OPENVSWITCH") ];
     description = "A multilayer virtual switch";
     longDescription =
       ''

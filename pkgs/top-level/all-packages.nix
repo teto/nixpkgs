@@ -21007,6 +21007,7 @@ in
 
   papis = with python3Packages; toPythonApplication papis;
 
+  papis-zotero = callPackage ../tools/misc/papis/zotero.nix { };
   paps = callPackage ../tools/misc/paps { };
 
   pecita = callPackage ../data/fonts/pecita {};
@@ -25778,6 +25779,27 @@ in
 
   vimpc = callPackage ../applications/audio/vimpc { };
 
+  neovimConfig = structuredConfigure:
+    let
+      module = import ../applications/editors/neovim/module.nix;
+      # Generate init.vim configuration
+      cfg =  (lib.evalModules {
+        specialArgs = {
+          inherit vimUtils python3Packages bundlerEnv ruby pythonPackages haskellPackages;
+          inherit nodePackages;
+        };
+        modules = [
+          module
+          { customRC = structuredConfigure.configure.customRC or "";}
+          structuredConfigure
+        ];
+      });
+    in
+      cfg.config;
+
+
+
+
   # this is a lower-level alternative to wrapNeovim conceived to handle
   # more usecases when wrapping neovim. The interface is being actively worked on
   # so expect breakage. use wrapNeovim instead if you want a stable alternative
@@ -29579,6 +29601,7 @@ in
   canon-cups-ufr2 = callPackage ../misc/cups/drivers/canon { };
 
   hll2390dw-cups = callPackage ../misc/cups/drivers/hll2390dw-cups { };
+  hll2360d-cups = callPackage ../misc/cups/drivers/hll2360d-cups { };
 
   mfcj470dw-cupswrapper = callPackage ../misc/cups/drivers/mfcj470dwcupswrapper { };
   mfcj470dwlpr = pkgsi686Linux.callPackage ../misc/cups/drivers/mfcj470dwlpr { };

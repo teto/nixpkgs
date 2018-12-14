@@ -1,6 +1,8 @@
 { system
 , # Use a minimal kernel?
   minimal ? false
+, # instrument VM ?
+  instrument ? true
 , # Ignored
   config ? null
 , # Nixpkgs, for qemu, lib and more
@@ -34,10 +36,12 @@ rec {
       modules = configurations ++ extraConfigurations;
       baseModules =  (import ../modules/module-list.nix) ++
         [ ../modules/virtualisation/qemu-vm.nix
-          ../modules/testing/test-instrumentation.nix # !!! should only get added for automated test runs
           { key = "no-manual"; documentation.nixos.enable = false; }
           { key = "nodes"; _module.args.nodes = nodes; }
-        ] ++ optional minimal ../modules/testing/minimal-kernel.nix;
+        ] ++ optional minimal ../modules/testing/minimal-kernel.nix
+        # !!! should only get added for automated test runs
+        ++ optional instrument ../modules/testing/test-instrumentation.nix
+        ;
     };
 
 
@@ -57,13 +61,18 @@ rec {
             let
               interfacesNumbered = zipLists config.virtualisation.vlans (range 1 255);
               interfaces = forEach interfacesNumbered ({ fst, snd }:
-                nameValuePair "eth${toString snd}" { ipv4.addresses =
+                let snd2 = snd - 1; in
+                nameValuePair (builtins.trace "eth${toString snd2}" "eth${toString (snd2)}")   { ipv4.addresses =
                   [ { address = "192.168.${toString fst}.${toString m.snd}";
                       prefixLength = 24;
+                      # copied from qemu-flags / virtualisation.qemu.options a bit later
                   } ];
+                  macAddress = "52:54:00:12:${zeroPad snd}:${zeroPad machineId}";
                 });
             in
             { key = "ip-address";
+
+              _file = ./utils.nix;
               config =
                 { networking.hostName = mkDefault m.fst;
 

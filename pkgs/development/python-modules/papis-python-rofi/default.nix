@@ -1,4 +1,4 @@
-{ buildPythonPackage, lib, fetchPypi }:
+{ buildPythonPackage, lib, fetchPypi, rofi }:
 
 buildPythonPackage rec {
   pname = "papis-python-rofi";

@@ -63,14 +63,14 @@ in
       kernelPatches = [ {
         name = "crashdump-config";
         patch = null;
-        extraConfig = ''
-                CRASH_DUMP y
-                DEBUG_INFO y
-                PROC_VMCORE y
-                LOCKUP_DETECTOR y
-                HARDLOCKUP_DETECTOR y
-              '';
-        } ];
+        extraStructuredConfig = with kernel; {
+            CRASH_DUMP.tristate = yes;
+            DEBUG_INFO.tristate = yes;
+            LOCKUP_DETECTOR.tristate = yes;
+            HARDLOCKUP_DETECTOR.tristate = yes;
+        };
+        }
+      ];
     };
   };
 }

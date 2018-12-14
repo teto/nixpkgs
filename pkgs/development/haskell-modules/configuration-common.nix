@@ -32,6 +32,9 @@ self: super: {
     sha256 = "1c7knpvxr7p8c159jkyk6w29653z5yzgjjqj11130bbb8mk9qhq7";
   });
 
+	# hackish fix
+	bitset = appendConfigureFlag super.bitset "--with-gcc=${pkgs.gcc}/bin/gcc";
+
   # Some Hackage packages reference this attribute, which exists only in the
   # GHCJS package set. We provide a dummy version here to fix potential
   # evaluation errors.

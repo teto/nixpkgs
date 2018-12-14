@@ -10,15 +10,43 @@ assert withGtk -> gtk2 != null;
 assert versionAtLeast kernel.version "3.12";
 
 stdenv.mkDerivation {
-  name = "perf-linux-${kernel.version}";
+  pname = "perf-linux";
+  version = kernel.version;
 
   inherit (kernel) src;
 
+  # patches = [
+  #   ./perf.patch
+  # ];
+
+  # we could wrap it with
+  # perf probe -k /nix/store/5am9gvlr7wkcwy48kibhvq16l624iw6h-linux-5.1.0-mptcp_v0.96.0-dev/vmlinux  -L tcp_cong_avoid_ai -s /home/teto/mptcp
+    # substituteInPlace util/symbol.c \
+    #   --replace /boot/vmlinux-%s ${kernel.dev} --
+
+  # fix la ou il va chercher
+  # - la source
+  # - vmlinux OK
+  # - module map_groups__set_modules_path_dir
+  # /run/current-system/kernel-modules/lib/modules/5.1.0/misc
+	# snprintf(modules_path, sizeof(modules_path), "%s/lib/modules/%s",
+	# 	 machine->root_dir, version);
   preConfigure = ''
     cd tools/perf
 
     substituteInPlace Makefile \
       --replace /usr/include/elfutils $elfutils/include/elfutils
+
+    # to find vmlinux
+    sed -i '\="/boot/vmlinux"=i\    "/run/booted-system/vmlinux",' util/symbol.c
+
+    # to find modules
+    # TODO use the kernel version instead
+    substituteInPlace util/machine.c \
+      --replace '"%s/lib/modules/%s"' '"/run/booted-system/kernel-modules/lib/modules/%s"'
+
+    # substituteInPlace util/symbol.c \
+    #   --replace /boot/vmlinux-%s ${kernel.dev} --
 
     for x in util/build-id.c util/dso.c; do
       substituteInPlace $x --replace /usr/lib/debug /run/current-system/sw/lib/debug

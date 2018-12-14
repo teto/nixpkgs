@@ -2,10 +2,15 @@
 , which
 , python
 , help2man
+, withDoc ? false, doxygen
+# for pdflatex
+# , texlive.combined.scheme-minimal pdflatex
+, texlive
 }:
 
 let
-  pyEnv = python.withPackages(ps: [ ps.setuptools ]);
+  pyEnv = python.withPackages(ps: ([ ps.setuptools ]
+    ++ lib.optional withDoc ps.doxypypy));
 in
 stdenv.mkDerivation rec {
   pname = "mininet";
@@ -24,7 +29,12 @@ stdenv.mkDerivation rec {
   makeFlags = [ "PREFIX=$(out)" ];
 
   pythonPath = [ python.pkgs.setuptools ];
-  buildInputs = [ python which help2man ];
+
+  nativeBuildInputs = [ help2man ] ++ lib.optionals withDoc [
+    doxygen
+    texlive.combined.scheme-full
+  ];
+  buildInputs = [ pyEnv which ];
 
   installTargets = [ "install-mnexec" "install-manpages" ];
 
@@ -39,6 +49,7 @@ stdenv.mkDerivation rec {
 
   meta = with lib; {
     description = "Emulator for rapid prototyping of Software Defined Networks";
+    requiredKernelConfig = [ (kernel.isEnabled "NETNS") ];
     license = {
       fullName = "Mininet 2.3.0d6 License";
     };

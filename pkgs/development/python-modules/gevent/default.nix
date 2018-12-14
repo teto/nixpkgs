@@ -1,5 +1,6 @@
 { lib, fetchPypi, buildPythonPackage, isPyPy, python, libev, greenlet
 , zope_interface
+, setuptools
 }:
 
 buildPythonPackage rec {
@@ -14,6 +15,7 @@ buildPythonPackage rec {
 
   buildInputs = [ libev ];
   propagatedBuildInputs = [
+    setuptools
     zope_interface
   ] ++ lib.optionals (!isPyPy) [ greenlet ];
 

@@ -1,8 +1,10 @@
 { lib, stdenv, fetchFromGitHub, cmake, pkg-config, qt4 ? null
 , withQt5 ? false, qtbase ? null, qttools ? null
 , darwin ? null
-, libsecret
+, withLibsecret ? false, libsecret
 }:
+
+let useLibsecret = !stdenv.isDarwin && withLibsecret; in
 
 assert withQt5 -> qtbase != null;
 assert withQt5 -> qttools != null;

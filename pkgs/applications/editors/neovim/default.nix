@@ -7,6 +7,12 @@
 # now defaults to false because some tests can be flaky (clipboard etc)
 , doCheck ? false
 , nodejs ? null, fish ? null, python ? null
+
+, tree-sitter
+
+# doc
+, doxygen ? null
+, withDoc ? false
 }:
 
 with lib;
@@ -28,10 +34,13 @@ let
     then "${luv.libluv}/lib/lua/${lua.luaversion}/libluv.${head (match "([0-9.]+).*" luv.version)}.dylib"
     else "${luv}/lib/lua/${lua.luaversion}/luv.so";
 
+  version = "0.4.4";
+
+
 in
   stdenv.mkDerivation rec {
     pname = "neovim-unwrapped";
-    version = "0.4.4";
+    inherit version;
 
     src = fetchFromGitHub {
       owner = "neovim";
@@ -96,6 +105,9 @@ in
       "-DGPERF_PRG=${gperf}/bin/gperf"
       "-DLUA_PRG=${neovimLuaEnv.interpreter}"
       "-DLIBLUV_LIBRARY=${luvpath}"
+      # defined in my overlay
+      # "-DTREESITTER_C_PARSER=${tree-sitter-c-shared}/parser"
+      # "-DUSE_BUNDLED=off"  # to disable treesitter
     ]
     ++ optional doCheck "-DBUSTED_PRG=${neovimLuaEnv}/bin/busted"
     ++ optional (!lua.pkgs.isLuaJIT) "-DPREFER_LUA=ON"
@@ -113,7 +125,7 @@ in
     '';
 
     # export PATH=$PWD/build/bin:${PATH}
-    shellHook=''
+    shellHook = ''
       export VIMRUNTIME=$PWD/runtime
     '';
 

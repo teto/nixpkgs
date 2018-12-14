@@ -5,6 +5,19 @@ with super;
   ##########################################3
   #### manual fixes for generated packages
   ##########################################3
+
+
+  argparse = super.argparse.overrideAttrs(oa: {
+
+    doCheck = false;
+    checkInputs = [ self.busted ];
+
+    checkPhase = ''
+      busted spec/
+    '';
+  });
+
+
   bit32 = super.bit32.override({
     # Small patch in order to no longer redefine a Lua 5.2 function that Luajit
     # 2.1 also provides, see https://github.com/LuaJIT/LuaJIT/issues/325 for

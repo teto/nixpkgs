@@ -397,9 +397,9 @@ def generate_nix(plugins: List[Tuple[str, str, Plugin]], outfile: str):
         f.write(header)
         f.write(
             """
-{ lib, buildVimPluginFrom2Nix, fetchFromGitHub, overrides ? (self: super: {}) }:
-let
-  packages = ( self:
+{ lib, buildVimPluginFrom2Nix, fetchFromGitHub }:
+
+self: super:
 {"""
         )
         for owner, repo, plugin in sorted_plugins:
@@ -425,8 +425,7 @@ let
             )
         f.write(
             """
-});
-in lib.fix' (lib.extends overrides packages)
+}
 """
         )
     print(f"updated {outfile}")
