@@ -53,6 +53,7 @@ rustPlatform.buildRustPackage rec {
   ];
 
   buildInputs = [
+    notmuch
     openssl
     dbus
     sqlite
