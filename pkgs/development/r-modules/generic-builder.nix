@@ -34,7 +34,7 @@ stdenv.mkDerivation ({
     # we acquire a lock explicitly.
     "flock ${xvfb-run} xvfb-run -a -e xvfb-error R"
   else
-    "R";
+    "${R}/bin/R";
 
   installPhase = ''
     runHook preInstall

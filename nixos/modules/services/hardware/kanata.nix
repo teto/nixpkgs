@@ -189,6 +189,9 @@ in
       lib.optional (existEmptyDevices && moreThanOneKeyboard) "One device can only be intercepted by one kanata instance.  Setting services.kanata.keyboards.${lib.head (lib.attrNames keyboardsWithEmptyDevices)}.devices = [ ] and using more than one services.kanata.keyboards may cause a race condition.";
 
     hardware.uinput.enable = true;
+    # users.users.kanata.extraGroups = [
+    #   "uinput"
+    # ];
 
     systemd.services = lib.mapAttrs' mkService cfg.keyboards;
   };

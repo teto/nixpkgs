@@ -1,0 +1,12 @@
+diff --git a/tools/perf/util/symbol.c b/tools/perf/util/symbol.c
+index 5cbad55cd99d..1542bcefc892 100644
+--- a/tools/perf/util/symbol.c
++++ b/tools/perf/util/symbol.c
+@@ -2002,6 +2002,7 @@ static const char * const vmlinux_paths[] = {
+ };
+ 
+ static const char * const vmlinux_paths_upd[] = {
++	"/run/booted-system/kernel",
+ 	"/boot/vmlinux-%s",
+ 	"/usr/lib/debug/boot/vmlinux-%s",
+ 	"/lib/modules/%s/build/vmlinux",

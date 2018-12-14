@@ -564,10 +564,11 @@ in
           ''
             PSQL="psql --port=${builtins.toString cfg.settings.port}"
 
-            while ! $PSQL -d postgres -c "" 2> /dev/null; do
-                if ! kill -0 "$MAINPID"; then exit 1; fi
-                sleep 0.1
-            done
+            # wont work depending on your auth scheme
+            # while ! $PSQL -d postgres -c "" 2> /dev/null; do
+            #     if ! kill -0 "$MAINPID"; then exit 1; fi
+            #     sleep 0.1
+            # done
 
             if test -e "${cfg.dataDir}/.first_startup"; then
               ${optionalString (cfg.initialScript != null) ''

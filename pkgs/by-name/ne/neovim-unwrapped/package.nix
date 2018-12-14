@@ -86,6 +86,7 @@ in {
 
     dontFixCmake = true;
 
+    inherit neovimLuaEnv;
     inherit lua;
     treesitter-parsers = treesitter-parsers //
       { markdown = treesitter-parsers.markdown // { location = "tree-sitter-markdown"; }; } //
@@ -114,7 +115,9 @@ in {
     # make oldtests too
     checkPhase = ''
       runHook preCheck
-      make functionaltest
+      nvim -l <(echo "print(package.path)")
+      # make functionaltest
+
       runHook postCheck
     '';
 
@@ -160,6 +163,7 @@ in {
       # That's because all dependencies were found and
       # third-party/CMakeLists.txt is not read at all.
       "-DUSE_BUNDLED=OFF"
+      "-DLUA_PRG=${neovimLuaEnvOnBuild}/bin/luajit"
     ]
     ++ lib.optional (!lua.pkgs.isLuaJIT) "-DPREFER_LUA=ON"
     ++ lib.optionals lua.pkgs.isLuaJIT [

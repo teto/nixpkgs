@@ -389,6 +389,16 @@ in
             message = "CONFIG_${option} is not yes!";
             configLine = "CONFIG_${option}=y";
           };
+    # # nixpkgs kernels are assumed to have all required features
+    # assertions = if config.boot.kernelPackages.kernel ? features then [] else
+    # # configfile.passthru.moduleStructuredConfig.intermediateNixConfig
+    # # sinon on compare a     config = { CONFIG_MODULES = "y"; CONFIG_FW_LOADER = "m"; };
+
+    # let cfg = config.boot.kernelPackages.kernel.configfile.passthru.moduleStructuredConfig.intermediateNixConfig;
+    # # let cfg = config.boot.kernelPackages.kernel.config;
+    # in map (attrs:
+    #     { assertion = attrs.assertion cfg; inherit (attrs) message; }
+    #   ) config.system.requiredKernelConfig;
 
           isNo = option: {
             assertion = config: config.isNo option;

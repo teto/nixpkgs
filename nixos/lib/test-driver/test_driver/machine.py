@@ -354,7 +354,7 @@ class Machine:
         def check_active(_: Any) -> bool:
             state = self.get_unit_property(unit, "ActiveState", user)
             if state == "failed":
-                raise Exception(f'unit "{unit}" reached state "{state}"')
+                raise Exception(f'unit "{unit}" reached state "{state}":\n{info}')
 
             if state == "inactive":
                 status, jobs = self.systemctl("list-jobs --full 2>&1", user)
