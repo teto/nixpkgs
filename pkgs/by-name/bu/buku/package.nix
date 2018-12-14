@@ -2,7 +2,7 @@
   lib,
   python3,
   fetchFromGitHub,
-  withServer ? false,
+  withServer ? true,
 }:
 
 let
