@@ -95,10 +95,10 @@ let
         generatedRockspecFilename = "./${self.pname}-${self.rockspecVersion}.rockspec";
 
         nativeBuildInputs = [
-          lua # for lua.h
+          lua  # for lua.h
           wrapLua
           luarocks_bootstrap
-        ];
+        ] ++ lib.optionals self.doCheck ([ luarocksCheckHook ] ++ self.nativeCheckInputs);
 
         inherit
           doCheck
@@ -172,6 +172,13 @@ let
           in
           lib.recursiveUpdate generatedConfig luarocksConfig';
 
+        # rockspecFilename="''${rockspecFilename:-${self.generatedRockspecFilename}}"
+        # if [ ! -f "$rockspecFilename" ]; then
+        #
+        #   echo "Could not find a valid rockspec $rockspecFilename"
+        #   ls -l
+        #   exit 1
+        # fi
         configurePhase =
           ''
             runHook preConfigure
@@ -189,6 +196,9 @@ let
             runHook postConfigure
           '';
 
+
+  # NIX_DEBUG=8;
+  # TODO could be moved to configurePhase
         buildPhase = ''
           runHook preBuild
 
@@ -208,6 +218,9 @@ let
             wrapLuaPrograms
           ''
           + attrs.postFixup or "";
+
+        # TODO move comments out of nix code
+        # deps-mode=all tells luarocks to use every configured rocks_trees
 
         installPhase = ''
           runHook preInstall

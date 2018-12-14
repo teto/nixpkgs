@@ -32,6 +32,11 @@ let
     '';
   });
 
+
+  rocks-nvim-env = lua.withPackages(ps: [
+    ps.rocks-nvim
+  ]);
+
   luaWithModule = lua.withPackages (ps: [
     ps.lua-cjson
   ]);
@@ -110,6 +115,22 @@ pkgs.recurseIntoAttrs {
 
     touch $out
   '';
+
+  # fidget requires 'vim'
+  checkPropagation = pkgs.runCommandLocal "test-${lua.name}-propagation" ({
+    nativeBuildInputs = [
+      pkgs.which
+      rocks-nvim-env
+    ];
+
+    }) (''
+
+      set -x
+      echo "LUA_PATH: $LUA_PATH"
+      echo "$(which lua)"
+      lua -e "require'fzy'"
+      touch $out
+    '');
 
   # Check that a lua package's propagatedBuildInputs end up in LUA_PATH
   checkPropagatedBuildInputs =

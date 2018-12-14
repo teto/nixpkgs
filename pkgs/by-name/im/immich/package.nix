@@ -32,6 +32,8 @@
   pixman,
   vips,
   sourcesJSON ? ./sources.json,
+  # overrides
+  hideBuyButton ? false,
 }:
 let
   buildNpmPackage' = buildNpmPackage.override { inherit nodejs; };
@@ -128,6 +130,10 @@ let
       ln -s "$(type -p ${stdenv.cc.targetPrefix}c++filt)" $TMP/bin/c++filt || true
       ln -s "$(type -p ${stdenv.cc.targetPrefix}readelf)" $TMP/bin/readelf || true
       export PATH="$TMP/bin:$PATH"
+
+    postPatch = lib.optionalString hideBuyButton ''
+      substituteInPlace src/lib/components/shared-components/side-bar/purchase-info.svelte \
+        --replace-fail "showBuyButton = getButtonVisibility()" "showBuyButton = false"
     '';
 
     preBuild = ''

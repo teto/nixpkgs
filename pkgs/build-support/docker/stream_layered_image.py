@@ -317,6 +317,7 @@ def parse_time(s):
 
 
 def main():
+<<<<<<< HEAD
     arg_parser = argparse.ArgumentParser(
         description="""
 This script generates a Docker image from a set of store paths. Uses

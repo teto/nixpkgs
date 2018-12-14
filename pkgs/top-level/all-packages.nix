@@ -16261,10 +16261,30 @@ with pkgs;
 
   vimgolf = callPackage ../games/vimgolf { };
 
+  neovimConfig = structuredConfigure:
+    let
+      module = import ../applications/editors/neovim/module.nix;
+      # Generate init.vim configuration
+      cfg =  (lib.evalModules {
+        specialArgs = {
+          inherit vimUtils python3Packages bundlerEnv ruby pythonPackages haskellPackages;
+          inherit nodePackages;
+        };
+        modules = [
+          module
+          { customRC = structuredConfigure.configure.customRC or "";}
+          structuredConfigure
+        ];
+      });
+    in
+      cfg.config;
+
+
   # this is a lower-level alternative to wrapNeovim conceived to handle
   # more usecases when wrapping neovim. The interface is being actively worked on
   # so expect breakage. use wrapNeovim instead if you want a stable alternative
   wrapNeovimUnstable = callPackage ../applications/editors/neovim/wrapper.nix { };
+  # wrapNeovimUnstable = neovim-unwrapped.withConfig;
   wrapNeovim = neovim-unwrapped: lib.makeOverridable (neovimUtils.legacyWrapper neovim-unwrapped);
   neovim-unwrapped = callPackage ../by-name/ne/neovim-unwrapped/package.nix {
     lua = if lib.meta.availableOn stdenv.hostPlatform luajit then luajit else lua5_1;
@@ -16277,7 +16297,8 @@ with pkgs;
 
   gnvim-unwrapped = callPackage ../applications/editors/neovim/gnvim { };
 
-  gnvim = callPackage ../applications/editors/neovim/gnvim/wrapper.nix { };
+  wrapGnvim = callPackage ../applications/editors/neovim/gnvim/wrapper.nix { };
+  gnvim = wrapGnvim neovim;
 
   virt-top = callPackage ../applications/virtualization/virt-top {
     ocamlPackages = ocaml-ng.ocamlPackages_4_14;

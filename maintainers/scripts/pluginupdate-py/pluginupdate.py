@@ -251,6 +251,7 @@ class RepoGitHub(Repo):
 @dataclass(frozen=True)
 class PluginDesc:
     repo: Repo
+    # TODO we should not need this if it's in Repo ?
     branch: str
     alias: str | None
 
@@ -308,6 +309,22 @@ class Plugin:
         del copy["date"]
         return copy
 
+def load_plugins_from_yaml(config: FetchConfig, input_file: Path,) -> List[PluginDesc]:
+    import yaml
+    log.debug("Load plugins from yaml %s", input_file)
+    plugins = []
+    with open(input_file, newline='') as csvfile:
+        log.debug("Writing into %s", input_file)
+        data = yaml.safe_load_all(f)
+        print(data)
+        return list(data)
+
+        # reader = csv.DictReader(csvfile,)
+        # for line in reader:
+        #     plugin = PluginDesc.load_from_csv(config, line)
+        #     plugins.append(plugin)
+
+    return plugins
 
 def load_plugins_from_csv(
     config: FetchConfig,
