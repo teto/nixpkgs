@@ -86,6 +86,7 @@ in {
 
     dontFixCmake = true;
 
+    inherit neovimLuaEnv;
     inherit lua;
     treesitter-parsers = treesitter-parsers //
       { markdown = treesitter-parsers.markdown // { location = "tree-sitter-markdown"; }; } //

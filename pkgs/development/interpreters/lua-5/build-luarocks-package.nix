@@ -23,7 +23,7 @@
 
 # Dependencies needed for running the checkPhase.
 # These are added to nativeBuildInputs when doCheck = true.
-, nativeCheckInputs ? []
+, nativeCheckInputs ? [ lua.pkgs.busted ]
 
 # propagate build dependencies so in case we have A -> B -> C,
 # C can import package A propagated by B
@@ -68,6 +68,11 @@
 # Keep extra attributes from `attrs`, e.g., `patchPhase', etc.
 
 let
+  # lua_modules_path = "."
+  # -- lib_modules_path = "/lib/lua/"..lua_version,
+  # -- rocks_subdir = "/lib/luarocks/rocks-"..lua_version,
+
+  # generatedRockspecFilename = "${rockspecDir}/${pname}-${rockspecVersion}.rockspec";
 
   # TODO fix warnings "Couldn't load rockspec for ..." during manifest
   # construction -- from initial investigation, appears it will require
@@ -94,7 +99,8 @@ let
     luarocks_bootstrap
   ];
 
-  inherit doCheck extraConfig rockspecFilename knownRockspec externalDeps nativeCheckInputs;
+  inherit doCheck extraConfig rockspecFilename externalDeps nativeCheckInputs;
+  inherit knownRockspec;
 
   buildInputs = let
     # example externalDeps': [ { name = "CRYPTO"; dep = pkgs.openssl; } ]
@@ -154,22 +160,34 @@ let
   in lib.recursiveUpdate generatedConfig luarocksConfig';
 
 
+  # TODO check rockspec was found !
+  # generate a list of candidates
   configurePhase = ''
     runHook preConfigure
-  ''
-  + lib.optionalString (self.rockspecFilename == null) ''
-    rockspecFilename="${self.generatedRockspecFilename}"
+    set -x
+    rockspecFilename="''${rockspecFilename:-${self.generatedRockspecFilename}}"
   ''
   + lib.optionalString (self.knownRockspec != null) ''
-    # prevents the following type of error:
-    # Inconsistency between rockspec filename (42fm1b3d7iv6fcbhgm9674as3jh6y2sh-luv-1.22.0-1.rockspec) and its contents (luv-1.22.0-1.rockspec)
+    # fixing name to prevent the following error:
+    # Inconsistency between rockspec filename (42fm1b3d7iv6fcbhgm9674as3jh6y2sh-luv-1.22.0-1.rockspec)
+    # and its contents (luv-1.22.0-1.rockspec)
     rockspecFilename="$TMP/$(stripHash ${self.knownRockspec})"
     cp ${self.knownRockspec} "$rockspecFilename"
   ''
   + ''
+
+    if [ ! -f "$rockspecFilename" ]; then
+
+      echo "Could not find a valid rockspec $rockspecFilename"
+      ls -l
+      exit 1
+    fi
     runHook postConfigure
   '';
 
+
+  # NIX_DEBUG=8;
+  # TODO could be moved to configurePhase
   buildPhase = ''
     runHook preBuild
 
@@ -184,8 +202,8 @@ let
     runHook postBuild
   '';
 
+  # wrapLuaPrograms fails with 'toLuaPath' not available
   postFixup = lib.optionalString (!dontWrapLuaPrograms) ''
-    wrapLuaPrograms
   '' + attrs.postFixup or "";
 
   installPhase = ''
@@ -203,6 +221,7 @@ let
     # maybe we could reestablish dependency checking via passing --rock-trees
 
     nix_debug "ROCKSPEC $rockspecFilename"
+    # deps-mode=all tells luarocks to use every configured rocks_trees
     luarocks $LUAROCKS_EXTRA_ARGS make --deps-mode=all --tree=$out ''${rockspecFilename}
 
     runHook postInstall

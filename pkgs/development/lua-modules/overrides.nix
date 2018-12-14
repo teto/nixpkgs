@@ -78,6 +78,26 @@ in
       runHook postCheck
     '';
   });
+
+  nui-nvim = prev.nui-nvim.overrideAttrs(oa: {
+
+    doCheck = true;
+    checkInputs = [
+      neovim-unwrapped
+      final.busted
+      final.plenary-nvim
+    ];
+
+    # export LUA_PATH="src/?.lua;$LUA_PATH"
+    #       nvim --headless --noplugin -u tests/init.lua -c "lua require('plenary.busted').run('./tests/nui/input_spec.lua')"
+
+    checkPhase = ''
+      ls -l tests/nui
+      echo $PWD
+      nvim --headless --noplugin -u tests/init.lua -c "lua require('plenary.test_harness').test_directory('./tests/input/', { minimal_init = 'tests/init.lua', sequential = true })"
+    '';
+  });
+
   ##########################################3
   #### manual fixes for generated packages
   ##########################################3

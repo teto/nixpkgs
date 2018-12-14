@@ -25,8 +25,8 @@ rec {
     , ...
     }@attrs:
     let
-      drv = stdenv.mkDerivation (attrs // {
-        name = lib.warnIf (attrs ? vimprefix) "The 'vimprefix' is now hardcoded in toVimPlugin" name;
+      drv = stdenv.mkDerivation (finalAttrs: attrs // {
+        inherit name;
 
         inherit unpackPhase configurePhase buildPhase addonInfo preInstall postInstall;
 
@@ -45,6 +45,6 @@ rec {
         } // meta;
       });
     in
-    addRtp (toVimPlugin drv);
+      toVimPlugin drv;
 
 }

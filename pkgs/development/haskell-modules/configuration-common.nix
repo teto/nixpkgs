@@ -1890,6 +1890,7 @@ self: super: {
 
   # waiting for aeson bump
   servant-swagger-ui-core = doJailbreak super.servant-swagger-ui-core;
+  # primitive = doJailbreak super.primitive;
 
   hercules-ci-agent = self.generateOptparseApplicativeCompletions [ "hercules-ci-agent" ] super.hercules-ci-agent;
 
@@ -2645,6 +2646,8 @@ self: super: {
 
   # Missing test files https://github.com/kephas/xdg-basedir-compliant/issues/1
   xdg-basedir-compliant = dontCheck super.xdg-basedir-compliant;
+
+  # xml-conduit = dontCheck super.xml-conduit;
 
   # Test failure after libxcrypt migration, reported upstrem at
   # https://github.com/phadej/crypt-sha512/issues/13

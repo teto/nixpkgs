@@ -344,6 +344,7 @@ let
     # Weirder stuff that doesn't appear in the documentation?
     maxSilent = int;
     knownVulnerabilities = listOf str;
+    requiredKernelConfig = listOf str;
     name = str;
     version = str;
     tag = str;

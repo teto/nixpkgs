@@ -2,6 +2,7 @@
 , stdenv
 , lua
 , toVimPlugin
+, vimPlugins
 }:
 let
   # sanitizeDerivationName
@@ -36,6 +37,8 @@ in
             lua.pkgs.luarocksMoveDataFolder
           ];
           version = "${originalLuaDrv.version}-unstable-${oa.version}";
+
+          # dependencies = map (dep: if vimPlugins ? dep.pname then vimPlugins."${dep.pname}" else dep) oa.propagatedBuildInputs;
         }));
     in
       finalDrv

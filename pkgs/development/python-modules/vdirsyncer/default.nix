@@ -39,6 +39,8 @@ buildPythonPackage rec {
 
   postPatch = ''
     sed -i -e '/--cov/d' -e '/--no-cov/d' pyproject.toml
+
+    substituteInPlace setup.py --replace '"aiostream>=0.4.3,<0.5.0",' '"aiostream>=0.4.3",'
   '';
 
   nativeBuildInputs = [

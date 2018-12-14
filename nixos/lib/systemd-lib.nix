@@ -78,6 +78,9 @@ in rec {
           mkdir -p "$out/$(dirname -- "$name")"
           mv "$textPath" "$out/$name"
         ''
+          # ls -l
+          # cat "$out/$name"
+          # systemd-analyze verify "$out/$name"
     else
       pkgs.runCommand "unit-${mkPathSafeName name}-disabled"
         { preferLocalBuild = true;

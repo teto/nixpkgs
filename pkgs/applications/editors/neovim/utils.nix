@@ -9,9 +9,35 @@
 , python3Packages
 , wrapNeovimUnstable
 , runCommand
+, vimPlugins
 }:
 let
   inherit (vimUtils) toVimPlugin;
+
+  /* transform all plugins into an attrset
+   { optional = bool; plugin = package; }
+  */
+  normalizePlugins = plugins:
+      let
+        defaultPlugin = {
+          plugin = null;
+          config = null;
+          optional = false;
+        };
+      in
+        # TODO use (coercedTo package (v: { plugin = v; }) pluginWithConfigType);
+        map (x: defaultPlugin // (if (x ? plugin) then x else { plugin = x; })) plugins;
+
+
+  /* accepts a list of
+  */
+  normalizedPluginsToVimPackage = normalizedPlugins:
+    let
+      pluginsPartitioned = lib.partition (x: x.optional == true) normalizedPlugins;
+    in {
+        start = map (x: x.plugin) pluginsPartitioned.wrong;
+        opt = map (x: x.plugin) pluginsPartitioned.right;
+      };
 
    /* returns everything needed for the caller to wrap its own neovim:
    - the generated content of the future init.vim
@@ -24,11 +50,9 @@ let
    anymore, $MYVIMRC wont be set etc
    */
   makeNeovimConfig =
-    { withPython3 ? true
+    {
     /* the function you would have passed to python3.withPackages */
-    , extraPython3Packages ? (_: [ ])
-    , withNodeJs ? false
-    , withRuby ? true
+      extraPython3Packages ? (_: [ ])
     /* the function you would have passed to lua.withPackages */
     , extraLuaPackages ? (_: [ ])
 
@@ -42,63 +66,28 @@ let
     , ...
     }@args:
     let
-      rubyEnv = bundlerEnv {
-        name = "neovim-ruby-env";
-        gemdir = ./ruby_provider;
-        postBuild = ''
-          ln -sf ${ruby}/bin/* $out/bin
-        '';
-      };
 
       # transform all plugins into an attrset
       # { optional = bool; plugin = package; }
-      pluginsNormalized = let
-        defaultPlugin = {
-          plugin = null;
-          config = null;
-          optional = false;
-        };
-      in
-        map (x: defaultPlugin // (if (x ? plugin) then x else { plugin = x; })) plugins;
+      pluginsNormalized = normalizePlugins plugins;
+
 
       pluginRC = lib.foldl (acc: p: if p.config != null then acc ++ [p.config] else acc) []  pluginsNormalized;
 
-      pluginsPartitioned = lib.partition (x: x.optional == true) pluginsNormalized;
+      # pluginsPartitioned = lib.partition (x: x.optional == true) pluginsNormalized;
       requiredPlugins = vimUtils.requiredPluginsForPackage myVimPackage;
       getDeps = attrname: map (plugin: plugin.${attrname} or (_: [ ]));
-      myVimPackage = {
-            start = map (x: x.plugin) pluginsPartitioned.wrong;
-            opt = map (x: x.plugin) pluginsPartitioned.right;
-      };
+      myVimPackage = normalizedPluginsToVimPackage pluginsNormalized;
 
       pluginPython3Packages = getDeps "python3Dependencies" requiredPlugins;
-      python3Env = python3Packages.python.withPackages (ps:
+      extraPython3PackagesGenerated = ps:
         [ ps.pynvim ]
-        ++ (extraPython3Packages ps)
-        ++ (lib.concatMap (f: f ps) pluginPython3Packages));
+        ++ (lib.concatMap (f: f ps) pluginPython3Packages);
 
       luaEnv = neovim-unwrapped.lua.withPackages extraLuaPackages;
 
       # as expected by packdir
       packpathDirs.myNeovimPackages = myVimPackage;
-      ## Here we calculate all of the arguments to the 1st call of `makeWrapper`
-      # We start with the executable itself NOTE we call this variable "initial"
-      # because if configure != {} we need to call makeWrapper twice, in order to
-      # avoid double wrapping, see comment near finalMakeWrapperArgs
-      makeWrapperArgs =
-        let
-          binPath = lib.makeBinPath (lib.optionals withRuby [ rubyEnv ] ++ lib.optionals withNodeJs [ nodejs ]);
-        in
-        [
-          "--inherit-argv0"
-        ] ++ lib.optionals withRuby [
-          "--set" "GEM_HOME" "${rubyEnv}/${rubyEnv.ruby.gemPath}"
-        ] ++ lib.optionals (binPath != "") [
-          "--suffix" "PATH" ":" binPath
-        ] ++ lib.optionals (luaEnv != null) [
-          "--prefix" "LUA_PATH" ";" (neovim-unwrapped.lua.pkgs.luaLib.genLuaPathAbsStr luaEnv)
-          "--prefix" "LUA_CPATH" ";" (neovim-unwrapped.lua.pkgs.luaLib.genLuaCPathAbsStr luaEnv)
-        ];
 
       manifestRc = vimUtils.vimrcContent { customRC = ""; };
       # we call vimrcContent without 'packages' to avoid the init.vim generation
@@ -110,15 +99,12 @@ let
     in
 
     builtins.removeAttrs args ["plugins"] // {
-      wrapperArgs = makeWrapperArgs;
+      wrapperArgs = [];
       inherit packpathDirs;
       inherit neovimRcContent;
-      inherit manifestRc;
-      inherit python3Env;
-      inherit luaEnv;
-      inherit withNodeJs;
-    } // lib.optionalAttrs withRuby {
-      inherit rubyEnv;
+      # inherit python3Env;
+      extraPython3Packages = ps: (extraPython3Packages ps) ++ (extraPython3PackagesGenerated ps);
+      # inherit luaEnv;
     };
 
 
@@ -137,6 +123,8 @@ let
     , viAlias ? false
     , configure ? {}
     , extraName ? ""
+    # to ignore some parameters I develop
+    , ...
   }:
     let
 
@@ -198,6 +186,9 @@ let
     in
         lib.concatStringsSep ";" hostProviderLua;
 
+  /* Converts a lua package into a neovim plugin.
+    Does so by installing the lua package with a flat hierarchy of folders
+  */
   buildNeovimPlugin = callPackage ./build-neovim-plugin.nix {
     inherit (vimUtils) toVimPlugin;
     inherit lua;
@@ -275,6 +266,8 @@ in
   inherit legacyWrapper;
   inherit grammarToPlugin;
   inherit packDir;
+
+  inherit normalizePlugins normalizedPluginsToVimPackage;
 
   inherit buildNeovimPlugin;
   buildNeovimPluginFrom2Nix = lib.warn "buildNeovimPluginFrom2Nix was renamed to buildNeovimPlugin" buildNeovimPlugin;

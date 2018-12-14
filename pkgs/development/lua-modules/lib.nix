@@ -97,6 +97,7 @@ rec {
     }@args: let
       rocksTrees = lib.imap0
         (i: dep: {
+          # TODO add pname here
           name = "dep-${toString i}";
           root = "${dep}";
           # packages built by buildLuaPackage or luarocks doesn't contain rocksSubdir

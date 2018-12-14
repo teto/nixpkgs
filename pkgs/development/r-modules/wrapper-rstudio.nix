@@ -8,7 +8,8 @@
 , fontconfig
 }:
 
-runCommand (rstudio.name + "-wrapper")
+let
+  drv = runCommand (rstudio.name + "-wrapper")
 {
   preferLocalBuild = true;
   allowSubstitutes = false;
@@ -51,4 +52,6 @@ runCommand (rstudio.name + "-wrapper")
         makeQtWrapper ${rstudio}/bin/rstudio $out/bin/rstudio \
           --set R_PROFILE_USER $out/$fixLibsR
       '')
-  )
+  );
+  in
+    drv // { inherit (rstudio) meta; }

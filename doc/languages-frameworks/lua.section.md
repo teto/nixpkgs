@@ -2,7 +2,7 @@
 
 ## Using Lua {#lua-userguide}
 
-### Overview of Lua {#lua-overview}
+### Lua interpreters {#lua-interpreters}
 
 Several versions of the Lua interpreter are available: luajit, lua 5.1, 5.2, 5.3.
 The attribute `lua` refers to the default interpreter, it is also possible to refer to specific versions, e.g. `lua5_2` refers to Lua 5.2.
@@ -20,60 +20,30 @@ The main package set contains aliases to these package sets, e.g.
 Note that nixpkgs patches the non-luajit interpreters to avoid referring to
 `/usr` and have `;;` (a [placeholder](https://www.lua.org/manual/5.1/manual.html#pdf-package.path) replaced with the default LUA_PATH) work correctly.
 
-### Installing Lua and packages {#installing-lua-and-packages}
 
-#### Lua environment defined in separate `.nix` file {#lua-environment-defined-in-separate-.nix-file}
+Versions 5.1, 5.2, 5.3 and 5.4 of the lua interpreter are available as
+respectively `lua5_1`, `lua5_2`, `lua5_3` and `lua5_4`. Luajit is available too.
+The Nix expressions for the interpreters can be found in `pkgs/development/interpreters/lua-5`.
 
-Create a file, e.g. `build.nix`, with the following expression
 
-```nix
-with import <nixpkgs> {};
+#### lua.withPackages function {#lua.withpackages-function}
 
-lua5_2.withPackages (ps: with ps; [ busted luafilesystem ])
-```
-
-and install it in your profile with
-
-```shell
-nix-env -if build.nix
-```
-Now you can use the Lua interpreter, as well as the extra packages (`busted`,
-`luafilesystem`) that you added to the environment.
-
-#### Lua environment defined in `~/.config/nixpkgs/config.nix` {#lua-environment-defined-in-.confignixpkgsconfig.nix}
-
-If you prefer to, you could also add the environment as a package override to the Nixpkgs set, e.g.
-using `config.nix`,
+The `lua.withPackages` takes a function as an argument that is passed the set of lua packages and returns the list of packages to be included in the environment.
+Using the `withPackages` function, the previous example for the luafilesystem environment can be written like this:
 
 ```nix
-{ # ...
-
-  packageOverrides = pkgs: with pkgs; {
-    myLuaEnv = lua5_2.withPackages (ps: with ps; [ busted luafilesystem ]);
-  };
-}
+lua.withPackages (ps: [ps.luafilesystem])
 ```
 
-and install it in your profile with
-
-```shell
-nix-env -iA nixpkgs.myLuaEnv
-```
-The environment is installed by referring to the attribute, and considering
-the `nixpkgs` channel was used.
-
-#### Lua environment defined in `/etc/nixos/configuration.nix` {#lua-environment-defined-in-etcnixosconfiguration.nix}
-
-For the sake of completeness, here's another example how to install the environment system-wide.
+`withPackages` passes the correct package set for the specific interpreter version as an argument to the function. In the above example, `ps` equals `luaPackages`.
+But you can also easily switch to using `lua5_1`:
 
 ```nix
-{ # ...
-
-  environment.systemPackages = with pkgs; [
-    (lua.withPackages(ps: with ps; [ busted luafilesystem ]))
-  ];
-}
+lua5_1.withPackages (ps: [ps.lua])
 ```
+
+Now, `ps` is set to `lua5_1.pkgs`, matching the version of the interpreter.
+
 
 ### How to override a Lua package using overlays? {#how-to-override-a-lua-package-using-overlays}
 
@@ -110,7 +80,7 @@ $ nix-shell -p 'lua.withPackages(ps: with ps; [ busted luafilesystem ])'
 opens a shell from which you can launch the interpreter
 
 ```sh
-[nix-shell:~] lua
+[nix-shell:~] lua -e 'print(package.path)'
 ```
 
 The other method, which is not recommended, does not create an environment and requires you to list the packages directly,
@@ -130,7 +100,7 @@ package lua software, either it is on luarocks and most of it can be taken care
 of by the luarocks2nix converter or the packaging has to be done manually.
 Let's present the luarocks way first and the manual one in a second time.
 
-### Packaging a library on luarocks {#packaging-a-library-on-luarocks}
+### Packaging a library on luarocks {#lua-packaging-a-library-on-luarocks}
 
 [Luarocks.org](https://luarocks.org/) is the main repository of lua packages.
 The site proposes two types of packages, the `rockspec` and the `src.rock`
@@ -152,7 +122,7 @@ For instance if the rockspec defines `external_dependencies`, these need to be m
 
 You can try converting luarocks packages to nix packages with the command `nix-shell -p luarocks-nix` and then `luarocks nix PKG_NAME`.
 
-#### Packaging a library manually {#packaging-a-library-manually}
+#### Packaging a library manually {#lua-packaging-a-library-manually}
 
 You can develop your package as you usually would, just don't forget to wrap it
 within a `toLuaModule` call, for instance
@@ -168,13 +138,7 @@ are not packaged for luarocks. You can see a few examples at `pkgs/top-level/lua
 
 ## Lua Reference {#lua-reference}
 
-### Lua interpreters {#lua-interpreters}
-
-Versions 5.1, 5.2, 5.3 and 5.4 of the lua interpreter are available as
-respectively `lua5_1`, `lua5_2`, `lua5_3` and `lua5_4`. Luajit is available too.
-The Nix expressions for the interpreters can be found in `pkgs/development/interpreters/lua-5`.
-
-#### Attributes on lua interpreters packages {#attributes-on-lua-interpreters-packages}
+#### Attributes on lua interpreters packages {#lua-attributes-on-interpreters-packages}
 
 Each interpreter has the following attributes:
 
@@ -183,7 +147,7 @@ Each interpreter has the following attributes:
 - `withPackages`. Simpler interface to `buildEnv`.
 - `pkgs`. Set of Lua packages for that specific interpreter. The package set can be modified by overriding the interpreter and passing `packageOverrides`.
 
-#### `buildLuarocksPackage` function {#buildluarockspackage-function}
+#### `buildLuarocksPackage` function {#lua-buildluarockspackage-function}
 
 The `buildLuarocksPackage` function is implemented in `pkgs/development/interpreters/lua-5/build-luarocks-package.nix`
 The following is an example:
@@ -197,8 +161,8 @@ The following is an example:
       url    = "https://raw.githubusercontent.com/rocks-moonscript-org/moonrocks-mirror/master/luaposix-34.0.4-1.src.rock";
       hash = "sha256-4mLJG8n4m6y4Fqd0meUDfsOb9RHSR0qa/KD5KCwrNXs=";
     };
-    disabled = (luaOlder "5.1") || (luaAtLeast "5.4");
-    propagatedBuildInputs = [ bit32 lua std_normalize ];
+  disabled = (luaOlder "5.1") || (luaAtLeast "5.4"); # it really is meta.broken
+propagatedBuildInputs = [ bit32 lua std_normalize ];
 
     meta = {
       homepage = "https://github.com/luaposix/luaposix/";
@@ -235,24 +199,6 @@ By default `meta.platforms` is set to the same value as the interpreter unless o
 The `buildLuaApplication` function is practically the same as `buildLuaPackage`.
 The difference is that `buildLuaPackage` by default prefixes the names of the packages with the version of the interpreter.
 Because with an application we're not interested in multiple version the prefix is dropped.
-
-#### lua.withPackages function {#lua.withpackages-function}
-
-The `lua.withPackages` takes a function as an argument that is passed the set of lua packages and returns the list of packages to be included in the environment.
-Using the `withPackages` function, the previous example for the luafilesystem environment can be written like this:
-
-```nix
-lua.withPackages (ps: [ps.luafilesystem])
-```
-
-`withPackages` passes the correct package set for the specific interpreter version as an argument to the function. In the above example, `ps` equals `luaPackages`.
-But you can also easily switch to using `lua5_1`:
-
-```nix
-lua5_1.withPackages (ps: [ps.lua])
-```
-
-Now, `ps` is set to `lua5_1.pkgs`, matching the version of the interpreter.
 
 ### Lua Contributing guidelines {#lua-contributing}
 

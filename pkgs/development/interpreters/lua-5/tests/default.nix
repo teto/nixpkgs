@@ -26,6 +26,11 @@ let
     '';
   });
 
+
+  rocks-nvim-env = lua.withPackages(ps: [
+    ps.rocks-nvim
+  ]);
+
   luaWithModule = lua.withPackages(ps: [
     ps.lua-cjson
   ]);
@@ -59,6 +64,22 @@ in
       assertStringEqual "$generated" "${golden_LUA_PATH}"
       '';
   };
+
+  # fidget requires 'vim'
+  checkPropagation = pkgs.runCommandLocal "test-${lua.name}-propagation" ({
+    nativeBuildInputs = [
+      pkgs.which
+      rocks-nvim-env
+    ];
+
+    }) (''
+
+      set -x
+      echo "LUA_PATH: $LUA_PATH"
+      echo "$(which lua)"
+      lua -e "require'fzy'"
+      touch $out
+    '');
 
   checkWrapping = pkgs.runCommandLocal "test-${lua.name}-wrapping" ({
     }) (''

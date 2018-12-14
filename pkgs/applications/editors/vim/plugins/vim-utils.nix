@@ -278,12 +278,38 @@ let
 
   vimrcFile = settings: writeText "vimrc" (vimrcContent settings);
 
+  # TODO packdir
+  # rcs of the type
+  # {
+  #   "after/toto.vim" = ...
+  #    colors/myscheme.vim"
+  #   parsers/c.so
+  # }
+  # for lang in "c" "bash" "json" ; do
+	# cp $(nix-build -A tree-sitter.builtGrammars."$lang" ~/nixpkgs)/parser config/nvim/parser/${lang}.so
+# done
+
+  # TODO put plugin in it too
+  vimRuntime = { parsers ? [], ... }@settings:
+    stdenv.mkDerivation {
+      name = "vim-runtime";
+      src = ./.;
+      installPhase = ''
+        mkdir -p parser/
+      '' ++ lib.concatStringsSep "\n"
+      # (lib.flatten (lib.mapAttrsToList packageLinks packages));
+      # TODO adapt extension for platform
+      (map (parser: "cp ${parser}/parser parser/${parser.name}.so") parsers)
+      ;
+      preferLocalBuild = true;
+    };
 in
 
 rec {
   inherit vimrcFile;
   inherit vimrcContent;
   inherit packDir;
+  inherit vimRuntime;
 
   makeCustomizable = let
     mkVimrcFile = vimrcFile; # avoid conflict with argument name
@@ -413,6 +439,8 @@ rec {
   requiredPluginsForPackage = { start ? [], opt ? []}:
     start ++ opt;
 
+  /* Converts a derivation into a vim plugin
+  */
   toVimPlugin = drv:
     drv.overrideAttrs(oldAttrs: {
       name = "vimplugin-${oldAttrs.name}";

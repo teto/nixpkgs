@@ -19,6 +19,11 @@ rustPlatform.buildRustPackage rec {
 
   cargoHash = "sha256-c+LOmUUt8t1x5Pp8yGHSeLcJNs/lJzq29KMX/i7Cscs=";
 
+  # postInstall = ''
+  #   mkdir -p $out/share
+  #   $out/bin/mcfly init zsh > $out/share/mcfly.zsh
+  #   '';
+
   meta = with lib; {
     homepage = "https://github.com/cantino/mcfly";
     description = "Upgraded ctrl-r where history results make sense for what you're working on right now";

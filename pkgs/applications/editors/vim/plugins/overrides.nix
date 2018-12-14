@@ -1,5 +1,6 @@
 { lib
 , stdenv
+, pkgs
 , # nixpkgs functions
   buildGoModule
 , buildVimPlugin
@@ -9,8 +10,8 @@
 , fetchurl
 , neovimUtils
 , substituteAll
-, # Language dependencies
-  fetchYarnDeps
+  # Language dependencies
+, fetchYarnDeps
 , mkYarnModules
 , python3
 , rustPlatform
@@ -21,6 +22,7 @@
 , coc-diagnostic
 , coc-pyright
 , code-minimap
+, cairo
 , dasht
 , deno
 , direnv
@@ -215,6 +217,14 @@ in
   ChatGPT-nvim = super.ChatGPT-nvim.overrideAttrs {
     dependencies = with self; [ nui-nvim plenary-nvim telescope-nvim ];
   };
+
+  # just for testing
+  lush-nvim = super.lush-nvim.overrideAttrs(oa: {
+    preCheck = ''
+      echo "PRECHECK"
+      nvim --version
+    '';
+  });
 
   clang_complete = super.clang_complete.overrideAttrs {
     # In addition to the arguments you pass to your compiler, you also need to
@@ -975,6 +985,22 @@ in
     nvimRequireCheck = "image";
   };
 
+  # WIP
+  # kui-nvim = super.kui-nvim.overrideAttrs(oa: {
+
+  #   propagatedBuildInputs = oa.propagatedBuildInputs or [] ++ [
+  #     cairo
+  #   ];
+
+  #   # local C = ffi.load'cairo'
+
+  #     preFixup = ''
+  #       substituteInPlace "$out"/lua/kui/cairo/cairo.lua \
+  #         --replace "ffi.load'cairo'" "ffi.load'${cairo}/lib/libcairo.so'"
+  #     '';
+
+  # });
+
   jedi-vim = super.jedi-vim.overrideAttrs {
     # checking for python3 support in vim would be neat, too, but nobody else seems to care
     buildInputs = [ python3.pkgs.jedi ];
@@ -1406,6 +1432,19 @@ in
     vimCommandCheck = "TealBuild";
   };
 
+  # disabled because of bug in update script
+  # nvim-telescope-zeal-cli = super.nvim-telescope-zeal-cli.overrideAttrs( oa: {
+  #   # postPatch = ''
+  #   #   substituteInPlace lua/tealmaker/init.lua \
+  #   #     --replace cyan ${luaPackages.cyan}/bin/cyan
+  #   # '';
+  #   # vimCommandCheck = "TealBuild";
+  #   # https://gitlab.com/ivan-cukic/nvim-telescope-zeal-cli
+  #   dependencies = [ self.hotpot-nvim self.telescope-nvim ];
+  #   propagatedBuildInputs = [ pkgs.zeal-cli ];
+
+  # });
+
   nvim-treesitter = super.nvim-treesitter.overrideAttrs (
     callPackage ./nvim-treesitter/overrides.nix { } self super
   );
@@ -1447,6 +1486,9 @@ in
   };
 
   orgmode = super.orgmode.overrideAttrs {
+    # nvim-treesitter is actually a real dependencu
+    # dependencies = [ (neovimUtils.grammarToPlugin tree-sitter-grammars.tree-sitter-org-nvim) ];
+
     dependencies = with self; [ (nvim-treesitter.withPlugins (p: [ p.org ])) ];
   };
 
@@ -1664,7 +1706,7 @@ in
   sqlite-lua = super.sqlite-lua.overrideAttrs (oa: {
     postPatch =
       let
-        libsqlite = "${sqlite.out}/lib/libsqlite3${stdenv.hostPlatform.extensions.sharedLibrary}";
+      libsqlite = "${sqlite.out}/lib/libsqlite3${stdenv.hostPlatform.extensions.sharedLibrary}";
       in
       ''
         substituteInPlace lua/sqlite/defs.lua \
@@ -1756,6 +1798,10 @@ in
     src = "${taskwarrior2.src}/scripts/vim";
   };
 
+  # telescope-all-recent-nvim = super.telescope-all-recent-nvim.overrideAttrs {
+  #   dependencies = with self; [ sqlite-lua telescope-nvim ];
+  # };
+
   telescope-cheat-nvim = super.telescope-cheat-nvim.overrideAttrs {
     dependencies = with self; [ sqlite-lua telescope-nvim ];
   };
@@ -1800,6 +1846,13 @@ in
 
   telescope-media-files-nvim = super.telescope-media-files-nvim.overrideAttrs {
     dependencies = with self; [ telescope-nvim popup-nvim plenary-nvim ];
+  };
+
+  telescope-manix = super.telescope-manix.overrideAttrs {
+    dependencies = [ self.telescope-nvim ];
+
+    doInstallCheck = true;
+    nvimRequireCheck = "telescope-manix";
   };
 
   telescope-nvim = super.telescope-nvim.overrideAttrs {
@@ -2101,6 +2154,17 @@ in
           --replace "s:plugin_root . '/target/release/markdown-composer'" \
           "'${vim-markdown-composer-bin}/bin/markdown-composer'"
       '';
+      dependencies = [ vim-markdown-composer-bin ];
+      propagatedBuildInputs = [ vim-markdown-composer-bin ];
+      # preFixup = ''
+      #   substituteInPlace "$out"/after/ftplugin/markdown/composer.vim \
+      #     --replace "let l:args = [s:plugin_root . '/target/release/markdown-composer']" \
+      #     "let l:args = ['${vim-markdown-composer-bin}/bin/markdown-composer']"
+      # '';
+
+      passthru = {
+        vimMarkdownComposerBin = vim-markdown-composer-bin;
+      };
     };
 
   vim-metamath = super.vim-metamath.overrideAttrs {
