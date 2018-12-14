@@ -412,7 +412,7 @@ class Machine:
         def check_active(_last_try: bool) -> bool:
             state = self.get_unit_property(unit, "ActiveState", user)
             if state == "failed":
-                raise RequestedAssertionFailed(f'unit "{unit}" reached state "{state}"')
+                raise RequestedAssertionFailed(f'unit "{unit}" reached state "{state}":\n{info}')
 
             if state == "inactive":
                 status, jobs = self.systemctl("list-jobs --full 2>&1", user)

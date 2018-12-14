@@ -8,6 +8,7 @@
   httplib,
   qtbase,
   qtimageformats,
+  qtwayland,
   qtwebengine,
   qtx11extras,
   libarchive,
