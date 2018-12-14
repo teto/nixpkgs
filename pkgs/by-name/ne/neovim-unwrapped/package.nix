@@ -19,6 +19,8 @@
   versionCheckHook,
   nix-update-script,
 
+  libiconv ? null,
+
   # now defaults to false because some tests can be flaky (clipboard etc), see
   # also: https://github.com/neovim/neovim/issues/16233
   nodejs ? null,
@@ -115,6 +117,7 @@ stdenv.mkDerivation (
 
     dontFixCmake = true;
 
+    inherit neovimLuaEnv;
     inherit lua;
     treesitter-parsers =
       treesitter-parsers
@@ -154,7 +157,9 @@ stdenv.mkDerivation (
     # make oldtests too
     checkPhase = ''
       runHook preCheck
-      make functionaltest
+      nvim -l <(echo "print(package.path)")
+      # make functionaltest
+
       runHook postCheck
     '';
 
