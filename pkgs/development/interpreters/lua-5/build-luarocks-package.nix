@@ -95,6 +95,7 @@ let
   ];
 
   inherit doCheck extraConfig rockspecFilename knownRockspec externalDeps nativeCheckInputs;
+  # inherit dontWrapLuaPrograms;
 
   buildInputs = let
     # example externalDeps': [ { name = "CRYPTO"; dep = pkgs.openssl; } ]
@@ -156,20 +157,29 @@ let
 
   configurePhase = ''
     runHook preConfigure
-  ''
-  + lib.optionalString (self.rockspecFilename == null) ''
-    rockspecFilename="${self.generatedRockspecFilename}"
+    rockspecFilename="''${rockspecFilename:-${self.generatedRockspecFilename}}"
   ''
   + lib.optionalString (self.knownRockspec != null) ''
-    # prevents the following type of error:
-    # Inconsistency between rockspec filename (42fm1b3d7iv6fcbhgm9674as3jh6y2sh-luv-1.22.0-1.rockspec) and its contents (luv-1.22.0-1.rockspec)
+    # fixing name to prevent the following error:
+    # Inconsistency between rockspec filename (42fm1b3d7iv6fcbhgm9674as3jh6y2sh-luv-1.22.0-1.rockspec)
+    # and its contents (luv-1.22.0-1.rockspec)
     rockspecFilename="$TMP/$(stripHash ${self.knownRockspec})"
     cp ${self.knownRockspec} "$rockspecFilename"
   ''
   + ''
+
+    if [ ! -f "$rockspecFilename" ]; then
+
+      echo "Could not find a valid rockspec $rockspecFilename"
+      ls -l
+      exit 1
+    fi
     runHook postConfigure
   '';
 
+
+  # NIX_DEBUG=8;
+  # TODO could be moved to configurePhase
   buildPhase = ''
     runHook preBuild
 
@@ -203,6 +213,7 @@ let
     # maybe we could reestablish dependency checking via passing --rock-trees
 
     nix_debug "ROCKSPEC $rockspecFilename"
+    # deps-mode=all tells luarocks to use every configured rocks_trees
     luarocks $LUAROCKS_EXTRA_ARGS make --deps-mode=all --tree=$out ''${rockspecFilename}
 
     runHook postInstall

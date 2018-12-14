@@ -32256,6 +32256,8 @@ with pkgs;
 
   rofi-systemd = callPackage ../tools/system/rofi-systemd { };
 
+  rofi-bitwarden = callPackage ../applications/misc/rofi/bitwarden.nix { };
+
   rootlesskit = callPackage ../tools/virtualization/rootlesskit { };
 
   rsclock = callPackage ../applications/misc/rsclock { };
@@ -33210,10 +33212,30 @@ with pkgs;
 
   vimpc = callPackage ../applications/audio/vimpc { };
 
+  neovimConfig = structuredConfigure:
+    let
+      module = import ../applications/editors/neovim/module.nix;
+      # Generate init.vim configuration
+      cfg =  (lib.evalModules {
+        specialArgs = {
+          inherit vimUtils python3Packages bundlerEnv ruby pythonPackages haskellPackages;
+          inherit nodePackages;
+        };
+        modules = [
+          module
+          { customRC = structuredConfigure.configure.customRC or "";}
+          structuredConfigure
+        ];
+      });
+    in
+      cfg.config;
+
+
   # this is a lower-level alternative to wrapNeovim conceived to handle
   # more usecases when wrapping neovim. The interface is being actively worked on
   # so expect breakage. use wrapNeovim instead if you want a stable alternative
   wrapNeovimUnstable = callPackage ../applications/editors/neovim/wrapper.nix { };
+  # wrapNeovimUnstable = neovim-unwrapped.withConfig;
   wrapNeovim = neovim-unwrapped: lib.makeOverridable (neovimUtils.legacyWrapper neovim-unwrapped);
   neovim-unwrapped = callPackage ../by-name/ne/neovim-unwrapped/package.nix {
     CoreServices =  darwin.apple_sdk.frameworks.CoreServices;
@@ -33227,7 +33249,8 @@ with pkgs;
 
   gnvim-unwrapped = callPackage ../applications/editors/neovim/gnvim { };
 
-  gnvim = callPackage ../applications/editors/neovim/gnvim/wrapper.nix { };
+  wrapGnvim = callPackage ../applications/editors/neovim/gnvim/wrapper.nix { };
+  gnvim = wrapGnvim neovim;
 
   virter = callPackage ../applications/virtualization/virter { };
 

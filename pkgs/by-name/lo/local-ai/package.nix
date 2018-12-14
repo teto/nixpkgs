@@ -348,6 +348,9 @@ let
       fetchSubmodules = true;
     };
     buildFlags = [ "libgobert.a" ];
+    propagatedBuildInputs = [
+      cuda_cudart
+    ];
     dontUseCmakeConfigure = true;
     nativeBuildInputs = [ cmake ];
     env.NIX_CFLAGS_COMPILE = "-Wformat";
