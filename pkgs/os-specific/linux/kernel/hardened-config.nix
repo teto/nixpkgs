@@ -72,6 +72,9 @@ assert (versionAtLeast version "4.9");
 
   GCC_PLUGIN_STRUCTLEAK = versionAtLeast "4.11" yes; # A port of the PaX structleak plugin
   GCC_PLUGIN_STRUCTLEAK_BYREF_ALL = versionAtLeast "4.14" yes; # Also cover structs passed by address
+  GCC_PLUGIN_STACKLEAK = versionAtLeast "4.20" yes; # A port of the PaX stackleak plugin
+  GCC_PLUGIN_RANDSTRUCT = versionAtLeast "4.13" yes; # A port of the PaX randstruct plugin
+  GCC_PLUGIN_RANDSTRUCT_PERFORMANCE = versionAtLeast "4.13" yes;
 
   # Disable various dangerous settings
   ACPI_CUSTOM_METHOD = no; # Allows writing directly to physical memory
