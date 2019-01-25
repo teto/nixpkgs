@@ -420,7 +420,7 @@ let
       KVM_COMPAT = { optional = true; tristate = whenBetween "4.0" "4.12" "y"; };
       KVM_DEVICE_ASSIGNMENT  = { optional = true; tristate = whenBetween "3.10" "4.12" "y"; };
       KVM_GENERIC_DIRTYLOG_READ_PROTECT = whenAtLeast "4.0"  yes;
-      KVM_GUEST                         = when (!features.grsecurity) yes;
+      KVM_GUEST                         = mkIf (!features.grsecurity) yes;
       KVM_MMIO                          = yes;
       KVM_VFIO                          = yes;
       KSM = yes;
