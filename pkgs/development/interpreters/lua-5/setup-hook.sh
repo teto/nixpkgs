@@ -31,10 +31,6 @@ startLuaEnvHook() {
     addToLuaPath "$1"
 }
 
-# Adds the lib and bin directories to the LUA_PATH and PATH variables,
-# respectively. Recurses on any paths declared in
-# `propagated-native-build-inputs`, while avoiding duplicating paths by
-# flagging the directories it has visited in `luaPathsSeen`.
 addToLuaPath() {
     local dir="$1"
 

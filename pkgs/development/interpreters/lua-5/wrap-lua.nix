@@ -7,7 +7,7 @@
 with lib;
 
 # defined in trivial-builders.nix
-# imported as wrapLua in lua-packages.nix and pased to build-lua-derivation to be used as buildInput
+# imported as wrapLua in lua-packages.nix and passed to build-lua-derivation to be used as buildInput
 makeSetupHook {
       deps = makeWrapper;
       substitutions.executable = lua.interpreter;

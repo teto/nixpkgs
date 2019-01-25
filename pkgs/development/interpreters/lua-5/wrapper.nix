@@ -5,6 +5,7 @@
 , ignoreCollisions ? false
 , lib
 , requiredLuaModules
+, makeWrapperArgs ? []
 }:
 
 # Create a lua executable that knows about additional packages.
@@ -24,7 +25,7 @@ let
       . "${makeWrapper}/nix-support/setup-hook"
 
       # get access to lua functions
-      . ${lua}/nix-support/setup-hook
+      # . ${lua}/nix-support/setup-hook
 
       if [ -L "$out/bin" ]; then
           unlink "$out/bin"
@@ -32,6 +33,8 @@ let
       mkdir -p "$out/bin"
 
       addToLuaPath $out
+      # concatMapStringsSep ";" escapeShellArg;
+      ${stdenv.concatStringsSep ";" }
 
       # take every binary from lua packages and put them into the env
       for path in ${stdenv.lib.concatStringsSep " " paths}; do
@@ -42,8 +45,9 @@ let
             if [ -f "$prg" ]; then
               rm -f "$out/bin/$prg"
               if [ -x "$prg" ]; then
+                # TODO remove
                 echo "Making wrapper $prg"
-                makeWrapper "$path/bin/$prg" "$out/bin/$prg" --suffix LUA_PATH ';' "$LUA_PATH"   --suffix LUA_CPATH ';' "$LUA_CPATH"
+                makeWrapper "$path/bin/$prg" "$out/bin/$prg" --suffix LUA_PATH ';' "$LUA_PATH"   --suffix LUA_CPATH ';' "$LUA_CPATH" ${stdenv.lib.concatStringsSep " " makeWrapperArgs}
               fi
             fi
           done
