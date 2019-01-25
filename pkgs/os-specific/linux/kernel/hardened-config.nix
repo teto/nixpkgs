@@ -11,6 +11,7 @@
 { stdenv, version }:
 
 with stdenv.lib;
+with import ../../../../lib/kernel.nix { inherit (stdenv) lib; inherit version; };
 
 assert (versionAtLeast version "4.9");
 
@@ -39,14 +40,25 @@ optionalAttrs (stdenv.hostPlatform.platform.kernelArch == "x86_64") {
   # Report BUG() conditions and kill the offending process.
   BUG = yes;
 
-  BUG_ON_DATA_CORRUPTION = versionAtLeast "4.10" yes;
+  BUG_ON_DATA_CORRUPTION = whenAtLeast "4.10" yes;
 
   # Safer page access permissions (wrt. code injection).  Default on >=4.11.
-  DEBUG_RODATA          = versionOlder "4.11" yes;
-  DEBUG_SET_MODULE_RONX = versionOlder "4.11" yes;
+  DEBUG_RODATA          = whenOlder "4.11" yes;
+  DEBUG_SET_MODULE_RONX = whenOlder "4.11" yes;
+
+  # Mark LSM hooks read-only after init.  SECURITY_WRITABLE_HOOKS n
+  # conflicts with SECURITY_SELINUX_DISABLE y; disabling the latter
+  # implicitly marks LSM hooks read-only after init.
+  #
+  # SELinux can only be disabled at boot via selinux=0
+  #
+  # We set SECURITY_WRITABLE_HOOKS n primarily for documentation purposes; the
+  # config builder fails to detect that it has indeed been unset.
+  SECURITY_SELINUX_DISABLE = whenAtLeast "4.12" no;
+  SECURITY_WRITABLE_HOOKS  = whenAtLeast "4.12" (option no);
 
   DEBUG_WX = yes; # boot-time warning on RWX mappings
-  STRICT_KERNEL_RWX = versionAtLeast "4.11" yes;
+  STRICT_KERNEL_RWX = whenAtLeast "4.11" yes;
 
   # Stricter /dev/mem
   STRICT_DEVMEM    = option yes;
@@ -60,16 +72,16 @@ optionalAttrs (stdenv.hostPlatform.platform.kernelArch == "x86_64") {
   DEBUG_SG              = yes;
   SCHED_STACK_END_CHECK = yes;
 
-  REFCOUNT_FULL = versionAtLeast "4.13" yes;
+  REFCOUNT_FULL = whenAtLeast "4.13" yes;
 
   # Perform usercopy bounds checking.
   HARDENED_USERCOPY = yes;
-  HARDENED_USERCOPY_FALLBACK = versionAtLeast "4.16" no;
+  HARDENED_USERCOPY_FALLBACK = whenAtLeast "4.16" no; # for full whitelist enforcement
 
   # Randomize allocator freelists.
   SLAB_FREELIST_RANDOM = yes;
 
-  SLAB_FREELIST_HARDENED = versionAtLeast "4.14" yes;
+  SLAB_FREELIST_HARDENED = whenAtLeast "4.14" yes;
 
   # Allow enabling slub/slab free poisoning with slub_debug=P
   SLUB_DEBUG = yes;
@@ -87,11 +99,11 @@ optionalAttrs (stdenv.hostPlatform.platform.kernelArch == "x86_64") {
   # Gather additional entropy at boot time for systems that may = no;ot have appropriate entropy sources.
   GCC_PLUGIN_LATENT_ENTROPY = yes;
 
-  GCC_PLUGIN_STRUCTLEAK = versionAtLeast "4.11" yes; # A port of the PaX structleak plugin
-  GCC_PLUGIN_STRUCTLEAK_BYREF_ALL = versionAtLeast "4.14" yes; # Also cover structs passed by address
-  GCC_PLUGIN_STACKLEAK = versionAtLeast "4.20" yes; # A port of the PaX stackleak plugin
-  GCC_PLUGIN_RANDSTRUCT = versionAtLeast "4.13" yes; # A port of the PaX randstruct plugin
-  GCC_PLUGIN_RANDSTRUCT_PERFORMANCE = versionAtLeast "4.13" yes;
+  GCC_PLUGIN_STRUCTLEAK = whenAtLeast "4.11" yes; # A port of the PaX structleak plugin
+  GCC_PLUGIN_STRUCTLEAK_BYREF_ALL = whenAtLeast "4.14" yes; # Also cover structs passed by address
+  GCC_PLUGIN_STACKLEAK = whenAtLeast "4.20" yes; # A port of the PaX stackleak plugin
+  GCC_PLUGIN_RANDSTRUCT = whenAtLeast "4.13" yes; # A port of the PaX randstruct plugin
+  GCC_PLUGIN_RANDSTRUCT_PERFORMANCE = whenAtLeast "4.13" yes;
 
   # Disable various dangerous settings
   ACPI_CUSTOM_METHOD = no; # Allows writing directly to physical memory
@@ -99,16 +111,10 @@ optionalAttrs (stdenv.hostPlatform.platform.kernelArch == "x86_64") {
   INET_DIAG          = no; # Has been used for heap based attacks in the past
 
   # Use -fstack-protector-strong (gcc 4.9+) for best stack canary coverage.
-  CC_STACKPROTECTOR_REGULAR = versionOlder "4.18" no;
-  CC_STACKPROTECTOR_STRONG  = versionOlder "4.18" yes;
+  CC_STACKPROTECTOR_REGULAR = whenOlder "4.18" no;
+  CC_STACKPROTECTOR_STRONG  = whenOlder "4.18" yes;
 
   # Enable compile/run-time buffer overflow detection ala glibc's _FORTIFY_SOURCE
-  FORTIFY_SOURCE = versionAtLeast "4.13" yes;
-
-  # Mark LSM hooks read-only after init.  Conflicts with SECURITY_SELINUX_DISABLE
-  # (disabling SELinux at runtime); hence, SELinux can only be disabled at boot
-  # via the selinux=0 boot parameter.
-  SECURITY_SELINUX_DISABLE = versionAtLeast "4.12" no;
-  SECURITY_WRITABLE_HOOKS  = versionAtLeast "4.12" no;
+  FORTIFY_SOURCE = whenAtLeast "4.13" yes;
 
 }

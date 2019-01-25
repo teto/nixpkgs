@@ -17,14 +17,9 @@
 
 with stdenv.lib;
 
-  with import ../../../../lib/kernel.nix { inherit (stdenv) lib; };
+  with import ../../../../lib/kernel.nix { inherit (stdenv) lib; inherit version; };
 
 let
-  # Common patterns/legacy
-  when = cond: opt: if cond then opt else null;
-  whenAtLeast = ver: mkIf (versionAtLeast version ver);
-  whenOlder   = ver: mkIf (versionOlder version ver);
-  whenBetween = verLow: verHigh: mkIf (versionAtLeast version verLow && versionOlder version verHigh);
 
   # configuration items have to be part of a subattrs
   flattenKConf =  nested: mapAttrs (_: head) (zipAttrs (attrValues nested));
