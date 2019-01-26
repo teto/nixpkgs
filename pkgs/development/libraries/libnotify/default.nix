@@ -1,5 +1,6 @@
 { stdenv, fetchurl, pkgconfig, autoreconfHook
-, glib, gdk_pixbuf, gobject-introspection }:
+, glib, gdk_pixbuf, gobject-introspection
+, gtk-doc, docbook_xsl, xmlto, docbook_xml_dtd_412 }:
 
 stdenv.mkDerivation rec {
   ver_maj = "0.7";
@@ -12,9 +13,11 @@ stdenv.mkDerivation rec {
   };
 
   # disable tests as we don't need to depend on gtk+(2/3)
-  configureFlags = [ "--disable-tests" ];
+  configureFlags = [ "--disable-tests" "--enable-gtk-doc" "--enable-docbook-docs" ];
 
-  nativeBuildInputs = [ pkgconfig autoreconfHook gobject-introspection ];
+  XML_CATALOG_FILES = "${docbook_xsl}/xml/xsl/docbook/catalog.xml ${docbook_xml_dtd_412}/xml/dtd/docbook/catalog.xml";
+
+  nativeBuildInputs = [ pkgconfig autoreconfHook gobject-introspection gtk-doc xmlto ];
   buildInputs = [ glib gdk_pixbuf ];
 
   meta = with stdenv.lib; {
