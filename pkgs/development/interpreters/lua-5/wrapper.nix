@@ -25,16 +25,16 @@ let
       . "${makeWrapper}/nix-support/setup-hook"
 
       # get access to lua functions
-      # . ${lua}/nix-support/setup-hook
+      . ${lua}/nix-support/setup-hook
 
       if [ -L "$out/bin" ]; then
           unlink "$out/bin"
       fi
       mkdir -p "$out/bin"
 
-      addToLuaPath $out
+      addToLuaPath "$out"
       # concatMapStringsSep ";" escapeShellArg;
-      ${stdenv.concatStringsSep ";" }
+      # map "$out/ ;
 
       # take every binary from lua packages and put them into the env
       for path in ${stdenv.lib.concatStringsSep " " paths}; do

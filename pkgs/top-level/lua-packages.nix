@@ -82,9 +82,9 @@ with self; {
   inherit requiredLuaModules luaOlder luaAtLeast
     isLua51 isLua52 isLuaJIT lua callPackage;
 
-  wrapLua = callPackage ../development/interpreters/lua-5/wrap-lua.nix {
-    inherit lua; inherit (pkgs) makeSetupHook makeWrapper;
-  };
+  # wrapLua = callPackage ../development/interpreters/lua-5/wrap-lua.nix {
+  #   inherit lua; inherit (pkgs) makeSetupHook makeWrapper;
+  # };
 
   luarocks = callPackage ../development/tools/misc/luarocks {
     inherit lua;
