@@ -1,5 +1,8 @@
-{stdenv, fetchurl, pkgconfig, lua5, curl, quvi_scripts, libquvi, lua5_sockets, glib, makeWrapper}:
+{stdenv, fetchurl, pkgconfig, lua5, curl, quvi_scripts, libquvi, glib, makeWrapper}:
 
+let
+  luaEnv = lua5.withPackages(p: [p.luasocket]);
+in
 stdenv.mkDerivation rec {
   name = "quvi-${version}";
   version="0.9.5";
@@ -10,10 +13,7 @@ stdenv.mkDerivation rec {
   };
 
   nativeBuildInputs = [ pkgconfig ];
-  buildInputs = [ lua5 curl quvi_scripts libquvi glib makeWrapper ];
-  postInstall = ''
-      wrapProgram $out/bin/quvi --set LUA_PATH "${lua5_sockets}/share/lua/${lua5.luaversion}/?.lua"
-  '';
+  buildInputs = [ luaEnv curl quvi_scripts libquvi glib makeWrapper ];
 
   meta = {
     description = "Web video downloader";

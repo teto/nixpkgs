@@ -17404,7 +17404,6 @@ in
   praat = callPackage ../applications/audio/praat { };
 
   quvi = callPackage ../applications/video/quvi/tool.nix {
-    lua5_sockets = lua51Packages.luasocket;
     lua5 = lua5_1;
   };
 
