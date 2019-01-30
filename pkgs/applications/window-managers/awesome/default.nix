@@ -7,7 +7,10 @@
 , asciidoctor
 }:
 
-with luaPackages; stdenv.mkDerivation rec {
+let
+  luaEnv = lua.withPackages(ps: with ps; [ lgi  ] ++ luaModules);
+in
+stdenv.mkDerivation rec {
   name = "awesome-${version}";
   version = "4.3";
 
@@ -32,8 +35,8 @@ with luaPackages; stdenv.mkDerivation rec {
 
   propagatedUserEnvPkgs = [ hicolor-icon-theme ];
   buildInputs = [ cairo librsvg dbus gdk_pixbuf gobject-introspection
-                  git lgi libpthreadstubs libstartup_notification
-                  libxdg_basedir lua nettools pango xcb-util-cursor
+                  git libpthreadstubs libstartup_notification
+                  libxdg_basedir luaEnv nettools pango xcb-util-cursor
                   xorg.libXau xorg.libXdmcp xorg.libxcb xorg.libxshmfence
                   xorg.xcbutil xorg.xcbutilimage xorg.xcbutilkeysyms
                   xorg.xcbutilrenderutil xorg.xcbutilwm libxkbcommon
@@ -49,8 +52,6 @@ with luaPackages; stdenv.mkDerivation rec {
   postInstall = ''
     wrapProgram $out/bin/awesome \
       --set GDK_PIXBUF_MODULE_FILE "$GDK_PIXBUF_MODULE_FILE" \
-      --add-flags '--search ${lgi}/lib/lua/${lua.luaversion}' \
-      --add-flags '--search ${lgi}/share/lua/${lua.luaversion}' \
       --prefix GI_TYPELIB_PATH : "$GI_TYPELIB_PATH" \
       --prefix LUA_PATH ';'  "${lgi}/share/lua/${lua.luaversion}/?.lua;${lgi}/share/lua/${lua.luaversion}/lgi/?.lua" \
       --prefix LUA_CPATH ';' "${lgi}/lib/lua/${lua.luaversion}/?.so"
