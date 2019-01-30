@@ -38,6 +38,8 @@ let
           (lib.concatMap (d : if d ? runtimeDeps then d.runtimeDeps else []) luadeps) ++
           [ lua coreutils ];
 
+        # some packages (sundown/optim) install themselves into INCDIR/LIBDIR
+        # so it needs to be $out else it is not writable
         mkcfg = ''
           export LUAROCKS_CONFIG=config.lua
           cat >config.lua <<EOF
@@ -48,7 +50,7 @@ let
 
             variables = {
               LUA_BINDIR = "$out/bin";
-              LUA_INCDIR = "$out/include";
+              LUA_INCDIR = "${lua}/include";
               LUA_LIBDIR = "$out/lib/lua/${lua.luaversion}";
             };
           EOF
@@ -134,6 +136,11 @@ let
       src = "${distro_src}/pkg/sundown";
       rockspec = "rocks/${name}-scm-1.rockspec";
       meta.broken = true; # 2018-04-11
+      preBuild = ''
+        # export CFLAGS=-I${lua}/include
+        mkdir -p $out
+        cp -r ${lua}/include $out
+      '';
     };
 
     cwrap = buildLuaRocks rec {
