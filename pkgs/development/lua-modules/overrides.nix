@@ -72,6 +72,11 @@ with super;
     '';
   });
 
+  luaexpat = super.luaexpat.override({
+    buildInputs = [ pkgs.expat.dev ];
+    disabled = isLuaJIT || isLua53;
+  });
+
   luuid = super.luuid.override(oa: {
     buildInputs = [ pkgs.libuuid ];
     extraConfig = ''
