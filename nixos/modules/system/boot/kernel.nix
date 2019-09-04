@@ -13,6 +13,11 @@ let
       ${concatStringsSep "\n" config.boot.kernelModules}
     '';
 
+  requiredKernelConfigFromPackages = pkgs:
+  let
+    requiredKernelConfigs = map (x: x.meta.requiredKernelConfig or []) pkgs;
+  in
+    foldr (a: b: a ++ b) [] requiredKernelConfigs;
 in
 
 {
@@ -59,6 +64,14 @@ in
         configuration.  For instance, if you use the NVIDIA X driver,
         then it also needs to contain an attribute
         <varname>nvidia_x11</varname>.
+      '';
+    };
+
+    boot.kernel.checkPackageConfig = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Switch on to check kernel configuration against package requirements.
       '';
     };
 
@@ -273,47 +286,14 @@ in
           };
       };
 
-    lib.kernelConfig = {
-      isYes = option: {
-        assertion = config: config.isYes option;
-        message = "CONFIG_${option} is not yes!";
-        configLine = "CONFIG_${option}=y";
-      };
-
-      isNo = option: {
-        assertion = config: config.isNo option;
-        message = "CONFIG_${option} is not no!";
-        configLine = "CONFIG_${option}=n";
-      };
-
-      isModule = option: {
-        assertion = config: config.isModule option;
-        message = "CONFIG_${option} is not built as a module!";
-        configLine = "CONFIG_${option}=m";
-      };
-
-      ### Usually you will just want to use these two
-      # True if yes or module
-      isEnabled = option: {
-        assertion = config: config.isEnabled option;
-        message = "CONFIG_${option} is not enabled!";
-        configLine = "CONFIG_${option}=y";
-      };
-
-      # True if no or omitted
-      isDisabled = option: {
-        assertion = config: config.isDisabled option;
-        message = "CONFIG_${option} is not disabled!";
-        configLine = "CONFIG_${option}=n";
-      };
-    };
 
     # The config options that all modules can depend upon
     system.requiredKernelConfig = with config.lib.kernelConfig; [
       # !!! Should this really be needed?
       (isYes "MODULES")
       (isYes "BINFMT_ELF")
-    ] ++ (optional (randstructSeed != "") (isYes "GCC_PLUGIN_RANDSTRUCT"));
+    ] ++ (optional (randstructSeed != "") (isYes "GCC_PLUGIN_RANDSTRUCT"))
+      ++ requiredKernelConfigFromPackages config.environment.systemPackages;
 
     # nixpkgs kernels are assumed to have all required features
     assertions = if config.boot.kernelPackages.kernel ? features then [] else
