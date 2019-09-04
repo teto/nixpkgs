@@ -15759,6 +15759,11 @@ in
     ];
   };
 
+  linuxCheckKernelConfig = structuredConfig: kernel:
+    runCommand
+  # {
+  # }
+
   /* Linux kernel modules are inherently tied to a specific kernel.  So
      rather than provide specific instances of those packages for a
      specific kernel, we have a function that builds those packages

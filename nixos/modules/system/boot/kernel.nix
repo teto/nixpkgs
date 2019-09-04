@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, ... } @ args:
 
 with lib;
 
@@ -10,14 +10,14 @@ let
 
   kernelModulesConf = pkgs.writeText "nixos.conf"
     ''
-      ${concatStringsSep "\n" config.boot.kernelModules}
+      ${lib.concatStringsSep "\n" config.boot.kernelModules}
     '';
 
   requiredKernelConfigFromPackages = pkgs:
   let
     requiredKernelConfigs = map (x: x.meta.requiredKernelConfig or []) pkgs;
   in
-    foldr (a: b: a ++ b) [] requiredKernelConfigs;
+    lib.foldr (a: b: a ++ b) [] requiredKernelConfigs;
 in
 
 {
@@ -186,7 +186,6 @@ in
           (isEnabled "BLK_DEV_INITRD")
         ]
       '';
-      internal = true;
       type = types.listOf types.attrs;
       description = ''
         This option allows modules to specify the kernel config options that
@@ -286,18 +285,24 @@ in
           };
       };
 
+    lib.kernelConfig = args.lib.kernel;
 
     # The config options that all modules can depend upon
-    system.requiredKernelConfig = with config.lib.kernelConfig; [
+    system.requiredKernelConfig = with lib.kernel; [
       # !!! Should this really be needed?
       (isYes "MODULES")
       (isYes "BINFMT_ELF")
     ] ++ (optional (randstructSeed != "") (isYes "GCC_PLUGIN_RANDSTRUCT"))
-      ++ requiredKernelConfigFromPackages config.environment.systemPackages;
+      # ++ (optional config.boot.kernel.checkPackageConfig requiredKernelConfigFromPackages config.environment.systemPackages)
+    ;
 
     # nixpkgs kernels are assumed to have all required features
-    assertions = if config.boot.kernelPackages.kernel ? features then [] else
-      let cfg = config.boot.kernelPackages.kernel.config; in map (attrs:
+    # if config.boot.kernelPackages.kernel ? features then [] else
+    # TODO this should be run against configfile.kernelConfig
+    # could use passthru.structuredConfig from kernel.
+    # config.boot.kernelPackages.kernel.config contains nothing
+    assertions =
+      let cfg = builtins.trace config.boot.kernelPackages.kernel.config config.boot.kernelPackages.kernel.config; in map (attrs:
         { assertion = attrs.assertion cfg; inherit (attrs) message; }
       ) config.system.requiredKernelConfig;
 

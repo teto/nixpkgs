@@ -39,7 +39,7 @@ stdenv.mkDerivation rec {
 
   meta = with lib; {
     description = "Emulator for rapid prototyping of Software Defined Networks";
-    requiredKernelConfig = [ (kernel.isEnabled "NETNS") ];
+    requiredKernelConfig = [ (kernel.isEnabled "TOTO") ];
     license = {
       fullName = "Mininet 2.3.0d6 License";
     };
