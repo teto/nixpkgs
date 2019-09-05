@@ -91,6 +91,27 @@ let
         map ({extraConfig ? "", ...}: extraConfig) kernelPatches;
     in lib.concatStringsSep "\n" ([baseConfigStr] ++ configFromPatches);
 
+
+  # TODO configfile should use this
+  checkKernelConfig = attrs: stdenv.mkDerivation rec {
+    pname = "linux-config-check";
+    inherit version;
+
+    # convert structured to str
+    kernelNixRequiredConfig = lib.kernel.generateNixKConf attrs;
+    passAsFile = [ "kernelNixRequiredConfig" ];
+
+    # expect a structured config
+    # KERNEL_CONFIG really is KERNEL_REQUIRED_CONFIG
+    checkConfig = structured:
+    ''
+      DEBUG=1 KERNEL_CONFIG="$buildRoot/kernel-config" \
+           BUILD_ROOT="$buildRoot" \
+           SRC=. perl -w ${./check-config.pl}
+    '';
+  };
+
+
   configfile = stdenv.mkDerivation {
     inherit ignoreConfigErrors autoModules preferBuiltin kernelArch;
     pname = "linux-config";

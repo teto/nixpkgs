@@ -8,6 +8,43 @@ with lib;
   # range is (inclusive, exclusive)
   whenBetween = verLow: verHigh: mkIf (versionAtLeast version verLow && versionOlder version verHigh);
 
+  /* generate nix intermediate kernel config file of the form
+         VIRTIO_MMIO m
+         VIRTIO_BLK y
+         VIRTIO_CONSOLE n
+         NET_9P_VIRTIO? y
+
+   Borrowed from copumpkin https://github.com/NixOS/nixpkgs/pull/12158
+   returns a string, expr should be an attribute set
+   Use mkValuePreprocess to preprocess option values, aka mark 'modules' as 'yes' or vice-versa
+   use the identity if you don't want to override the configured values
+  */
+  generateNixKConf = exprs:
+  let
+    mkConfigLine = key: item:
+      let
+        val = if item.freeform != null then item.freeform else item.tristate;
+      in
+        if val == null
+          then ""
+          else if (item.optional)
+            then "${key}? ${mkValue val}\n"
+            else "${key} ${mkValue val}\n";
+
+    mkConf = cfg: concatStrings (mapAttrsToList mkConfigLine cfg);
+  in mkConf exprs;
+
+  mkValue = with lib; val:
+  let
+    isNumber = c: elem c ["0" "1" "2" "3" "4" "5" "6" "7" "8" "9"];
+
+  in
+    if (val == "") then "\"\""
+    else if val == "y" || val == "m" || val == "n" then val
+    else if all isNumber (stringToCharacters val) then val
+    else if substring 0 2 val == "0x" then val
+    else val; # FIXME: fix quoting one day
+
 
   # Keeping these around in case we decide to change this horrible implementation :)
   option = x:

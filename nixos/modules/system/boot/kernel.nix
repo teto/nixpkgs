@@ -13,11 +13,18 @@ let
       ${lib.concatStringsSep "\n" config.boot.kernelModules}
     '';
 
+
   requiredKernelConfigFromPackages = pkgs:
   let
     requiredKernelConfigs = map (x: x.meta.requiredKernelConfig or []) pkgs;
   in
     lib.foldr (a: b: a ++ b) [] requiredKernelConfigs;
+
+
+
+
+  # DEBUG=1 KERNEL_CONFIG="$buildRoot/kernel-config" AUTO_MODULES=$autoModules \
+  #      PREFER_BUILTIN=$preferBuiltin BUILD_ROOT="$buildRoot" SRC=. perl -w $generateConfig
 in
 
 {
