@@ -1,13 +1,9 @@
-{ lib, version ? null }:
+{ lib
+# , version ? null
+}:
 
 with lib;
-{
-  # Common patterns/legacy
-  whenAtLeast = ver: mkIf (versionAtLeast version ver);
-  whenOlder   = ver: mkIf (versionOlder version ver);
-  # range is (inclusive, exclusive)
-  whenBetween = verLow: verHigh: mkIf (versionAtLeast version verLow && versionOlder version verHigh);
-
+rec {
   /* generate nix intermediate kernel config file of the form
          VIRTIO_MMIO m
          VIRTIO_BLK y
@@ -23,11 +19,11 @@ with lib;
   let
     mkConfigLine = key: item:
       let
-        val = if item.freeform != null then item.freeform else item.tristate;
+        val = builtins.trace key (if (item.freeform or null) != null then item.freeform else item.tristate);
       in
         if val == null
           then ""
-          else if (item.optional)
+          else if (item.optional or false)
             then "${key}? ${mkValue val}\n"
             else "${key} ${mkValue val}\n";
 
@@ -41,7 +37,7 @@ with lib;
   in
     if (val == "") then "\"\""
     else if val == "y" || val == "m" || val == "n" then val
-    else if all isNumber (stringToCharacters val) then val
+    else if all isNumber (stringToCharacters (builtins.trace val val)) then val
     else if substring 0 2 val == "0x" then val
     else val; # FIXME: fix quoting one day
 

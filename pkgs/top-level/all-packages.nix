@@ -15760,9 +15760,18 @@ in
   };
 
 
-  # TODO configfile should use this
-  # TODO pass the
-  checkKernelConfig = originalConfig: toCheckAgainst: stdenv.mkDerivation rec {
+  /*
+    Generate a kernel config from a structured config.
+    Then checks this generated config against
+
+    TODO:
+      - configfile should use this
+      - move to lib.kernel ?
+
+   */
+  checkKernelConfig = originalConfig: toCheckAgainst:
+    # this could be a runCommandNoCC
+   stdenv.mkDerivation rec {
     pname = "linux-config-check";
     version = "test";
     # inherit version;
@@ -15775,6 +15784,11 @@ in
     # expect a structured config
     # KERNEL_CONFIG really is KERNEL_REQUIRED_CONFIG
     #  pkgs/os-specific/linux/kernel/check-config.pl
+    # these derivations will be built:
+  # /nix/store/0m8m80cxlz5xrzrl6w2zz71nparnrbgh-linux-config-check-test.drv
+# building '/nix/store/0m8m80cxlz5xrzrl6w2zz71nparnrbgh-linux-config-check-test.drv'...
+# unpacking sources
+# variable $src or $srcs should point to the source
     buildPhase =
     ''
       echo $kernelNixGivenConfigPath
@@ -15785,12 +15799,19 @@ in
   };
 
   checkKernelConfigTest = let
-    genericCfg = import ../os-specific/linux/kernel/common-config.nix {
-      inherit (linux_latest) stdenv version ;
-      features = { xen_dom0 = false; };
+    # alread flattened
+    # genericCfg = import ../os-specific/linux/kernel/common-config.nix {
+    #   inherit (linux_latest) stdenv version ;
+    #   # otherwise common-config crashes
+    #   features = { xen_dom0 = false; };
+    # };
+
+    # this one has been processed yet
+    genericCfg = linux_latest.configfile.passthru.structuredConfig;
+    requiredConfig = {
+      IDE = lib.kernel.yes;
     };
-    requiredConfig = {};
-  in checkKernelConfig genericCfg requiredConfig;
+  in checkKernelConfig (builtins.trace "hello" genericCfg) requiredConfig;
   # linuxCheckKernelConfig = structuredConfig: kernel:
   #   runCommand
   # {

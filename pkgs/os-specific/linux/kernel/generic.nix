@@ -194,6 +194,7 @@ let
 
   passthru = {
     features = kernelFeatures;
+    # TODO remove ? this wasn't processed yet !
     inherit commonStructuredConfig;
     passthru = kernel.passthru // (removeAttrs passthru [ "passthru" ]);
   };
