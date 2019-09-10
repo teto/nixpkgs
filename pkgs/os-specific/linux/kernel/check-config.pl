@@ -23,7 +23,7 @@ close ANSWERS;
 
 
 my %config;
-open CONFIG, "<$buildRoot/.config" or die "Could not read .config";
+open CONFIG, "<$ENV{FINAL_CONFIG}" or die "Could not read .config";
 while (<CONFIG>) {
     chomp;
     if (/^CONFIG_([A-Za-z0-9_]+)="(.*)"$/) {

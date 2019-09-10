@@ -72,17 +72,17 @@ let
     else val; # FIXME: fix quoting one day
 
 
-  # generate nix intermediate kernel config file of the form
-  #
-  #       VIRTIO_MMIO m
-  #       VIRTIO_BLK y
-  #       VIRTIO_CONSOLE n
-  #       NET_9P_VIRTIO? y
-  #
-  # Borrowed from copumpkin https://github.com/NixOS/nixpkgs/pull/12158
-  # returns a string, expr should be an attribute set
-  # Use mkValuePreprocess to preprocess option values, aka mark 'modules' as 'yes' or vice-versa
-  # use the identity if you don't want to override the configured values
+   /* generate nix intermediate kernel config file of the form
+         VIRTIO_MMIO m
+         VIRTIO_BLK y
+         VIRTIO_CONSOLE n
+         NET_9P_VIRTIO? y
+    from a structured config
+   Borrowed from copumpkin https://github.com/NixOS/nixpkgs/pull/12158
+   returns a string, expr should be an attribute set
+   Use mkValuePreprocess to preprocess option values, aka mark 'modules' as 'yes' or vice-versa
+   use the identity if you don't want to override the configured values
+  */
   generateNixKConf = exprs:
   let
     mkConfigLine = key: item:

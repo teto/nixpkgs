@@ -15759,8 +15759,40 @@ in
     ];
   };
 
-  linuxCheckKernelConfig = structuredConfig: kernel:
-    runCommand
+
+  # TODO configfile should use this
+  # TODO pass the
+  checkKernelConfig = originalConfig: toCheckAgainst: stdenv.mkDerivation rec {
+    pname = "linux-config-check";
+    version = "test";
+    # inherit version;
+
+    # convert structured to str
+    kernelNixGivenConfig = lib.kernel.generateNixKConf originalConfig;
+    kernelNixRequiredConfig = lib.kernel.generateNixKConf toCheckAgainst;
+    passAsFile = [ "kernelNixGivenConfig" "kernelNixRequiredConfig" ];
+
+    # expect a structured config
+    # KERNEL_CONFIG really is KERNEL_REQUIRED_CONFIG
+    #  pkgs/os-specific/linux/kernel/check-config.pl
+    buildPhase =
+    ''
+      echo $kernelNixGivenConfigPath
+      DEBUG=1 KERNEL_CONFIG="$kernelNixGivenConfigPath" \
+           FINAL_CONFIG="$kernelNixRequiredConfigPath" \
+           SRC=. perl -w ${../os-specific/linux/kernel/check-config.pl}
+    '';
+  };
+
+  checkKernelConfigTest = let
+    genericCfg = import ../os-specific/linux/kernel/common-config.nix {
+      inherit (linux_latest) stdenv version ;
+      features = { xen_dom0 = false; };
+    };
+    requiredConfig = {};
+  in checkKernelConfig genericCfg requiredConfig;
+  # linuxCheckKernelConfig = structuredConfig: kernel:
+  #   runCommand
   # {
   # }
 
