@@ -15767,11 +15767,15 @@ in
     TODO:
       - configfile should use this
       - move to lib.kernel ?
+      - should work with arbitrary linux kernel file
 
+    originalConfig:
    */
-  checkKernelConfig = originalConfig: toCheckAgainst:
+  checkKernelConfig =  kernelConfig: toCheckAgainst:
     # this could be a runCommandNoCC
-   stdenv.mkDerivation rec {
+   # stdenv.mkDerivation rec {
+
+  pkgs.runCommandNoCC "linux-config-check" {
     pname = "linux-config-check";
     version = "test";
     # inherit version;
@@ -15789,15 +15793,21 @@ in
 # building '/nix/store/0m8m80cxlz5xrzrl6w2zz71nparnrbgh-linux-config-check-test.drv'...
 # unpacking sources
 # variable $src or $srcs should point to the source
-    buildPhase =
+  }
+  # KERNEL_CONFIG="$kernelNixGivenConfigPath" \
+    # FINAL_CONFIG is a .config
     ''
       echo $kernelNixGivenConfigPath
-      DEBUG=1 KERNEL_CONFIG="$kernelNixGivenConfigPath" \
+        DEBUG=1 \
+          KERNEL_CONFIG="$kernelNixGivenConfigPath" \
            FINAL_CONFIG="$kernelNixRequiredConfigPath" \
            SRC=. perl -w ${../os-specific/linux/kernel/check-config.pl}
-    '';
-  };
+    ''
+  ;
 
+  /*
+  simple convenience to just test the code faster
+  */
   checkKernelConfigTest = let
     # alread flattened
     # genericCfg = import ../os-specific/linux/kernel/common-config.nix {
