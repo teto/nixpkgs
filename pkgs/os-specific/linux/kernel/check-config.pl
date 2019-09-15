@@ -5,9 +5,18 @@
 # cause options to be selected.
 
 # Read the answers.
+use strict;
+
+# exported via nix
+my $debug = $ENV{'DEBUG'};
 my %answers;
 my %requiredAnswers;
-open ANSWERS, "<$ENV{KERNEL_CONFIG}" or die "Could not open answer file";
+my $ignoreConfigErrors = $ENV{'ignoreConfigErrors'};
+my $expectedAnswers = $ENV{KERNEL_CONFIG};
+
+print STDERR "Reading answers from $expectedAnswers";
+
+open ANSWERS, "<$expectedAnswers" or die "Could not open answer file";
 while (<ANSWERS>) {
     chomp;
     s/#.*//;

@@ -15759,6 +15759,10 @@ in
     ];
   };
 
+  checkKernelStructuredConfig = let
+      kernelNixGivenConfig = lib.kernel.generateNixKConf originalConfig;
+    in
+      checkKernelConfig kernelNixGivenConfig;
 
   /*
     Generate a kernel config from a structured config.
@@ -15771,7 +15775,7 @@ in
 
     originalConfig:
    */
-  checkKernelConfig =  kernelConfig: toCheckAgainst:
+  checkKernelConfig =  kernelConfigFilename: toCheckAgainst:
     # this could be a runCommandNoCC
    # stdenv.mkDerivation rec {
 
@@ -15781,10 +15785,11 @@ in
     # inherit version;
 
     # convert structured to str
-    kernelNixGivenConfig = lib.kernel.generateNixKConf originalConfig;
+    buildInputs = [ (perl.withPackages(p: [ p.DevelTrace ])) ];
     kernelNixRequiredConfig = lib.kernel.generateNixKConf toCheckAgainst;
     passAsFile = [ "kernelNixGivenConfig" "kernelNixRequiredConfig" ];
 
+    ignoreConfigErrors=1;
     # expect a structured config
     # KERNEL_CONFIG really is KERNEL_REQUIRED_CONFIG
     #  pkgs/os-specific/linux/kernel/check-config.pl
@@ -15796,12 +15801,13 @@ in
   }
   # KERNEL_CONFIG="$kernelNixGivenConfigPath" \
     # FINAL_CONFIG is a .config
+    #  perl -d:Trace
     ''
       echo $kernelNixGivenConfigPath
         DEBUG=1 \
-          KERNEL_CONFIG="$kernelNixGivenConfigPath" \
+          KERNEL_CONFIG="$kernelConfigFilename" \
            FINAL_CONFIG="$kernelNixRequiredConfigPath" \
-           SRC=. perl -w ${../os-specific/linux/kernel/check-config.pl}
+           SRC=. perl -d:Trace -w ${../os-specific/linux/kernel/check-config.pl}
     ''
   ;
 
