@@ -2,6 +2,7 @@
 # , version ? null
 }:
 
+# TODO do without
 with lib;
 rec {
   /* generate nix intermediate kernel config file of the form
@@ -51,22 +52,26 @@ rec {
   module   = { tristate    = "m"; };
   freeform = x: { freeform = x; };
 
+  # the idea here is we use these settings to build a structured config
   isYes = option: {
     assertion = config: config.isYes option;
     message = "CONFIG_${option} is not yes!";
     configLine = "CONFIG_${option}=y";
+    structured = { option = yes; };
   };
 
   isNo = option: {
     assertion = config: config.isNo option;
     message = "CONFIG_${option} is not no!";
     configLine = "CONFIG_${option}=n";
+    structured = { option = no; };
   };
 
   isModule = option: {
     assertion = config: config.isModule option;
     message = "CONFIG_${option} is not built as a module!";
     configLine = "CONFIG_${option}=m";
+    structured = { option = module; };
   };
 
   ### Usually you will just want to use these two
@@ -75,6 +80,7 @@ rec {
     assertion = config: config.isEnabled option;
     message = "CONFIG_${option} is not enabled!";
     configLine = "CONFIG_${option}=y";
+    structured = { option = yes; };
   };
 
   # True if no or omitted
@@ -82,6 +88,7 @@ rec {
     assertion = config: config.isDisabled option;
     message = "CONFIG_${option} is not disabled!";
     configLine = "CONFIG_${option}=n";
+    structured = { option = no; };
   };
 
 }

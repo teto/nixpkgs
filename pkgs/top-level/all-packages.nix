@@ -15795,50 +15795,17 @@ in
 
       inherit kernelConfigFilename;
 
-      ignoreConfigErrors=1;
+      ignoreConfigErrors=true;
       # expect a structured config
       # KERNEL_CONFIG really is KERNEL_REQUIRED_CONFIG
-      #  pkgs/os-specific/linux/kernel/check-config.pl
-      # these derivations will be built:
-    # /nix/store/0m8m80cxlz5xrzrl6w2zz71nparnrbgh-linux-config-check-test.drv
-  # building '/nix/store/0m8m80cxlz5xrzrl6w2zz71nparnrbgh-linux-config-check-test.drv'...
-  # unpacking sources
-  # variable $src or $srcs should point to the source
     }
-    # KERNEL_CONFIG="$kernelNixGivenConfigPath" \
-    # FINAL_CONFIG is a .config
-    #  perl -d:Trace
     ''
-      echo "kernelConfigFilename=$kernelConfigFilename"
         DEBUG=1 \
-          KERNEL_CONFIG="$kernelConfigFilename" \
-           FINAL_CONFIG="$kernelNixRequiredConfigPath" \
+          KERNEL_CONFIG="$kernelNixRequiredConfigPath" \
+           FINAL_CONFIG="$kernelConfigFilename" \
            SRC=. perl -w ${../os-specific/linux/kernel/check-config.pl}
     ''
   ;
-
-  /*
-  simple convenience to just test the code faster
-  */
-  checkKernelConfigTest = let
-    # alread flattened
-    # genericCfg = import ../os-specific/linux/kernel/common-config.nix {
-    #   inherit (linux_latest) stdenv version ;
-    #   # otherwise common-config crashes
-    #   features = { xen_dom0 = false; };
-    # };
-
-    # this one has been processed yet
-    # genericCfg = linux_latest.configfile.passthru.structuredConfig;
-    genericCfg = linux_latest.configfile.outPath;
-    requiredConfig = {
-      IDE = lib.kernel.yes;
-    };
-  in checkKernelConfig (builtins.trace "hello" genericCfg) requiredConfig;
-  # linuxCheckKernelConfig = structuredConfig: kernel:
-  #   runCommand
-  # {
-  # }
 
   /* Linux kernel modules are inherently tied to a specific kernel.  So
      rather than provide specific instances of those packages for a

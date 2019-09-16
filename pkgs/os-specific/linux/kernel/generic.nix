@@ -160,6 +160,10 @@ let
 
     installPhase = "mv $buildRoot/.config $out";
 
+    checkPhase = ''
+      perl -w ${./check-config.pl}
+    '';
+
     enableParallelBuilding = true;
 
     passthru = rec {

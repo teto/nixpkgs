@@ -292,6 +292,7 @@ in
           };
       };
 
+    # we don't need this anymore do we ?
     lib.kernelConfig = args.lib.kernel;
 
     # The config options that all modules can depend upon
@@ -303,15 +304,23 @@ in
       # ++ (optional config.boot.kernel.checkPackageConfig requiredKernelConfigFromPackages config.environment.systemPackages)
     ;
 
-    # nixpkgs kernels are assumed to have all required features
-    # if config.boot.kernelPackages.kernel ? features then [] else
+    /*
+      Build a structured config from isYes/isNo commands
+      then check this structuredConfig against the final kernel config
+     */
     # TODO this should be run against configfile.kernelConfig
     # could use passthru.structuredConfig from kernel.
     # config.boot.kernelPackages.kernel.config contains nothing
-    assertions =
-      let cfg = builtins.trace config.boot.kernelPackages.kernel.config config.boot.kernelPackages.kernel.config; in map (attrs:
-        { assertion = attrs.assertion cfg; inherit (attrs) message; }
-      ) config.system.requiredKernelConfig;
+    assertions = let
+      requiredKernelStructuredConfig =
+        map (attrs: attrs.structured) config.system.requiredKernelConfig;
+      in
+        checkKernelConfig kernel.configfile.outPath requiredKernelStructuredConfig;
+
+      # builtins.trace config.boot.kernelPackages.kernel.config
+      # let cfg =  config.boot.kernelPackages.kernel.config; in map (attrs:
+      #   { assertion = attrs.assertion cfg; inherit (attrs) message; }
+      # ) config.system.requiredKernelConfig;
 
   };
 
