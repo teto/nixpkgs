@@ -304,6 +304,14 @@ in
       # ++ (optional config.boot.kernel.checkPackageConfig requiredKernelConfigFromPackages config.environment.systemPackages)
     ;
 
+    # vieux modele qui repond a
+    assertions = let
+        # correspond a config = { CONFIG_MODULES = "y"; CONFIG_FW_LOADER = "m"; };
+        cfg = config.boot.kernelPackages.kernel.config;
+      in map (attrs:
+        { assertion = attrs.assertion cfg; inherit (attrs) message; }
+      ) config.system.requiredKernelConfig;
+
     /*
       Build a structured config from isYes/isNo commands
       then check this structuredConfig against the final kernel config
@@ -311,11 +319,19 @@ in
     # TODO this should be run against configfile.kernelConfig
     # could use passthru.structuredConfig from kernel.
     # config.boot.kernelPackages.kernel.config contains nothing
-    assertions = let
-      requiredKernelStructuredConfig =
-        map (attrs: attrs.structured) config.system.requiredKernelConfig;
-      in
-        checkKernelConfig kernel.configfile.outPath requiredKernelStructuredConfig;
+    #assertions = let
+    #  requiredKernelStructuredConfig =
+    #    map (attrs: attrs.structured) config.system.requiredKernelConfig;
+    #  in
+    #    #
+    #    [
+    #      {
+    #        # tryEval or the exitCode ?
+    #        assertion = pkgs.checkKernelConfig kernel.configfile.outPath requiredKernelStructuredConfig;
+    #        message = "your configuration seems to miss"
+    #      }
+    #    ]
+
 
       # builtins.trace config.boot.kernelPackages.kernel.config
       # let cfg =  config.boot.kernelPackages.kernel.config; in map (attrs:
