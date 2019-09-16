@@ -12,9 +12,11 @@ my $debug = $ENV{'DEBUG'};
 my %answers;
 my %requiredAnswers;
 my $ignoreConfigErrors = $ENV{'ignoreConfigErrors'};
-my $expectedAnswers = $ENV{KERNEL_CONFIG};
-
-print STDERR "Reading answers from $expectedAnswers";
+my $expectedAnswers = $ENV{'KERNEL_CONFIG'};
+my $finalConfig = $ENV{'FINAL_CONFIG'};
+# print STDERR "GOT: $line" if $debug;
+print STDERR "Reading answers from $expectedAnswers\n";
+print STDERR "Reading final config from $finalConfig\n";
 
 open ANSWERS, "<$expectedAnswers" or die "Could not open answer file";
 while (<ANSWERS>) {
@@ -32,7 +34,7 @@ close ANSWERS;
 
 
 my %config;
-open CONFIG, "<$ENV{FINAL_CONFIG}" or die "Could not read .config";
+open CONFIG, "<$finalConfig" or die "Could not read .config";
 while (<CONFIG>) {
     chomp;
     if (/^CONFIG_([A-Za-z0-9_]+)="(.*)"$/) {
@@ -48,6 +50,7 @@ close CONFIG;
 
 # TODO here add the possibility to compare "e" with "y" and "m"
 foreach my $name (sort (keys %answers)) {
+    print STDERR "checking $name\n";
     my $f = $requiredAnswers{$name} && $ignoreConfigErrors ne "1"
         ? sub { die "error: " . $_[0]; } : sub { warn "warning: " . $_[0]; };
     &$f("unused option: $name\n") unless defined $config{$name};

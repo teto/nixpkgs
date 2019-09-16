@@ -15779,35 +15779,41 @@ in
     # this could be a runCommandNoCC
    # stdenv.mkDerivation rec {
 
-  pkgs.runCommandNoCC "linux-config-check" {
-    pname = "linux-config-check";
-    version = "test";
-    # inherit version;
+    pkgs.runCommandNoCC "linux-config-check" {
+      pname = "linux-config-check";
+      version = "test";
+      # inherit version;
 
-    # convert structured to str
-    buildInputs = [ (perl.withPackages(p: [ p.DevelTrace ])) ];
-    kernelNixRequiredConfig = lib.kernel.generateNixKConf toCheckAgainst;
-    passAsFile = [ "kernelNixGivenConfig" "kernelNixRequiredConfig" ];
+      # convert structured to str
+      # buildInputs = [ (perl.withPackages(p: [ p.DevelTrace ])) ];
+      buildInputs = [ perl ];
+      kernelNixRequiredConfig = lib.kernel.generateNixKConf toCheckAgainst;
+      # "kernelNixGivenConfig"
+      passAsFile = [
+        "kernelNixRequiredConfig"
+      ];
 
-    ignoreConfigErrors=1;
-    # expect a structured config
-    # KERNEL_CONFIG really is KERNEL_REQUIRED_CONFIG
-    #  pkgs/os-specific/linux/kernel/check-config.pl
-    # these derivations will be built:
-  # /nix/store/0m8m80cxlz5xrzrl6w2zz71nparnrbgh-linux-config-check-test.drv
-# building '/nix/store/0m8m80cxlz5xrzrl6w2zz71nparnrbgh-linux-config-check-test.drv'...
-# unpacking sources
-# variable $src or $srcs should point to the source
-  }
-  # KERNEL_CONFIG="$kernelNixGivenConfigPath" \
+      inherit kernelConfigFilename;
+
+      ignoreConfigErrors=1;
+      # expect a structured config
+      # KERNEL_CONFIG really is KERNEL_REQUIRED_CONFIG
+      #  pkgs/os-specific/linux/kernel/check-config.pl
+      # these derivations will be built:
+    # /nix/store/0m8m80cxlz5xrzrl6w2zz71nparnrbgh-linux-config-check-test.drv
+  # building '/nix/store/0m8m80cxlz5xrzrl6w2zz71nparnrbgh-linux-config-check-test.drv'...
+  # unpacking sources
+  # variable $src or $srcs should point to the source
+    }
+    # KERNEL_CONFIG="$kernelNixGivenConfigPath" \
     # FINAL_CONFIG is a .config
     #  perl -d:Trace
     ''
-      echo $kernelNixGivenConfigPath
+      echo "kernelConfigFilename=$kernelConfigFilename"
         DEBUG=1 \
           KERNEL_CONFIG="$kernelConfigFilename" \
            FINAL_CONFIG="$kernelNixRequiredConfigPath" \
-           SRC=. perl -d:Trace -w ${../os-specific/linux/kernel/check-config.pl}
+           SRC=. perl -w ${../os-specific/linux/kernel/check-config.pl}
     ''
   ;
 
@@ -15823,7 +15829,8 @@ in
     # };
 
     # this one has been processed yet
-    genericCfg = linux_latest.configfile.passthru.structuredConfig;
+    # genericCfg = linux_latest.configfile.passthru.structuredConfig;
+    genericCfg = linux_latest.configfile.outPath;
     requiredConfig = {
       IDE = lib.kernel.yes;
     };
