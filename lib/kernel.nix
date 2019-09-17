@@ -43,6 +43,11 @@ rec {
     else val; # FIXME: fix quoting one day
 
 
+  /*
+   */
+  loadConfig =
+    builtins.match ''^CONFIG_([A-Za-z0-9_]+)="(.*)"$'' ''CONFIG_NLS_DEFAULT="utf8"''
+
   # Keeping these around in case we decide to change this horrible implementation :)
   option = x:
       x // { optional = true; };
