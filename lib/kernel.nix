@@ -78,10 +78,9 @@ rec {
       in
         optional (match != null) match;
     in
-      # builtins.trace x
-      # (x: lib.traceVal (parseLine x)
-      # (lib.traceVal
-      listToAttrs (foldr (line: prev: (parseLine line) ++ prev) [] lines );
+      # (parseLine line)
+      # (x: lib.traceVal (parseLine x))
+      listToAttrs (foldr (line: prev: (lib.traceVal (parseLine line)) ++ prev) [] lines );
 
   # Keeping these around in case we decide to change this horrible implementation :)
   option = x:

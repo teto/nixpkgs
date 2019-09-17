@@ -307,7 +307,8 @@ in
     # vieux modele qui repond a
     assertions = let
         # correspond a config = { CONFIG_MODULES = "y"; CONFIG_FW_LOADER = "m"; };
-        cfg = config.boot.kernelPackages.kernel.config;
+        # cfg = config.boot.kernelPackages.kernel.config;
+        cfg = lib.kernel.loadConfig config.boot.kernelPackages.kernel.configfile;
       in map (attrs:
         { assertion = attrs.assertion cfg; inherit (attrs) message; }
       ) config.system.requiredKernelConfig;
