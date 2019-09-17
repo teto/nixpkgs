@@ -1,6 +1,4 @@
-{ lib
-# , version ? null
-}:
+{ lib }:
 
 # TODO do without
 with lib;
@@ -52,8 +50,11 @@ rec {
    */
   loadConfig = configFilename: let
 
-    readLines = builtins.trace "splitting strings" splitString "\n" (builtins.readFile configFilename);
-    # readLines = [
+    # readLines = builtins.trace "splitting strings" splitString "\n" (builtins.readFile configFilename);
+    lines = filter (x: builtins.typeOf x == "string")
+        (builtins.split "\n" (builtins.readFile configFilename));
+
+    # lines = [
     #   ''CONFIG_NLS_DEFAULT="utf8"''
     #   ''CONFIG_THREAD_INFO_IN_TASK=y''
     #   ''# CONFIG_LOCALVERSION_AUTO is not set''
@@ -64,19 +65,23 @@ rec {
         match_freeform = builtins.match ''^CONFIG_([A-Za-z0-9_]+)="(.*)"$'' line;
         match_tristate = builtins.match ''^CONFIG_([A-Za-z0-9_]+)=(.*)$'' line;
         match_unset = builtins.match ''^# CONFIG_([A-Za-z0-9_]+) is not set$'' line;
-      in
-        if (match_freeform != null && (length match_freeform == 2) ) then
+        match = if (match_freeform != null && (length match_freeform == 2) ) then
           nameValuePair (head match_freeform) (last match_freeform)
         else if (match_tristate != null && (length match_tristate == 2)) then
           nameValuePair (head match_tristate) (last match_tristate)
         else if (match_unset != null) then
           nameValuePair (head match_unset) "n"
         else
-          {}
+          null
         ;
-    in
 
-    builtins.listToAttrs (map parseLine readLines );
+      in
+        optional (match != null) match;
+    in
+      # builtins.trace x
+      # (x: lib.traceVal (parseLine x)
+      # (lib.traceVal
+      listToAttrs (foldr (line: prev: (parseLine line) ++ prev) [] lines );
 
   # Keeping these around in case we decide to change this horrible implementation :)
   option = x:
