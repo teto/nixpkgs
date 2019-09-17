@@ -45,8 +45,20 @@ rec {
 
   /*
    */
-  loadConfig =
-    builtins.match ''^CONFIG_([A-Za-z0-9_]+)="(.*)"$'' ''CONFIG_NLS_DEFAULT="utf8"''
+  loadConfig = configFilename: let
+    parseLine = line:
+
+        # String options have double quotes, e.g. 'CONFIG_NLS_DEFAULT="utf8"' and allow escaping.
+      match_freeform = builtins.match ''^CONFIG_([A-Za-z0-9_]+)="(.*)"$'' line;
+      match_tristate = builtins.match ''^CONFIG_([A-Za-z0-9_]+)=(.*)$'' line;
+      match_unset = builtins.match
+
+    } elsif (/^CONFIG_([A-Za-z0-9_]+)=(.*)$/) {
+        $config{$1} = $2;
+    } elsif (/^# CONFIG_([A-Za-z0-9_]+) is not set$/) {
+        $config{$1} = "n";
+    in
+    splitString "\n" (builtins.readFile configFilename);
 
   # Keeping these around in case we decide to change this horrible implementation :)
   option = x:
