@@ -44,21 +44,39 @@ rec {
 
 
   /*
+    Converts the kernel final configuration file into a structured nix config
+    Example:
+      loadConfig linux.configfile.outPath
+    returns
+        { IDE = "y"; ... }
    */
   loadConfig = configFilename: let
+
+    readLines = builtins.trace "splitting strings" splitString "\n" (builtins.readFile configFilename);
+    # readLines = [
+    #   ''CONFIG_NLS_DEFAULT="utf8"''
+    #   ''CONFIG_THREAD_INFO_IN_TASK=y''
+    #   ''# CONFIG_LOCALVERSION_AUTO is not set''
+    # ];
     parseLine = line:
-
+      let
         # String options have double quotes, e.g. 'CONFIG_NLS_DEFAULT="utf8"' and allow escaping.
-      match_freeform = builtins.match ''^CONFIG_([A-Za-z0-9_]+)="(.*)"$'' line;
-      match_tristate = builtins.match ''^CONFIG_([A-Za-z0-9_]+)=(.*)$'' line;
-      match_unset = builtins.match
-
-    } elsif (/^CONFIG_([A-Za-z0-9_]+)=(.*)$/) {
-        $config{$1} = $2;
-    } elsif (/^# CONFIG_([A-Za-z0-9_]+) is not set$/) {
-        $config{$1} = "n";
+        match_freeform = builtins.match ''^CONFIG_([A-Za-z0-9_]+)="(.*)"$'' line;
+        match_tristate = builtins.match ''^CONFIG_([A-Za-z0-9_]+)=(.*)$'' line;
+        match_unset = builtins.match ''^# CONFIG_([A-Za-z0-9_]+) is not set$'' line;
+      in
+        if (match_freeform != null && (length match_freeform == 2) ) then
+          nameValuePair (head match_freeform) (last match_freeform)
+        else if (match_tristate != null && (length match_tristate == 2)) then
+          nameValuePair (head match_tristate) (last match_tristate)
+        else if (match_unset != null) then
+          nameValuePair (head match_unset) "n"
+        else
+          {}
+        ;
     in
-    splitString "\n" (builtins.readFile configFilename);
+
+    builtins.listToAttrs (map parseLine readLines );
 
   # Keeping these around in case we decide to change this horrible implementation :)
   option = x:
