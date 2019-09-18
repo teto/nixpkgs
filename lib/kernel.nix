@@ -82,7 +82,8 @@ rec {
       in
         match;
     in
-      foldr (line: prev: (lib.traceVal (parseLine line)) // prev) {} lines ;
+    # (lib.traceVal (parseLine line))
+      builtins.foldl' (prev: line: prev // (parseLine line) ) {} lines ;
 
   # Keeping these around in case we decide to change this horrible implementation :)
   option = x:
