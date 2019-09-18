@@ -66,21 +66,23 @@ rec {
         match_tristate = builtins.match ''^CONFIG_([A-Za-z0-9_]+)=(.*)$'' line;
         match_unset = builtins.match ''^# CONFIG_([A-Za-z0-9_]+) is not set$'' line;
         match = if (match_freeform != null && (length match_freeform == 2) ) then
-          nameValuePair (head match_freeform) (last match_freeform)
+          # nameValuePair (head match_freeform) (last match_freeform)
+          { "${head match_freeform}" = last match_freeform; }
         else if (match_tristate != null && (length match_tristate == 2)) then
-          nameValuePair (head match_tristate) (last match_tristate)
+          # nameValuePair (head match_tristate) (last match_tristate)
+          { "${head match_tristate}" = last match_tristate; }
         else if (match_unset != null) then
-          nameValuePair (head match_unset) "n"
+          # nameValuePair (head match_unset) "n"
+          { "${head match_unset}" = "n"; }
         else
-          null
+          # null
+          {}
         ;
 
       in
-        optional (match != null) match;
+        match;
     in
-      # (parseLine line)
-      # (x: lib.traceVal (parseLine x))
-      listToAttrs (foldr (line: prev: (lib.traceVal (parseLine line)) ++ prev) [] lines );
+      foldr (line: prev: (lib.traceVal (parseLine line)) // prev) {} lines ;
 
   # Keeping these around in case we decide to change this horrible implementation :)
   option = x:
