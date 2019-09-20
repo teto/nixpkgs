@@ -101,8 +101,6 @@ stdenv.mkDerivation rec {
   # ;
 
 
-  NIX_DEBUG = 8;
-
   postInstall = ''
     moveToOutput "${pythonEnv.libPrefix}" "$py"
   '';
