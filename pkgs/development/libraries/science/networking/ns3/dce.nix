@@ -11,7 +11,8 @@
 , lib
 , fetchurl
 , withManual ? false
-, withExamples ? false, openssl ? null
+# while in theory we could disable it, it won't build (yet) without the examples
+, withExamples ? true, openssl ? null
 # generate bindings
 , pythonSupport ? false
 , ns3modules ? [ "core" "network" "internet" "point-to-point" "fd-net-device"
