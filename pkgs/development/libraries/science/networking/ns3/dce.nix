@@ -1,6 +1,7 @@
 # some dependencies need to be patched
 # http://code.nsnam.org/bake/file/c502b48053dc/bakeconf.xml
-{ stdenv, fetchFromGitHub, autoreconfHook, libtool, intltool, pkgconfig
+{ stdenv, fetchFromGitHub
+, pkgconfig
 , ns-3
 , wafHook
 , castxml ? null
@@ -10,21 +11,22 @@
 , lib
 , fetchurl
 , withManual ? false
-, withExamples ? false, openssl ? null, ccnd ? null, iperf2 ? null
-# shall we generate bindings
+, withExamples ? false, openssl ? null
+# generate bindings
 , pythonSupport ? false
 , ns3modules ? [ "core" "network" "internet" "point-to-point" "fd-net-device"
   "point-to-point-layout" "netanim" "tap-bridge" "mobility" "flow-monitor"]
-, ...
 }:
 
 let
   dce-version = "1.10";
 
+  wafHook3 = wafHook.override({ inherit python;});
+
   ns3forDce = ns-3.override( { inherit python; modules = ns3modules; });
 
   pythonEnv = python.withPackages(ps:
-    stdenv.lib.optional withManual ps.sphinx
+    lib.optional withManual ps.sphinx
     ++ lib.optionals pythonSupport (with ps;[ pybindgen pygccxml ])
   );
 
@@ -42,36 +44,33 @@ let
         name   = "dce";
     };
 
-    # sourceRoot = "dce";
+    nativeBuildInputs = [ wafHook3 pkgconfig ];
 
     buildInputs = [ ns3forDce pythonEnv ]
       ++ lib.optionals pythonSupport [ castxml ncurses ]
       ++ lib.optionals withExamples [ openssl ]
       ;
 
-    nativeBuildInputs = [ pkgconfig ];
-
     doCheck = true;
 
-    patchPhase = ''
-      patchShebangs test.py
-    '';
+    # patchPhase = ''
+    #   patchShebangs test.py
+    # '';
 
+    # "--prefix=$out"
     wafConfigureFlags = with stdenv.lib; [
       "--with-ns3=${ns3forDce}"
-
+      "--with-python=${pythonEnv.interpreter}"
     ]
     ++ optional (!withExamples) "--disable-examples"
     ++ optional (!doCheck) " --disable-tests"
     ;
 
-    configurePhase = ''
-      runHook preConfigure
-
-      ${pythonEnv.interpreter} ./waf configure --prefix=$out \
-      --with-python=${pythonEnv.interpreter} \
-      runHook postConfigure
-    '';
+    # configurePhase = ''
+    #   runHook preConfigure
+    #   ${pythonEnv.interpreter} ./waf configure  \
+    #   runHook postConfigure
+    # '';
 
     buildPhase=''
       ${pythonEnv.interpreter} ./waf build
@@ -83,11 +82,12 @@ let
     #   export DCE_PATH=${iperf-dce}/bin
     # '';
 
-    meta = {
-      homepage = https://www.nsnam.org/overview/projects/direct-code-execution;
-      license = stdenv.lib.licenses.gpl3;
+    meta = with stdenv.lib; {
+      homepage = "https://www.nsnam.org/overview/projects/direct-code-execution";
+      license = licenses.gpl3;
       description = "Run real applications/network stacks in the simulator ns-3";
-      platforms = with stdenv.lib.platforms; unix;
+      platforms = platforms.unix;
+      maintainers = with maintainers; [ teto ];
     };
   };
 in

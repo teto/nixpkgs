@@ -24810,10 +24810,9 @@ in
 
   ns-3 = callPackage ../development/libraries/science/networking/ns-3 { python = python3; };
 
-  ns-3-dce = callPackage ../development/libraries/science/networking/ns3/dce.nix { python=python3; };
-
-  dce-quagga = dce.override { withQuagga = true; };
-
+  ns-3-dce = callPackage ../development/libraries/science/networking/ns3/dce.nix {
+    python = python3;
+  };
 
   root = callPackage ../applications/science/misc/root {
     python = python3;
