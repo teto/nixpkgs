@@ -67,12 +67,6 @@ let
     ++ optional (!doCheck) " --disable-tests"
     ;
 
-    # configurePhase = ''
-    #   runHook preConfigure
-    #   ${pythonEnv.interpreter} ./waf configure  \
-    #   runHook postConfigure
-    # '';
-
     buildPhase=''
       ${pythonEnv.interpreter} ./waf build
     '';
