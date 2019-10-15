@@ -48,6 +48,7 @@ luaffi,,http://luarocks.org/dev,,,
 luafilesystem,,,1.7.0-2,,flosse vcunat
 luaossl,,,,lua5_1,vcunat
 luaposix,,,,,vyp lblasc
+luarocks,,,,,teto
 luasec,,,,,flosse
 luasocket,,,,,
 luasql-sqlite3,,,,,vyp

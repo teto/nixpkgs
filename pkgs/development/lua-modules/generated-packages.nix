@@ -1022,6 +1022,25 @@ luaposix = buildLuarocksPackage {
     };
   };
 };
+luarocks = buildLuarocksPackage {
+  pname = "luarocks";
+  version = "3.2.1-1";
+
+  src = fetchurl {
+    url    = mirror://luarocks/luarocks-3.2.1-1.src.rock;
+    sha256 = "10dr4jmdirgd3zycdj033h7jaa1lza3fqzard28zddwkj1p41p91";
+  };
+  checkInputs = [ luacov ];
+
+  meta = with stdenv.lib; {
+    homepage = "http://www.luarocks.org";
+    description = "A package manager for Lua modules.";
+    maintainers = with maintainers; [ teto ];
+    license = {
+      fullName = "MIT";
+    };
+  };
+};
 luasec = buildLuarocksPackage {
   pname = "luasec";
   version = "0.8-1";
