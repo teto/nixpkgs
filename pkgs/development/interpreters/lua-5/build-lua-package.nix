@@ -143,7 +143,7 @@ builtins.removeAttrs attrs ["disabled" "checkInputs" "externalDeps"] // {
 
   name = namePrefix + name;
 
-  buildInputs = [ wrapLua lua.pkgs.luarocks ]
+  buildInputs = [ wrapLua lua.pkgs.luarocks_bootstrap ]
     ++ buildInputs
     ++ lib.optionals doCheck checkInputs
     ++ (map (d: d.dep) externalDeps')

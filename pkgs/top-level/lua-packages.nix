@@ -93,11 +93,13 @@ with self; {
     inherit lua; inherit (pkgs) makeSetupHook makeWrapper;
   };
 
-  luarocks = callPackage ../development/tools/misc/luarocks {
+  luarocks_bootstrap = callPackage ../development/tools/misc/luarocks {
     inherit lua;
   };
 
-  luarocks-nix = callPackage ../development/tools/misc/luarocks/luarocks-nix.nix { };
+  luarocks-nix = callPackage ../development/tools/misc/luarocks/luarocks-nix.nix {
+    luarocks = luarocks_bootstrap;
+  };
 
   luxio = buildLuaPackage rec {
     name = "luxio-${version}";
