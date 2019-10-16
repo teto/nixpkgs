@@ -8791,7 +8791,7 @@ in
 
   luajit = luajit_2_1;
 
-  luarocks = luaPackages.luarocks;
+  # luarocks = luaPackages.luarocks_bootstrap;
   luarocks-nix = luaPackages.luarocks-nix;
 
   toluapp = callPackage ../development/tools/toluapp {

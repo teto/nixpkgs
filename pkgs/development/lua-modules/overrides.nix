@@ -211,6 +211,18 @@ with super;
     ];
   });
 
+  luarocks2 = super.luarocks_bootstrap.overrideAttrs(oa: {
+    inherit (super.luarocks) src doCheck checkInputs;
+    # checkInputs
+    # inherit (prev.luarocks_bootstrap) nativeBuildInputs;
+    #
+    # preConfigure = ''
+    #   '';
+    # externalDeps = [
+    #   { name = "OPENSSL"; dep = pkgs.openssl; }
+    # ];
+  });
+
   luasec = super.luasec.override({
     externalDeps = [
       { name = "OPENSSL"; dep = pkgs.openssl; }
