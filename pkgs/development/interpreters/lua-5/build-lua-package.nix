@@ -145,14 +145,13 @@ builtins.removeAttrs attrs ["disabled" "checkInputs" "externalDeps"] // {
 
   buildInputs = [ wrapLua lua.pkgs.luarocks_bootstrap ]
     ++ buildInputs
-    # ++ lib.optionals doCheck checkInputs
+    ++ lib.optionals doCheck checkInputs
     ++ (map (d: d.dep) externalDeps')
     ;
 
   # propagate lua to active setup-hook in nix-shell
   propagatedBuildInputs = propagatedBuildInputs ++ [ lua ];
   inherit doCheck;
-  inherit checkInputs;
 
   # @-patterns do not capture formal argument default values, so we need to
   # explicitly inherit this for it to be available as a shell variable in the
