@@ -12944,6 +12944,8 @@ in
 
   libuv = callPackage ../development/libraries/libuv {
     inherit (darwin.apple_sdk.frameworks) ApplicationServices CoreServices;
+    # inherit (python3Packages) sphinx;
+    sphinx = python3Packages.sphinx;
   };
 
   libv4l = lowPrio (v4l-utils.override {

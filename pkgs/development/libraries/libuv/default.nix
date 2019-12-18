@@ -1,4 +1,7 @@
-{ stdenv, lib, fetchFromGitHub, autoconf, automake, libtool, pkgconfig, ApplicationServices, CoreServices }:
+{ stdenv, lib, fetchFromGitHub, autoconf, automake, libtool, pkgconfig
+, ApplicationServices, CoreServices
+, withDoc ? true, sphinx
+}:
 
 stdenv.mkDerivation rec {
   version = "1.33.1";
@@ -10,6 +13,8 @@ stdenv.mkDerivation rec {
     rev = "v${version}";
     sha256 = "13w60g9pc6998v8plslwpwn7f1hx3c1y4zhgmw025nyd504h5lak";
   };
+
+  outputs = ["out" "man" "devdoc"];
 
   postPatch = let
     toDisable = [
@@ -50,11 +55,24 @@ stdenv.mkDerivation rec {
       sed '/${tdRegexp}/d' -i test/test-list.h
     '';
 
-  nativeBuildInputs = [ automake autoconf libtool pkgconfig ];
+  nativeBuildInputs = [
+    automake autoconf libtool pkgconfig
+  ]
+  ++ stdenv.lib.optional withDoc sphinx
+  ;
+
   buildInputs = stdenv.lib.optionals stdenv.isDarwin [ ApplicationServices CoreServices ];
 
   preConfigure = ''
     LIBTOOLIZE=libtoolize ./autogen.sh
+  '';
+
+  postBuild = ''
+    make man -C docs
+  '';
+
+  postInstall = ''
+    moveToOutput docs/build/man/libuv.1 "$man"
   '';
 
   enableParallelBuilding = true;
