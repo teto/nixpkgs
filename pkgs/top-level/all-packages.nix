@@ -24810,7 +24810,15 @@ in
 
   ns-3 = callPackage ../development/libraries/science/networking/ns-3 { python = python3; };
 
+  elf-loader = callPackage ../development/libraries/science/networking/ns3/elf-loader.nix {
+    python = python3;
+  };
+
   ns-3-dce = callPackage ../development/libraries/science/networking/ns3/dce.nix {
+    python = python3;
+  };
+
+  net-next-sim = callPackage ../development/libraries/science/networking/ns3/net-next-sim.nix {
     python = python3;
   };
 

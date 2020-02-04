@@ -87,19 +87,6 @@ stdenv.mkDerivation rec {
     in "${flags}"
   ;
 
-  postInstall = ''
-    moveToOutput "${pythonEnv.libPrefix}" "$py"
-  '';
-  # # to prevent fatal error: 'backward_warning.h' file not found
-  # CXXFLAGS = "-D_GLIBCXX_PERMIT_BACKWARD_HASH";
-
-  # postBuild = with stdenv.lib; let flags = concatStringsSep ";" (
-  #     optional enableDoxygen "./waf doxygen"
-  #     ++ optional withManual "./waf sphinx"
-  #   );
-  #   in "${flags}"
-  # ;
-
 
   postInstall = ''
     moveToOutput "${pythonEnv.libPrefix}" "$py"

@@ -75,6 +75,8 @@ let
     wafConfigureFlags = with stdenv.lib; [
       "--with-ns3=${ns3forDce}"
       "--with-python=${pythonEnv.interpreter}"
+      # "--with-elf-loader"
+
     ]
     ++ optional (!withExamples) "--disable-examples"
     ++ optional (!doCheck) " --disable-tests"
