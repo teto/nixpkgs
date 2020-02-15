@@ -39,6 +39,9 @@ in {
   allowImportFromDerivation ? false,
   # ignored
   features ? null,
+
+  # to allow dce to override this
+  platform ? stdenv.hostPlatform.platform,
 }:
 
 let

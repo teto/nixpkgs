@@ -9,7 +9,8 @@
 }:
 
 let
-  my_libc = enableDebugging glibc;
+  #enableDebugging
+  my_libc = (enableDebugging glibc).debug;
 in
 stdenv.mkDerivation {
 
