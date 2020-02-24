@@ -271,45 +271,77 @@ with super;
     '';
   });
 
-  luv = pkgs.stdenv.mkDerivation rec {
-
-    pname = super.luv.pname;
-    version = super.luv.version;
-
+  luv = let
     src = pkgs.fetchFromGitHub {
-      owner = "luvit";
-      repo = pname;
-      rev = version;
-      sha256 = "0lg3kncaka1mx18k0w4wsylsa6xnp7m11n68wgn38sph7f2nn1x9";
+      owner = "teto";
+      repo = "luv";
+      # rev = version;
+      rev = "93b4baebcfa18caf737c9d3d2f0b8c7f0366b527";
+      sha256 = "sha256-LcMb4xtQR16iIZKB7RspBlFpAvgESg6MWIJQ8DNZPjE=";
     };
+    # src = builtins.fetchGit {
+    #   url = https://github.com/teto/luv.git;
+    #   ref = "nix_fix";
+    #   # rev = "93b4baebcfa18caf737c9d3d2f0b8c7f0366b527";
+    #   # sha256 = "0lg3kncaka1mx18k0w4wsylsa6xnp7m11n68wgn38sph7f2nn1x9";
+    # };
+
+  in (super.luv.override({
+    # knownRockspec = "${src}/luv-scm-0.rockspec";
+    # dontUnpack = true;
 
     # So we can be sure no internal dependency is used from the repo and that
     # everything is provided by us
-    postUnpack = ''
-     rm -rf deps
+    # sourceRoot = ".";
+    unpackPhase = ''
+      cp -r ${src}/* .
+      runHook postUnpack
     '';
 
-    cmakeFlags = [
-      "-DWITH_SHARED_LIBUV=ON"
-      "-DLUA_BUILD_TYPE=System"
-      "-DBUILD_MODULE=OFF"
-      "-DBUILD_SHARED_LIBS=ON"
-      "-DLUA_COMPAT53_DIR=${super.lua.pkgs.compat53}"
-    ];
+
+    EXTRA_CMDS="WITH_SHARED_LIBUV=ON";
+    # preConfigurePhase = ''
+    #   cmakeConfigurePhase()
+    # '';
+
+    # il faut garder le deps
+    # postUnpack = ''
+    #   chmod -R +w deps
+    #   rm -rf deps
+    #   '';
+
+    # cmakeFlags = [
+    #   "-DWITH_SHARED_LIBUV=ON"
+    #   "-DLUA_BUILD_TYPE=System"
+    #   "-DBUILD_MODULE=ON"
+    #   "-DBUILD_SHARED_LIBS=ON"
+    #   # "-DLUA_COMPAT53_DIR=${super.lua.pkgs.compat53}"
+    # ];
+    extraVariables= ''
+      WITH_SHARED_LIBUV="ON",
+      LUA_BUILD_TYPE="System",
+      BUILD_MODULE="ON",
+      BUILD_SHARED_LIBS="ON",
+    '';
 
     buildInputs = [ pkgs.libuv ];
 
     nativeBuildInputs = [
-      pkgs.cmake
-      super.lua.pkgs.compat53
+      pkgs.pkg-config
+      # super.lua.pkgs.compat53
     ];
     # Fixup linking libluv.dylib, for some reason it's not linked against lua correctly.
-    NIX_LDFLAGS = pkgs.lib.optionalString pkgs.stdenv.isDarwin
-      (if isLuaJIT then "-lluajit-${lua.luaversion}" else "-llua");
-    propagatedBuildInputs = [ lua ];
+    # NIX_LDFLAGS = pkgs.lib.optionalString pkgs.stdenv.isDarwin
+    #   (if isLuaJIT then "-lluajit-${lua.luaversion}" else "-llua");
 
-    meta = super.luv.meta;
-  };
+
+  })).overrideAttrs(oa: {
+    NIX_DEBUG=8;
+
+    sourceRoot=".";
+    inherit src;
+
+  });
 
   rapidjson = super.rapidjson.override({
     preBuild = ''

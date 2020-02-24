@@ -56,8 +56,10 @@ name ? "${attrs.pname}-${attrs.version}"
 # Appended to the generated luarocks config
 , extraConfig ? ""
 # Inserted into the generated luarocks config in the "variables" table
+# to be used as cmake flags for instance
 , extraVariables ? ""
 # The two above arguments have access to builder variables -- e.g. to $out
+, EXTRA_CMDS ? ""
 
 # relative to srcRoot, path to the rockspec to use when using rocks
 , rockspecFilename ?  "../*.rockspec"
@@ -199,7 +201,7 @@ builtins.removeAttrs attrs ["disabled" "checkInputs" "externalDeps"] // {
         LUAROCKS="$LUAROCKS --verbose"
     fi
 
-    patchShebangs .
+    # patchShebangs .
 
     runHook postBuild
   '';
@@ -224,7 +226,7 @@ builtins.removeAttrs attrs ["disabled" "checkInputs" "externalDeps"] // {
 
     nix_debug "ROCKSPEC $rockspecFilename"
     nix_debug "cwd: $PWD"
-    $LUAROCKS make --deps-mode=all --tree=$out ''${rockspecFilename}
+    $LUAROCKS make --deps-mode=all --tree=$out ''${rockspecFilename} ${EXTRA_CMDS}
 
     runHook postInstall
   '';
