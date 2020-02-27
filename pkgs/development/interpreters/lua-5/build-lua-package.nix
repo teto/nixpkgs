@@ -160,7 +160,6 @@ builtins.removeAttrs attrs ["disabled" "checkInputs" "externalDeps" "extraVariab
   # explicitly inherit this for it to be available as a shell variable in the
   # builder
   inherit rockspecFilename;
-  inherit rocksSubdir;
 
   # enabled only for src.rock
   setSourceRoot= let
