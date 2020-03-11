@@ -270,27 +270,40 @@ with super;
     # is not possible with luarocks and the current luv rockspec
     # While at it, remove bundled libuv source entirely to be sure.
     # We may wish to drop bundled lua submodules too...
-    preBuild = ''
-     sed -i 's,\(option(WITH_SHARED_LIBUV.*\)OFF,\1ON,' CMakeLists.txt
-     rm -rf deps/libuv
-    '';
+    # preBuild = ''
+    #  sed -i 's,\(option(WITH_SHARED_LIBUV.*\)OFF,\1ON,' CMakeLists.txt
+    #  rm -rf deps/libuv
+    # '';
 
     buildInputs = [ pkgs.libuv ];
 
+    cmakeFlags = [
+      "-DWITH_SHARED_LIBUV=ON"
+      "-DLUA_BUILD_TYPE=System"
+      "-DBUILD_MODULE=ON"
+      "-DBUILD_SHARED_LIBS=ON"
+    ];
+
+    NIX_DEBUG = 8;
+    # this makes bash crash
+    preBuild = ''
+      cmakeConfigurePhase
+    '';
+
     passthru = {
-      libluv = self.luv.override ({
-        preBuild = self.luv.preBuild + ''
-          sed -i 's,\(option(BUILD_MODULE.*\)ON,\1OFF,' CMakeLists.txt
-          sed -i 's,\(option(BUILD_SHARED_LIBS.*\)OFF,\1ON,' CMakeLists.txt
-          sed -i 's,${"\${INSTALL_INC_DIR}"},${placeholder "out"}/include/luv,' CMakeLists.txt
-        '';
+      # libluv = self.luv.override ({
+      #   preBuild = self.luv.preBuild + ''
+      #     sed -i 's,\(option(BUILD_MODULE.*\)ON,\1OFF,' CMakeLists.txt
+      #     sed -i 's,\(option(BUILD_SHARED_LIBS.*\)OFF,\1ON,' CMakeLists.txt
+      #     sed -i 's,${"\${INSTALL_INC_DIR}"},${placeholder "out"}/include/luv,' CMakeLists.txt
+      #   '';
 
-        nativeBuildInputs = [ pkgs.fixDarwinDylibNames ];
+      #   nativeBuildInputs = [ pkgs.fixDarwinDylibNames ];
 
-        # Fixup linking libluv.dylib, for some reason it's not linked against lua correctly.
-        NIX_LDFLAGS = pkgs.lib.optionalString pkgs.stdenv.isDarwin
-          (if isLuaJIT then "-lluajit-${lua.luaversion}" else "-llua");
-      });
+      #   # Fixup linking libluv.dylib, for some reason it's not linked against lua correctly.
+      #   NIX_LDFLAGS = pkgs.lib.optionalString pkgs.stdenv.isDarwin
+      #     (if isLuaJIT then "-lluajit-${lua.luaversion}" else "-llua");
+      # });
     };
   });
 

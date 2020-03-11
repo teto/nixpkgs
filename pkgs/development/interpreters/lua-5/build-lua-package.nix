@@ -65,6 +65,9 @@ name ? "${attrs.pname}-${attrs.version}"
 # must be set for packages that don't have a rock
 , knownRockspec ? null
 
+#
+, buildType ? "default"
+
 , ... } @ attrs:
 
 

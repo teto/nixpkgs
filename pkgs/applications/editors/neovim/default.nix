@@ -44,7 +44,8 @@ in
       libtermkey
       libuv
       libvterm-neovim
-      lua.pkgs.luv.libluv
+      # lua.pkgs.luv.libluv
+      lua.pkgs.luv
       msgpack
       ncurses
       neovimLuaEnv
