@@ -274,19 +274,48 @@ with super;
     #  sed -i 's,\(option(WITH_SHARED_LIBUV.*\)OFF,\1ON,' CMakeLists.txt
     #  rm -rf deps/libuv
     # '';
+    postUnpack = ''
+      rm -rf deps
+    '';
 
+    nativeBuildInputs = [pkgs.cmake];
     buildInputs = [ pkgs.libuv ];
-
+    # luarocks accepts it
+    # CMAKE_MODULE_PATH="./cmake/Modules"
     cmakeFlags = [
+      # should be done automatically, let's remove
+      # "-DCMAKE_MODULE_PATH=./cmake/Modules"
       "-DWITH_SHARED_LIBUV=ON"
       "-DLUA_BUILD_TYPE=System"
       "-DBUILD_MODULE=ON"
       "-DBUILD_SHARED_LIBS=ON"
+      "-DBUILD_STATIC_LIBS=ON"
     ];
 
-    NIX_DEBUG = 8;
+    NIX_DEBUG = 1;
     # this makes bash crash
-    preBuild = ''
+    # or replace by builtin
+
+    # changing build system from cmake to builtin with
+    #       sed -i 's,cmake,builtin,g' luv-1.34.2-1.rockspec
+    # generated 'Build error: Missing build.modules table'
+    # TODO generate a wrapper for cmake
+    # maybe generalize it into buildLuarocksPackage
+    # set CMAKE
+    # if not fs.execute_string(rockspec.variables.CMAKE.." -H. -Bbuild.luarocks "..args) then
+    # variables = {
+      # CMAKE=$( cmake ''${cmakeDir:-.} $cmakeFlags "''${cmakeFlagsArray[@]}")
+    dontUseCmakeBuildDir=true;
+    preBuild =
+      # let
+                # makeWrapper "$path/bin/$prg" "$out/bin/$prg" --suffix LUA_PATH ';' "$LUA_PATH"   --suffix LUA_CPATH ';' "$LUA_CPATH" ${stdenv.lib.concatStringsSep " " makeWrapperArgs}
+      # cmakeWrapper = pkgs.writeShell
+      # rm -rf deps
+
+    ''
+
+
+      # cmakeBuildFlags()
       cmakeConfigurePhase
     '';
 

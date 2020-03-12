@@ -12,24 +12,7 @@ fixCmakeFiles() {
         done
 }
 
-cmakeConfigurePhase() {
-    runHook preConfigure
-
-    export CTEST_OUTPUT_ON_FAILURE=1
-    if [ -n "${enableParallelChecking-1}" ]; then
-        export CTEST_PARALLEL_LEVEL=$NIX_BUILD_CORES
-    fi
-
-    if [ -z "${dontFixCmake-}" ]; then
-        fixCmakeFiles .
-    fi
-
-    if [ -z "${dontUseCmakeBuildDir-}" ]; then
-        mkdir -p build
-        cd build
-        cmakeDir=${cmakeDir:-..}
-    fi
-
+cmakeBuildFlags() {
     if [ -z "${dontAddPrefix-}" ]; then
         cmakeFlags="-DCMAKE_INSTALL_PREFIX=$prefix $cmakeFlags"
     fi
@@ -102,6 +85,27 @@ cmakeConfigurePhase() {
         cmakeFlags="-GNinja $cmakeFlags"
     fi
 
+}
+
+cmakeConfigurePhase() {
+    runHook preConfigure
+
+    export CTEST_OUTPUT_ON_FAILURE=1
+    if [ -n "${enableParallelChecking-1}" ]; then
+        export CTEST_PARALLEL_LEVEL=$NIX_BUILD_CORES
+    fi
+
+    if [ -z "${dontFixCmake-}" ]; then
+        fixCmakeFiles .
+    fi
+
+    if [ -z "${dontUseCmakeBuildDir-}" ]; then
+        mkdir -p build
+        cd build
+        cmakeDir=${cmakeDir:-..}
+    fi
+
+    cmakeBuildFlags
     echo "cmake flags: $cmakeFlags ${cmakeFlagsArray[@]}"
 
     cmake ${cmakeDir:-.} $cmakeFlags "${cmakeFlagsArray[@]}"
