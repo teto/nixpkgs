@@ -41,10 +41,15 @@ stdenv.mkDerivation {
     sha256 = "sha256-EE6DlcTqGj7c0vLbp5KHTO5QFxiGc60oViDVbLsJYSM=";
   };
 
-  inherit (linux) buildInputs nativeBuildInputs;
+  inherit (linux) buildInputs;
 
+  # python to run generate-linker-script.py
+  nativeBuildInputs = linux.nativeBuildInputs ++ [ python ];
 
+  # ARCH_DIR=
   configurePhase = ''
+    runHook preConfigure
+    echo "$PWD"
     make defconfig ARCH=lib
   '';
 
@@ -52,6 +57,7 @@ stdenv.mkDerivation {
     make library ARCH=lib
   '';
 
+  doCheck = false;
   checkPhase = ''
     make testbin -C arch/lib/test
     make test ARCH=lib
