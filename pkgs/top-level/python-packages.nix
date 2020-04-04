@@ -1069,6 +1069,8 @@ in {
   pulumi-gcp = callPackage ../development/python-modules/pulumi-gcp { };
 
   pulumi-kubernetes = callPackage ../development/python-modules/pulumi-kubernetes { };
+
+  pulumi-random = callPackage ../development/python-modules/pulumi-random { };
   backcall = callPackage ../development/python-modules/backcall { };
 
   backoff = callPackage ../development/python-modules/backoff { };
