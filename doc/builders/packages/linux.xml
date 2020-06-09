@@ -9,7 +9,7 @@ xlink:href="https://github.com/NixOS/nixpkgs/blob/master/pkgs/os-specific/linux/
  </para>
 
  <para>
-  The function that builds the kernel has an argument <varname>kernelPatches</varname> which should be a list of <literal>{name, patch, extraConfig}</literal> attribute sets, where <varname>name</varname> is the name of the patch (which is included in the kernel’s <varname>meta.description</varname> attribute), <varname>patch</varname> is the patch itself (possibly compressed), and <varname>extraConfig</varname> (optional) is a string specifying extra options to be concatenated to the kernel configuration file (<filename>.config</filename>).
+  The function that builds the kernel has an argument <varname>kernelPatches</varname> which should be a list of <literal>{name, patch, extraStructuredConfig }</literal> attribute sets, where <varname>name</varname> is the name of the patch (which is included in the kernel’s <varname>meta.description</varname> attribute), <varname>patch</varname> is the patch itself (possibly compressed), and <varname>extraStructuredConfig</varname> (optional) is a string specifying extra options to be concatenated to the kernel configuration file (<varname>extraConfig</varname> is a string specifying extra options to be concatenated to the kernel configuration file (<filename>.config</filename>).
  </para>
 
  <para>
