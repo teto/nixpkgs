@@ -35,6 +35,8 @@ self: super: {
 	# hackish fix
 	bitset = appendConfigureFlag super.bitset "--with-gcc=${pkgs.gcc}/bin/gcc";
 
+	cairo = addBuildDepends super.cairo [pkgs.pkg-config pkgs.glib pkgs.cairo];
+
   # Some Hackage packages reference this attribute, which exists only in the
   # GHCJS package set. We provide a dummy version here to fix potential
   # evaluation errors.

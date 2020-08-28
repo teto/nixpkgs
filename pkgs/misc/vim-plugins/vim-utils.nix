@@ -352,13 +352,52 @@ let
   ${customRC}
   '';
   vimrcFile = settings: writeText "vimrc" (vimrcContent settings);
+  # ex vimrcFile
+
+  # TODO packdir
+  # rcs of the type
+  # {
+  #   "after/toto.vim" = ...
+  #    colors/myscheme.vim"
+  #   parsers/c.so
+  # }
+  # for lang in "c" "bash" "json" ; do
+	# cp $(nix-build -A tree-sitter.builtGrammars."$lang" ~/nixpkgs)/parser config/nvim/parser/${lang}.so
+# done
+
+  # TODO put plugin in it too
+  vimRuntime = { parsers ? [], ... }@settings:
+    stdenv.mkDerivation {
+      name = "vim-parsers";
+      src = ./.;
+      installPhase = ''
+        mkdir -p parser/
+      '' ++ lib.concatStringsSep "\n"
+      # (lib.flatten (lib.mapAttrsToList packageLinks packages));
+      # TODO adapt extension for platform
+      (map (parser: "cp ${parser}/parser parser/${parser.name}.so") parsers)
+      ;
+      preferLocalBuild = true;
+    };
+
+    # buildEnv {
+    #     inherit name;
+    #     paths = [
+    #       vimWrapperScript
+    #     ]
+    #     # ++ lib.optional wrapGui gvimWrapperScript
+    #     #   ++ lib.optional wrapManual vimManPages
+    #     ;
+    #   };
+
 
 in
 
 rec {
   inherit vimrcFile;
   inherit vimrcContent;
-
+  inherit vimRuntime;
+  # vimWithFolder = {
   # shell script with custom name passing [-u vimrc] [-U gvimrc] to vim
   vimWithRC = {
     vimExecutable,

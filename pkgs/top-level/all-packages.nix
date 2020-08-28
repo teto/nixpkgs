@@ -23505,7 +23505,14 @@ in
 
   linkerd = callPackage ../applications/networking/cluster/linkerd { };
 
-  kubernetes-helm = callPackage ../applications/networking/cluster/helm { };
+  kubernetes-helm-unwrapped = callPackage ../applications/networking/cluster/helm { };
+
+  # or a withPlugins function as passthrough ?
+  wrapHelm = callPackage ../applications/networking/cluster/helm/wrapper.nix { };
+
+  kubernetes-helm = wrapHelm helm;
+
+  kubernetes-helmPlugins = dontRecurseIntoAttrs (callPackage ../applications/networking/cluster/helm/plugins { });
 
   wrapHelm = callPackage ../applications/networking/cluster/helm/wrapper.nix { };
 
