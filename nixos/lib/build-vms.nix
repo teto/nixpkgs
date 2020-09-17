@@ -67,7 +67,7 @@ rec {
                       prefixLength = 24;
                       # copied from qemu-flags / virtualisation.qemu.options a bit later
                   } ];
-                  macAddress = "52:54:00:12:${zeroPad snd}:${zeroPad machineId}";
+                  # macAddress = "52:54:00:12:${zeroPad snd}:${zeroPad machineId}";
                 });
             in
             { key = "ip-address";

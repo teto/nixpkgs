@@ -8,6 +8,90 @@ let
     (_: lib.warn "passing a list as extraPythonPackages to the neovim wrapper is deprecated, pass a function as to python.withPackages instead" funOrList)
     else funOrList);
 
+#  type = with types; attrsOf (submodule (
+#    { name, config, ... }:
+#    { options = {
+#
+#        enable = mkOption {
+#          type = types.bool;
+#          default = true;
+#          description = ''
+#            Whether this /etc file should be generated.  This
+#            option allows specific /etc files to be disabled.
+#          '';
+#        };
+#
+#        target = mkOption {
+#          type = types.str;
+#          description = ''
+#            Name of symlink (relative to
+#            <filename>/etc</filename>).  Defaults to the attribute
+#            name.
+#          '';
+#        };
+#
+#        text = mkOption {
+#          default = null;
+#          type = types.nullOr types.lines;
+#          description = "Text of the file.";
+#        };
+#
+#        source = mkOption {
+#          type = types.path;
+#          description = "Path of the source file.";
+#        };
+#
+#        # mode = mkOption {
+#        #   type = types.str;
+#        #   default = "symlink";
+#        #   example = "0600";
+#        #   description = ''
+#        #     If set to something else than <literal>symlink</literal>,
+#        #     the file is copied instead of symlinked, with the given
+#        #     file mode.
+#        #   '';
+#        # };
+#
+#        # uid = mkOption {
+#        #   default = 0;
+#        #   type = types.int;
+#        #   description = ''
+#        #     UID of created file. Only takes effect when the file is
+#        #     copied (that is, the mode is not 'symlink').
+#        #     '';
+#        # };
+#
+#        # gid = mkOption {
+#        #   default = 0;
+#        #   type = types.int;
+#        #   description = ''
+#        #     GID of created file. Only takes effect when the file is
+#        #     copied (that is, the mode is not 'symlink').
+#        #   '';
+#        # };
+#
+#        # user = mkOption {
+#        #   default = "+${toString config.uid}";
+#        #   type = types.str;
+#        #   description = ''
+#        #     User name of created file.
+#        #     Only takes effect when the file is copied (that is, the mode is not 'symlink').
+#        #     Changing this option takes precedence over <literal>uid</literal>.
+#        #   '';
+#        # };
+#
+#        # group = mkOption {
+#        #   default = "+${toString config.gid}";
+#        #   type = types.str;
+#        #   description = ''
+#        #     Group name of created file.
+#        #     Only takes effect when the file is copied (that is, the mode is not 'symlink').
+#        #     Changing this option takes precedence over <literal>gid</literal>.
+#        #   '';
+#        # };
+#
+#      };
+
   buildHaskellEnv = locs: defs:
     haskellPackages.ghcWithPackages(hs:
     # builtins.trace "haskellPackages"

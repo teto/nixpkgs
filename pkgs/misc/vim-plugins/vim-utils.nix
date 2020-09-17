@@ -368,7 +368,7 @@ let
   # TODO put plugin in it too
   vimRuntime = { parsers ? [], ... }@settings:
     stdenv.mkDerivation {
-      name = "vim-parsers";
+      name = "vim-runtime";
       src = ./.;
       installPhase = ''
         mkdir -p parser/
