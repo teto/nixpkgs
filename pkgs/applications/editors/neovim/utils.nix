@@ -1,4 +1,5 @@
 { lib
+, pkgs
 , vimUtils
 , nodejs
 , neovim-unwrapped
@@ -10,6 +11,27 @@
 , wrapNeovimUnstable
 }:
 let
+
+
+  runtime' = lib.filter (f: f.enable) (lib.attrValues runtimeDefault);
+
+  # taken from the etc module
+  runtimeDefault = let
+    temp = pkgs.stdenvNoCC.mkDerivation {
+      name = "runtime";
+
+      builder = ../system/etc/make-etc.sh;
+
+      preferLocalBuild = true;
+      allowSubstitutes = false;
+
+      sources = map (x: x.source) runtime';
+      targets = map (x: x.target) runtime';
+    };
+  in
+    temp;
+
+
   # returns everything needed for the caller to wrap its own neovim:
   # - the generated content of the future init.vim
   # - the arguments to wrap neovim with
@@ -29,6 +51,22 @@ let
     , extraPython3Packages ? (_: [ ])
     , withNodeJs ? false
     , withRuby ? true
+
+    # replace configure
+    # a list of plugin configuration
+    # {
+    #    plugin =
+    #    customRC =
+    #    optional =
+    # }
+    # TODO these should be moved to vim instead ?
+    , plugins ? []
+    # replace configure.customRC ?
+    , customRC ? ""
+    # neovim can be configured via lua too !
+    , luaRC ? ""
+    # same as /etc or as in the neovim module
+    , runtime ? runtimeDefault
 
     # same values as in vimUtils.vimrcContent
     , configure ? { }

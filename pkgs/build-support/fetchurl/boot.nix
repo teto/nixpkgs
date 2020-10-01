@@ -6,7 +6,8 @@ let mirrors = import ./mirrors.nix; in
 , urls ? []
 , sha256
 , name ? baseNameOf (toString url)
-}:
+, ...
+} @ args:
 
 import <nix/fetchurl.nix> {
   inherit system sha256 name;

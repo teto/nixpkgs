@@ -21,10 +21,10 @@ buildGoModule rec {
 
   buildFlagsArray = [ "-ldflags=-s -w -X github.com/roboll/helmfile/pkg/app/version.Version=${version}" ];
 
-  postInstall = ''
-    wrapProgram $out/bin/helmfile \
-      --prefix PATH : ${lib.makeBinPath [ kubernetes-helm ]}
-  '';
+  # postInstall = ''
+  #   wrapProgram $out/bin/helmfile \
+  #     --prefix PATH : ${lib.makeBinPath [ kubernetes-helm ]}
+  # '';
 
   meta = {
     description = "Deploy Kubernetes Helm charts";

@@ -352,7 +352,6 @@ let
   ${customRC}
   '';
   vimrcFile = settings: writeText "vimrc" (vimrcContent settings);
-  # ex vimrcFile
 
   # TODO packdir
   # rcs of the type

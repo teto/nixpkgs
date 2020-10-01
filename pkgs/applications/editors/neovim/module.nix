@@ -481,18 +481,6 @@ in
       '';
     };
 
-    # optionalPlugins = mkOption {
-    #   type = types.attrsOf vimPlugin;
-    #   example = literalExample ''
-    #     [ phpCompletion elm-vim ]
-    #   }'';
-    #   # default = [];
-    #   default = configure.optionalPlugins or [];
-    #   description = ''
-    #     Plugins made manually loadable through :packadd <plugin>
-    #   '';
-    # };
-
     extraPython3Packages = mkOption {
       type = with types; extraPython3PackageType;
       default = (_: []);
