@@ -12,7 +12,6 @@
 }:
 let
 
-
   runtime' = lib.filter (f: f.enable) (lib.attrValues runtimeDefault);
 
   # taken from the etc module
@@ -31,6 +30,18 @@ let
   in
     temp;
 
+  genRubyConfig = rubyEnv: {
+    wrapperArgs = [
+      "--set" "GEM_HOME" "${rubyEnv}/${rubyEnv.ruby.gemPath}"
+      "--suffix" "PATH" ":" (lib.makeBinPath rubyEnv)
+    ];
+
+    neovimRc = genProviderSettings true rubyEnv;
+  };
+
+  genPython3Config = provider: {
+    neovimRc = "";
+  };
 
   # returns everything needed for the caller to wrap its own neovim:
   # - the generated content of the future init.vim

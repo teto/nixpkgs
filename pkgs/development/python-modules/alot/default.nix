@@ -24,7 +24,7 @@ buildPythonPackage rec {
   nativeBuildInputs = lib.optional withManpage sphinx;
 
   propagatedBuildInputs = [
-    notmuch
+    notmuch2
     urwid
     urwidtrees
     twisted

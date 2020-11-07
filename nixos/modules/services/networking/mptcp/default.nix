@@ -6,6 +6,13 @@ let
   cfg = config.networking.mptcp;
 
   mptcpUp = ./mptcp_up_raw;
+
+  linux_mptcp_official = pkgs.linux_latest.override {
+    structuredExtraConfig = with lib.kernel; {
+      MPTCP      = yes;
+      MPTCP_IPV6 = yes;
+    };
+  };
 in
 {
   options.networking.mptcp = {
@@ -16,7 +23,7 @@ in
 
     package = mkOption {
       type = types.package;
-      default = pkgs.linux_mptcp;
+      default = linux_mptcp_official;
       description = ''
         Default mptcp kernel to use.
       '';

@@ -23507,6 +23507,7 @@ in
 
   kubernetes-helm-unwrapped = callPackage ../applications/networking/cluster/helm { };
 
+  # TODO I broke helm: fix it
   # or a withPlugins function as passthrough ?
   wrapHelm = callPackage ../applications/networking/cluster/helm/wrapper.nix { };
 

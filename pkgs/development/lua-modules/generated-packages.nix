@@ -649,19 +649,20 @@ lua-iconv = buildLuarocksPackage {
 };
 lua-lsp = buildLuarocksPackage {
   pname = "lua-lsp";
-  version = "scm-2";
+  version = "scm-5";
 
   knownRockspec = (fetchurl {
-    url    = "mirror://luarocks/lua-lsp-scm-2.rockspec";
-    sha256 = "0qk3i6j0km4d1fs61fxhkmnbxmgpq24nygr8wknl6hbj2kya25rb";
+    url    = "mirror://luarocks/lua-lsp-scm-5.rockspec";
+    sha256 = "19nlnglg50vpz3wmqvnqafajjkqp8f2snqnfmihz3zi5rpdvzjya";
   }).outPath;
 
   src = fetchgit ( removeAttrs (builtins.fromJSON ''{
   "url": "git://github.com/Alloyed/lua-lsp",
-  "rev": "905e71f9a97ea6366deb386503f9d976c87d9bab",
-  "date": "2019-09-22T09:46:00-04:00",
-  "sha256": "1mlgb2dp1ah76hjkbkwz0dp2y5mn491v5wf81nm086rb2fa3rzcg",
-  "fetchSubmodules": true
+  "rev": "91d4772d1cd264f8501c6da2326fc214ab0934f2",
+  "date": "2020-10-31T00:55:09-04:00",
+  "sha256": "10filff5vani6ligv7ls5dgq70k56hql26gv3x101snmw9fkjz57", "fetchSubmodules": true,
+  "deepClone": false,
+  "leaveDotGit": false
 }
  '') ["date"]) ;
 
@@ -670,7 +671,7 @@ lua-lsp = buildLuarocksPackage {
 
   meta = with lib; {
     homepage = "https://github.com/Alloyed/lua-lsp";
-    description = "No summary";
+    description = "A Language Server implementation for lua, the language";
     license.fullName = "MIT";
   };
 };
