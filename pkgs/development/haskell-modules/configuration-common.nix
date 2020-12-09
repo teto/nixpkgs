@@ -20,6 +20,9 @@ self: super: {
   # store. Testing is done upstream.
   arion-compose = dontCheck super.arion-compose;
 
+  size-based = doJailbreak super.size-based;
+  monoid-extra = unmarkBroken super.monoid-extras;
+
   # This used to be a core package provided by GHC, but then the compiler
   # dropped it. We define the name here to make sure that old packages which
   # depend on this library still evaluate (even though they won't compile
