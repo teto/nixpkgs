@@ -25,7 +25,7 @@ rustPlatform.buildRustPackage rec {
 
   cargoSha256 = "sha256:0lxwhb2c16w5z7rqzch0ij8n8hxb5xcin31w9i28mzv1xm7sg8ks";
 
-  cargoBuildFlags = lib.optional withNotmuch "--features=notmuch";
+  cargoBuildFlags = lib.optional withNotmuch "--features=notmuch,jmap";
 
   nativeBuildInputs = [ pkg-config gzip makeWrapper ];
 
