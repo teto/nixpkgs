@@ -8,16 +8,23 @@ helm:
 let
   wrapper = {
     plugins ? [],
+    repositories ? {}, # name = ... / url = ...
     extraMakeWrapperArgs ? ""
   }:
   let
 
-  initialMakeWrapperArgs = [
+    initialMakeWrapperArgs = [
       "${helm}/bin/helm" "${placeholder "out"}/bin/helm"
       "--argv0" "$0"
       "--set" "HELM_PLUGINS" "${pluginsDir}"
+      "--set" "HELM_CONFIG_HOME" confDir
     ];
+
     pluginsDir = concatStringsSep ":" plugins;
+
+    # TODO run helm add repo
+    confDir = "";
+
   in
   symlinkJoin {
     name = "helm-${stdenv.lib.getVersion helm}";
