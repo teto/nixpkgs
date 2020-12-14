@@ -22323,7 +22323,13 @@ in
 
   linkerd = callPackage ../applications/networking/cluster/linkerd { };
 
-  kubernetes-helm = callPackage ../applications/networking/cluster/helm { };
+  kubernetes-helm-unwrapped = callPackage ../applications/networking/cluster/helm { };
+
+  wrapHelm = callPackage ../applications/networking/cluster/helm/wrapper.nix { };
+
+  kubernetes-helm = wrapHelm kubernetes-helm-unwrapped {};
+
+  kubernetes-helmPlugins = dontRecurseIntoAttrs (callPackage ../applications/networking/cluster/helm/plugins { });
 
   kubetail = callPackage ../applications/networking/cluster/kubetail { } ;
 
