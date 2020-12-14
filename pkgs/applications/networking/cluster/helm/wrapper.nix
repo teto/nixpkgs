@@ -1,5 +1,6 @@
 { stdenv, symlinkJoin, lib, makeWrapper
 , writeText
+, runCommandNoCC
 }:
 with stdenv.lib;
 
@@ -12,22 +13,26 @@ let
     extraMakeWrapperArgs ? ""
   }:
   let
-
+    version = stdenv.lib.getVersion helm;
     initialMakeWrapperArgs = [
       "${helm}/bin/helm" "${placeholder "out"}/bin/helm"
       "--argv0" "$0"
       "--set" "HELM_PLUGINS" "${pluginsDir}"
-      "--set" "HELM_CONFIG_HOME" confDir
+      # "--set" "HELM_CONFIG_HOME" confDir
     ];
 
     pluginsDir = concatStringsSep ":" plugins;
 
-    # TODO run helm add repo
-    confDir = "";
+    # TODO this tries to connect via internet :s
+    confDir = runCommandNoCC "helm-config-${version}" {
+      HELM_CONFIG_HOME = "$out";
+    } ''
+      ${helm}/bin/helm repo add elastic https://helm.elastic.co
+    '';
 
   in
   symlinkJoin {
-    name = "helm-${stdenv.lib.getVersion helm}";
+    name = "helm-${version}";
 
     # Remove the symlinks created by symlinkJoin which we need to perform
     # extra actions upon
