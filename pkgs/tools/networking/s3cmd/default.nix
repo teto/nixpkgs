@@ -7,8 +7,8 @@ buildPythonApplication rec {
   src = fetchFromGitHub {
     owner = "s3tools";
     repo = "s3cmd";
-    rev = "v${version}";
-    sha256 = "0p6mbgai7f0c12pkw4s7d649gj1f8hywj60pscxvj9jsna3iifhs";
+    rev = "5834228d5bddde3819a3ae5506dd656b62dfb2d1";
+    sha256 = "sha256-MK5yS+GcWOE2pNIr13GnE6j6SMxiiOfWqOPeBJYDL1E=";
   };
 
   propagatedBuildInputs = [ python_magic dateutil ];
