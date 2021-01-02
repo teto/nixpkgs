@@ -1,7 +1,9 @@
 { lib, stdenv, fetchFromGitHub, meson, ninja, pkg-config, scdoc
 , systemd, pango, cairo, gdk-pixbuf
 , wayland, wayland-protocols
-, wrapGAppsHook }:
+, wrapGAppsHook
+, jq
+}:
 
 stdenv.mkDerivation rec {
   pname = "mako";
@@ -15,7 +17,7 @@ stdenv.mkDerivation rec {
   };
 
   nativeBuildInputs = [ meson ninja pkg-config scdoc wayland-protocols wrapGAppsHook ];
-  buildInputs = [ systemd pango cairo gdk-pixbuf wayland ];
+  buildInputs = [ jq systemd pango cairo gdk-pixbuf wayland ];
 
   mesonFlags = [ "-Dzsh-completions=true" ];
 
