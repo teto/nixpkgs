@@ -29,9 +29,9 @@ stdenv.mkDerivation ({
   rCommand = if requireX then
     # Unfortunately, xvfb-run has a race condition even with -a option, so that
     # we acquire a lock explicitly.
-    "flock ${xvfb_run} xvfb-run -a -e xvfb-error R"
+    "flock ${xvfb_run} xvfb-run -a -e xvfb-error ${R}/bin/R"
   else
-    "R";
+    "${R}/bin/R";
 
   installPhase = ''
     runHook preInstall
