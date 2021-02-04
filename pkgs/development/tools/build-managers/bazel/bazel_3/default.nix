@@ -62,6 +62,7 @@ let
       srcs.rules_cc
       srcs.rules_java
       srcs.rules_proto
+      srcs.com_google_protobuf
       ]);
 
   distDir = runCommand "bazel-deps" {} ''
@@ -527,6 +528,13 @@ stdenv.mkDerivation rec {
         --output=./bazel_src/output/bazel-complete.bash \
         --prepend=./bazel_src/scripts/bazel-complete-header.bash \
         --prepend=./bazel_src/scripts/bazel-complete-template.bash
+
+    # need to change directory for bazel to find the workspace
+    cd ./bazel_src
+    export HOME=$(mktemp -d)
+    # --output_base=./cache
+    ./output/bazel build  src/tools/execlog:all
+    cd -
   '';
 
   installPhase = ''
@@ -537,6 +545,7 @@ stdenv.mkDerivation rec {
     # The binary _must_ exist with this naming if your project contains a .bazelversion
     # file.
     cp ./bazel_src/scripts/packages/bazel.sh $out/bin/bazel
+    cp ./bazel_src/bazel-bin/src/tools/execlog/parser $out/bin/execlog
     mv ./bazel_src/output/bazel $out/bin/bazel-${version}-${system}-${arch}
 
     # shell completion files
