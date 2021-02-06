@@ -1,8 +1,6 @@
 { system
 , # Use a minimal kernel?
   minimal ? false
-, # instrument VM ?
-  instrument ? true
 , # Ignored
   config ? null
 , # Nixpkgs, for qemu, lib and more
@@ -36,12 +34,10 @@ rec {
       modules = configurations ++ extraConfigurations;
       baseModules =  (import ../modules/module-list.nix) ++
         [ ../modules/virtualisation/qemu-vm.nix
+          ../modules/testing/test-instrumentation.nix # !!! should only get added for automated test runs
           { key = "no-manual"; documentation.nixos.enable = false; }
           { key = "nodes"; _module.args.nodes = nodes; }
-        ] ++ optional minimal ../modules/testing/minimal-kernel.nix
-        # !!! should only get added for automated test runs
-        ++ optional instrument ../modules/testing/test-instrumentation.nix
-        ;
+        ] ++ optional minimal ../modules/testing/minimal-kernel.nix ;
     };
 
 

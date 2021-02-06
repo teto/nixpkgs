@@ -4,7 +4,7 @@
 # 3/ start tshark to capture on concerned interfaces while running an iperf session
 # 4/ load the recorded pcap and display the interfaces that received MPTCP traffic
 # 5/ Use shell-foo to make sure it's equal to the number of interfaces of the host
-import ../make-test-python.nix ({ pkgs, ...} :
+import ../make-test-python.nix ({ pkgs, lib, ...} :
 let
   vlans = [ 1 0 ];
 
@@ -19,7 +19,13 @@ let
     networking = {
       networkmanager.enable = true;
       useDHCP = false;
+      interfaces = {
+        eth0 = { useDHCP = false; };
+        eth1 = { useDHCP = false; };
+      };
     };
+
+    networking.dhcpcd.enable = false;  # true by default
 
     environment.systemPackages = with pkgs; [
       iperf3
@@ -42,7 +48,7 @@ let
 in
 {
   name = "networking-mptcp";
-  meta = with pkgs.stdenv.lib.maintainers; {
+  meta = with lib.maintainers; {
     maintainers = [ teto ];
   };
 
