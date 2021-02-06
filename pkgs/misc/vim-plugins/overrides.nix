@@ -74,6 +74,10 @@
   # vCoolor dependency
 , gnome3
 
+  # for markdown preview
+, pandoc
+, poppler
+
   # fruzzy dependency
 , nim
 }:
@@ -115,7 +119,7 @@ self: super: {
     #   # sha256 = "1ccq6akkm8n612ni5g7w7v5gv73g7p1d9i92k0bnsy33fvi3pmnh";
     # };
     # libpoppler-glib.so
-    propagatedBuildInputs = [ pkgs.poppler ];
+    propagatedBuildInputs = [ poppler ];
 
     # concat with ;
     # LUA_CPATH = "${pkgs.poppler}/ rg";
@@ -355,7 +359,7 @@ self: super: {
   });
 
   nvim-markdown-preview = super.nvim-markdown-preview.overrideAttrs(old: {
-    buildInputs = [ nodePackages.live-server pkgs.pandoc ];
+    buildInputs = [ nodePackages.live-server pandoc ];
     preFixup = ''
       substituteInPlace $out/share/vim-plugins/nvim-markdown-preview/ftplugin/markdown.vim --replace "executable('live-server')" \
           "executable('${nodePackages.live-server}/bin/live-server')"
