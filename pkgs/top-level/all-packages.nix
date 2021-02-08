@@ -25831,7 +25831,8 @@ in
     gtk = pkgs.gtk3;
   };
 
-  gnvim = callPackage ../applications/editors/neovim/gnvim/wrapper.nix { };
+  wrapGnvim = callPackage ../applications/editors/neovim/gnvim/wrapper.nix { };
+  gnvim = wrapGnvim neovim;
 
   neovim-remote = callPackage ../applications/editors/neovim/neovim-remote.nix { pythonPackages = python3Packages; };
 
