@@ -19,8 +19,6 @@ stdenv.mkDerivation rec {
     sha256 = "QaOLrtlhQyhMOirk6JO1yMGRrgycHmF9FAdKNbN2TRk=";
   };
 
-  dontUnpack = true;
-
   nativeBuildInputs = [
     autoPatchelfHook
     wrapGAppsHook
@@ -33,15 +31,18 @@ stdenv.mkDerivation rec {
     hicolor-icon-theme
   ];
 
-  installPhase = ''
-    mkdir -p $out/bin $out/share/dbus-1/services
+  buildFlags = [
+    # Exclude stack from `make all` to use the prebuilt binary from .out/
+    "service"
+  ];
 
-    cp $src/.out/${pname} $out/bin/
-    chmod +x $out/bin/${pname}
-
-    sed "s|##PREFIX##|$out|g" $src/${pname}.service.in > \
-      $out/share/dbus-1/services/com.ph-uhl.deadd.notification.service
-  '';
+  makeFlags = [
+    "PREFIX=${placeholder "out"}"
+    "SERVICEDIR_SYSTEMD=${placeholder "out"}/etc/systemd/user"
+    "SERVICEDIR_DBUS=${placeholder "out"}/share/dbus-1/services"
+    # Override systemd auto-detection.
+    "SYSTEMD=1"
+  ];
 
   meta = with lib; {
     description = "A haskell-written notification center for users that like a desktop with style";
