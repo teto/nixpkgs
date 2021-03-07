@@ -369,6 +369,14 @@ self: super: {
       '';
   });
 
+  # packer-nvim = super.packer-nvim.overrideAttrs(old: {
+  #   src = builtins.fetchGit {
+  #     url = "https://github.com/teto/packer.nvim.git";
+  #     ref = "fix-displaywin";
+  #     rev = "c81660d2db70eb17b5204d09fd779bfb2c853ad8";
+  #   };
+  # });
+
   fzf-vim = super.fzf-vim.overrideAttrs (old: {
     dependencies = [ self.fzfWrapper ];
   });

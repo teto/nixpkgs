@@ -23507,15 +23507,7 @@ in
 
   linkerd = callPackage ../applications/networking/cluster/linkerd { };
 
-  kubernetes-helm-unwrapped = callPackage ../applications/networking/cluster/helm { };
-
-  # TODO I broke helm: fix it
-  # or a withPlugins function as passthrough ?
-  wrapHelm = callPackage ../applications/networking/cluster/helm/wrapper.nix { };
-
-  kubernetes-helm = wrapHelm helm;
-
-  kubernetes-helmPlugins = dontRecurseIntoAttrs (callPackage ../applications/networking/cluster/helm/plugins { });
+  kubernetes-helm = callPackage ../applications/networking/cluster/helm { };
 
   wrapHelm = callPackage ../applications/networking/cluster/helm/wrapper.nix { };
 
