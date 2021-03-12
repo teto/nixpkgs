@@ -552,7 +552,9 @@ stdenv.mkDerivation rec {
     # TODO write a wrapper with java
     # TODO so far we export manually
     # export JAVA_RUNFILES=/home/teto/scratch2/bazel_src/bazel-bin/src/tools/execlog; result/bin/execlog
-    cp ./bazel_src/bazel-bin/src/tools/execlog/parser $out/bin/execlog
+    # cp ./bazel_src/bazel-bin/src/tools/execlog/parser $out/bin/execlog_wrapper
+    # should match javaToolChain
+    makeWrapper ./bazel_src/bazel-bin/src/tools/execlog/parser $out/bin/execlog --set JAVABIN ${openjdk} --set JAVA_RUNFILES
     cp ./bazel_src/bazel-bin/src/tools/execlog/parser_deploy.jar $out/bin/execlog_deploy.jar
     mv ./bazel_src/output/bazel $out/bin/bazel-${version}-${system}-${arch}
 
