@@ -22,6 +22,8 @@
 , file
 , substituteAll
 , writeTextFile
+# for execlog
+, openjdk
 }:
 
 let
@@ -554,7 +556,9 @@ stdenv.mkDerivation rec {
     # export JAVA_RUNFILES=/home/teto/scratch2/bazel_src/bazel-bin/src/tools/execlog; result/bin/execlog
     # cp ./bazel_src/bazel-bin/src/tools/execlog/parser $out/bin/execlog_wrapper
     # should match javaToolChain
-    makeWrapper ./bazel_src/bazel-bin/src/tools/execlog/parser $out/bin/execlog --set JAVABIN ${openjdk} --set JAVA_RUNFILES
+    cp ./bazel_src/bazel-bin/src/tools/execlog/parser $out/bin/parser
+    cp -R ./bazel_src/bazel-bin/src/tools/execlog/parser.runfiles $out/share/
+    makeWrapper $out/bin/parser $out/bin/execlog --set JAVABIN '${openjdk}/bin/java' --set JAVA_RUNFILES $out/share/parser.runfiles
     cp ./bazel_src/bazel-bin/src/tools/execlog/parser_deploy.jar $out/bin/execlog_deploy.jar
     mv ./bazel_src/output/bazel $out/bin/bazel-${version}-${system}-${arch}
 
