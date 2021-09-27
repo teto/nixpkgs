@@ -50,7 +50,7 @@ in
   getLuaCPath = drv: getPath drv luaLib.luaCPathList;
 
   inherit (callPackage ../development/interpreters/lua-5/hooks { inherit (args) lib;})
-    lua-setup-hook;
+    lua-setup-hook moveDataFolderHook;
 
   inherit lua callPackage;
   inherit buildLuaPackage buildLuarocksPackage buildLuaApplication;

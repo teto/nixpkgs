@@ -120,6 +120,7 @@ class Repo:
     @retry(urllib.error.URLError, tries=4, delay=3, backoff=2)
     def latest_commit(self) -> Tuple[str, datetime]:
         commit_url = self.url(f"commits/{self.branch}.atom")
+        log.debug("Sending request to %s", commit_url)
         commit_req = make_request(commit_url)
         with urllib.request.urlopen(commit_req, timeout=10) as req:
             self.check_for_redirect(commit_url, req)
@@ -151,16 +152,19 @@ class Repo:
             self.redirect[old_plugin] = new_plugin
 
     def prefetch_git(self, ref: str) -> str:
-        data = subprocess.check_output(
-            ["nix-prefetch-git", "--fetch-submodules", self.url(""), ref]
-        )
-        return json.loads(data)["sha256"]
+        cmd = ["nix-prefetch-git", "--fetch-submodules", self.url(""), ref]
+        log.debug(cmd)
+        data = subprocess.check_output(cmd)
+        return json.loads(data)["sha256"], json.loads(data)["sha256"]
 
     def prefetch_github(self, ref: str) -> str:
-        data = subprocess.check_output(
-            ["nix-prefetch-url", "--unpack", self.url(f"archive/{ref}.tar.gz")]
-        )
-        return data.strip().decode("utf-8")
+        cmd = ["nix-prefetch-url", "--unpack", self.url(f"archive/{ref}.tar.gz"), '--print-path']
+        log.debug(cmd)
+        data = subprocess.check_output(cmd)
+        data = data.strip().decode("utf-8").splitlines()
+        print("line 0: ", data[0])
+        print("line 1: ", data[1])
+        return data[1], data[0]
 
 
 class Plugin:
@@ -170,6 +174,7 @@ class Plugin:
         commit: str,
         has_submodules: bool,
         sha256: str,
+        store_path: str,
         date: Optional[datetime] = None,
     ) -> None:
         self.name = name
@@ -177,6 +182,7 @@ class Plugin:
         self.has_submodules = has_submodules
         self.sha256 = sha256
         self.date = date
+        self.store_path = store_path
 
     @property
     def normalized_name(self) -> str:
@@ -326,20 +332,20 @@ def prefetch_plugin(
     commit, date = repo.latest_commit()
     has_submodules = repo.has_submodules()
     cached_plugin = cache[commit] if cache else None
-    if cached_plugin is not None:
-        log.debug("Cache hit !")
-        cached_plugin.name = alias or repo_name
-        cached_plugin.date = date
-        return cached_plugin, repo.redirect
+    # if cached_plugin is not None:
+    #     log.debug("Cache hit !")
+    #     cached_plugin.name = alias or repo_name
+    #     cached_plugin.date = date
+    #     return cached_plugin, repo.redirect
 
     print(f"prefetch {user}/{repo_name}")
     if has_submodules:
-        sha256 = repo.prefetch_git(commit)
+        plugin_path, sha256 = repo.prefetch_git(commit)
     else:
-        sha256 = repo.prefetch_github(commit)
+        plugin_path, sha256 = repo.prefetch_github(commit)
 
     return (
-        Plugin(alias or repo_name, commit, has_submodules, sha256, date=date),
+        Plugin(alias or repo_name, commit, has_submodules, sha256, store_path=plugin_path, date=date,),
         repo.redirect,
     )
 
@@ -401,6 +407,8 @@ def load_plugin_spec(plugin_file: str) -> List[PluginDesc]:
     plugins = []
     with open(plugin_file) as f:
         for line in f:
+            if line.startswith("#"):
+                continue
             plugin = parse_plugin_line(line)
             if not plugin.owner:
                 msg = f"Invalid repository {line}, must be in the format owner/repo[ as alias]"
@@ -436,11 +444,13 @@ class Cache:
             return {}
 
         downloads: Dict[str, Plugin] = {}
+        log.info("Loading cache file %s", self.cache_file)
         with open(self.cache_file) as f:
             data = json.load(f)
             for attr in data.values():
                 p = Plugin(
-                    attr["name"], attr["commit"], attr["has_submodules"], attr["sha256"]
+                    attr["name"], attr["commit"], attr["has_submodules"],
+                    attr["sha256"], attr["store_path"]
                 )
                 downloads[attr["commit"]] = p
         return downloads

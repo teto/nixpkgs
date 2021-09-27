@@ -4,6 +4,7 @@
 , wrapLua
 # Whether the derivation provides a lua module or not.
 , toLuaModule
+, moveDataFolderHook
 }:
 
 {
@@ -65,6 +66,10 @@ pname
 # must be set for packages that don't have a rock
 , knownRockspec ? null
 
+# configure luarocks to install the module in a flat directory
+# this is mostly done to reuse those packages as a vim package
+, flatInstall ? false
+
 , ... } @ attrs:
 
 
@@ -87,12 +92,23 @@ let
       inherit requiredLuaRocks;
     };
     in
+      # lua_modules_path = "/share/lua/"..lua_version,
+      # lib_modules_path = "/lib/lua/"..lua_version,
+      # rocks_subdir = "/lib/luarocks/rocks-"..lua_version,
+      # rocks_dir = 'matt' is cancelled
+
       ''
       ${generatedConfig}
       ${extraConfig}
-      '';
+      no_manifest = true
+      deps_mode = "all"
+      ''
+      + lib.optionalString flatInstall "lua_modules_path='.'"
+      ;
 
-  rocksSubdir = "${attrs.pname}-${version}-rocks";
+  # rocksSubdir = "${attrs.pname}-${version}-rocks";
+  rocksSubdir = ".";
+  # tree.rocks_dir
 
   # Filter out the lua derivation itself from the Lua module dependency
   # closure, as it doesn't have a rock tree :)
@@ -103,12 +119,22 @@ let
   externalDepsGenerated = lib.unique (lib.filter (drv: !drv ? luaModule) (luarocksDrv.propagatedBuildInputs ++ luarocksDrv.buildInputs));
   externalDeps' = lib.filter (dep: !lib.isDerivation dep) externalDeps;
 
+  installTree = if flatInstall then "$out/$pname" else "$out";
+
   luarocksDrv = toLuaModule ( lua.stdenv.mkDerivation (
+
 builtins.removeAttrs attrs ["disabled" "checkInputs" "externalDeps" "extraVariables"] // {
 
   name = namePrefix + pname + "-" + version;
 
-  buildInputs = [ wrapLua lua.pkgs.luarocks ]
+  # dont move the doc folder
+  forceShare = [ "man" "info" ];
+
+  nativeBuildInputs= [
+      lua.pkgs.luarocks
+      wrapLua
+    ]
+    ++ lib.optional flatInstall moveDataFolderHook
     ++ buildInputs
     ++ lib.optionals doCheck checkInputs
     ++ (map (d: d.dep) externalDeps')
@@ -142,6 +168,7 @@ builtins.removeAttrs attrs ["disabled" "checkInputs" "externalDeps" "extraVariab
     cp ''${knownRockspec} "$rockspecFilename"
   ''
   + ''
+    cat "$LUAROCKS_CONFIG"
     runHook postConfigure
   '';
 
@@ -178,15 +205,17 @@ builtins.removeAttrs attrs ["disabled" "checkInputs" "externalDeps" "extraVariab
 
     nix_debug "ROCKSPEC $rockspecFilename"
     nix_debug "cwd: $PWD"
-    $LUAROCKS make --deps-mode=all --tree=$out ''${rockspecFilename}
+    luarocks $LUAROCKS_EXTRA_ARGS make --deps-mode=all --tree="$installTree" ''${rockspecFilename}
 
     runHook postInstall
+
+    cat "$LUAROCKS_CONFIG"
   '';
 
 
   checkPhase = attrs.checkPhase or ''
     runHook preCheck
-    $LUAROCKS test
+    luarocks $LUAROCKS_EXTRA_ARGS test
     runHook postCheck
   '';
 
@@ -194,6 +223,8 @@ builtins.removeAttrs attrs ["disabled" "checkInputs" "externalDeps" "extraVariab
     inherit lua; # The lua interpreter
     inherit externalDeps;
     inherit luarocks_content;
+    inherit rocksSubdir;
+
   } // passthru;
 
   meta = {

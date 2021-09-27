@@ -95,6 +95,21 @@
 , luaPackages
 }:
 
+let
+  buildNeovimPlugin = luaDrv:
+
+    # toVimPlugin to add doc generation
+    # pkgs.vimUtils.vimGenDocHook
+
+    luaDrv.overrideAttrs(oa: {
+      preInstall=''
+        echo "$PWD"
+        ls -l
+        cp -r . $out
+        '';
+    });
+in
+
 self: super: {
 
   clang_complete = super.clang_complete.overrideAttrs (old: {
@@ -302,9 +317,10 @@ self: super: {
     configurePhase = "cd plugins/nvim";
   });
 
-  gitsigns-nvim = super.gitsigns-nvim.overrideAttrs (old: {
-    dependencies = with self; [ plenary-nvim ];
-  });
+  gitsigns-nvim = buildNeovimPlugin luaPackages.gitsigns-nvim;
+  # super.gitsigns-nvim.overrideAttrs (old: {
+  #   dependencies = with self; [ plenary-nvim ];
+  # });
 
   # plenary-nvim = super.toVimPlugin(luaPackages.plenary-nvim);
 

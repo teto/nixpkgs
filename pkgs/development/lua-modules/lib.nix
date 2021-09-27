@@ -78,7 +78,9 @@ rec {
   generateLuarocksConfig {
     externalDeps = [ { name = "CRYPTO"; dep = pkgs.openssl; } ];
     rocksSubdir = "subdir";
-  };
+    };
+
+  Check https://github.com/luarocks/luarocks/wiki/Config-file-format for the spec
   */
   generateLuarocksConfig = {
     externalDeps
@@ -86,6 +88,8 @@ rec {
     , extraVariables ? {}
     , rocksSubdir
     }: let
+
+      # bin_dir / lua_dir='. / rocks_dir =
       rocksTrees = lib.imap0
         (i: dep: "{ name = [[dep-${toString i}]], root = '${dep}', rocks_dir = '${dep}/${dep.rocksSubdir}' }")
         requiredLuaRocks;

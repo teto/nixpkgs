@@ -21,6 +21,7 @@ import logging
 import textwrap
 from typing import List, Tuple
 from pathlib import Path
+import glob
 
 log = logging.getLogger()
 log.addHandler(logging.StreamHandler())
@@ -51,7 +52,40 @@ HEADER = (
 )
 
 
+def generate_nix_for_plugin(owner, repo, plugin):
+    if plugin.has_submodules:
+        submodule_attr = "\n      fetchSubmodules = true;"
+    else:
+        submodule_attr = ""
+
+    content = (textwrap.indent(textwrap.dedent(f"""
+    {plugin.normalized_name} = buildVimPluginFrom2Nix {{
+        pname = "{plugin.name}";
+        version = "{plugin.version}";
+        src = fetchFromGitHub {{
+        owner = "{owner}";
+        repo = "{repo}";
+        rev = "{plugin.commit}";
+        sha256 = "{plugin.sha256}";{submodule_attr}
+        }};
+        meta.homepage = "https://github.com/{owner}/{repo}/";
+    }};
+    """), '  '))
+    # TODO check for a rockspec
+    print("Checking for rockspec")
+    for result in glob.glob(plugin.store_path + "/*.rockspec"):
+        log.info("TOTO")
+        print("Found a rockspec ! ")
+        print(result)
+        # TODO call luarocks-nix on it
+    content += "\n}\n"
+    return content
+
 class VimEditor(pluginupdate.Editor):
+    @property
+    def attr_path(self):
+        return "vimPlugins"
+
     def generate_nix(self, plugins: List[Tuple[str, str, pluginupdate.Plugin]], outfile: str):
         sorted_plugins = sorted(plugins, key=lambda v: v[2].name.lower())
 
@@ -64,27 +98,8 @@ class VimEditor(pluginupdate.Editor):
                 {"""
             ))
             for owner, repo, plugin in sorted_plugins:
-                if plugin.has_submodules:
-                    submodule_attr = "\n      fetchSubmodules = true;"
-                else:
-                    submodule_attr = ""
-
-                f.write(textwrap.indent(textwrap.dedent(
-                    f"""
-  {plugin.normalized_name} = buildVimPluginFrom2Nix {{
-    pname = "{plugin.name}";
-    version = "{plugin.version}";
-    src = fetchFromGitHub {{
-      owner = "{owner}";
-      repo = "{repo}";
-      rev = "{plugin.commit}";
-      sha256 = "{plugin.sha256}";{submodule_attr}
-    }};
-    meta.homepage = "https://github.com/{owner}/{repo}/";
-  }};
-"""
-                ), '  '))
-            f.write("\n}\n")
+                content = generate_nix_for_plugin(owner, repo, plugin)
+                f.write(content)
         print(f"updated {outfile}")
 
 

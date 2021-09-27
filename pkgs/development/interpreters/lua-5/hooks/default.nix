@@ -24,4 +24,13 @@ in {
       mv hook.sh $out
     '';
 
+  moveDataFolderHook = callPackage ({}:
+    makeSetupHook {
+      name = "lua-move-data-folder";
+      deps = [];
+      substitutions = {
+        # inherit pythonSitePackages;
+      };
+    } ./move-data-hook.sh) {};
+
 }
