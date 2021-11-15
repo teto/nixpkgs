@@ -69,7 +69,6 @@ def generate_nix_for_plugin(owner, repo, plugin):
         sha256 = "{plugin.sha256}";{submodule_attr}
         }};
         meta.homepage = "https://github.com/{owner}/{repo}/";
-    }};
     """), '  '))
     # TODO check for a rockspec
     print("Checking for rockspec")
@@ -78,7 +77,7 @@ def generate_nix_for_plugin(owner, repo, plugin):
         print("Found a rockspec ! ")
         print(result)
         # TODO call luarocks-nix on it
-    content += "\n}\n"
+    content += "\n}};\n"
     return content
 
 class VimEditor(pluginupdate.Editor):

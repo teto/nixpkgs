@@ -596,9 +596,10 @@ self: super: {
     dependencies = with self; [ sqlite-lua telescope-nvim ];
   });
 
-  telescope-frecency-nvim = super.telescope-frecency-nvim.overrideAttrs (old: {
-    dependencies = with self; [ sqlite-lua telescope-nvim ];
-  });
+  telescope-frecency-nvim = buildNeovimPlugin telescope-frecency-nvim;
+  # telescope-frecency-nvim = super.telescope-frecency-nvim.overrideAttrs (old: {
+  #   dependencies = with self; [ sqlite-lua telescope-nvim ];
+  # });
 
   telescope-fzf-writer-nvim = super.telescope-fzf-writer-nvim.overrideAttrs (old: {
     dependencies = with self; [ telescope-nvim ];

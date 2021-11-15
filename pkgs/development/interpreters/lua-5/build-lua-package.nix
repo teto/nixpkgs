@@ -96,18 +96,20 @@ let
       # lib_modules_path = "/lib/lua/"..lua_version,
       # rocks_subdir = "/lib/luarocks/rocks-"..lua_version,
       # rocks_dir = 'matt' is cancelled
+      # deps_mode = "all"
 
       ''
       ${generatedConfig}
       ${extraConfig}
       no_manifest = true
-      deps_mode = "all"
       ''
       + lib.optionalString flatInstall "lua_modules_path='.'"
       ;
 
-  # rocksSubdir = "${attrs.pname}-${version}-rocks";
-  rocksSubdir = ".";
+
+
+  rocksSubdir = if flatInstall then "." else "${attrs.pname}-${version}-rocks";
+  # rocksSubdir = ".";
   # tree.rocks_dir
 
   # Filter out the lua derivation itself from the Lua module dependency
