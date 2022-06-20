@@ -998,6 +998,10 @@ self: super: {
     });
   });
 
+  vim-dadbod-ui = super.vim-dadbod-ui.overrideAttrs (old: {
+    dependencies = with self; [ vim-dadbod ];
+  });
+
   vim-dasht = super.vim-dasht.overrideAttrs (old: {
     preFixup = ''
       substituteInPlace $out/autoload/dasht.vim \
