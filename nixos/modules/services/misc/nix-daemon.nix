@@ -10,11 +10,11 @@ let
 
   isNixAtLeast = versionAtLeast (getVersion nixPackage);
 
-  remoteBuilder = import ./remote-builder.nix;
+  # remoteBuilder = import ./remote-builder.nix;
 
-  renderRemoteBuilder = machine: (lib.evalModules {
-    modules = [ ../modules/services/misc/remote-builder.nix machine ] ;
-  }).config.rendered;
+  # renderRemoteBuilder = machine: (lib.evalModules {
+  #   modules = [ ../modules/services/misc/remote-builder.nix machine ] ;
+  # }).config.rendered;
 
   makeNixBuildUser = nr: {
     name = "nixbld${toString nr}";
@@ -227,7 +227,7 @@ in
       buildMachines = mkOption {
         #
         # remoteBuilder.machineSubmodule;
-        type = types.listOf (types.submodule ./remote-builder.nix);
+        type = types.listOf (types.submodule ./remote-builder.nix { isNixAtLeastPre24 = (isNixAtLeast "2.4pre"); });
         default = [ ];
         description = lib.mdDoc ''
           This option lists the machines to be used if distributed builds are

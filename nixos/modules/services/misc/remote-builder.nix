@@ -1,20 +1,20 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, isNixAtLeastPre24, ... }:
 
 with lib;
 
 let
-
-  mkRemoteBuilderDesc = config:
-      concatStringsSep " " ([
-        "${optionalString (machine.sshUser != null) "${machine.sshUser}@"}${machine.hostName}"
-        (if machine.system != null then machine.system else if machine.systems != [ ] then concatStringsSep "," machine.systems else "-")
-        (if machine.sshKey != null then machine.sshKey else "-")
-        (toString machine.maxJobs)
-        (toString machine.speedFactor)
-        (concatStringsSep "," (machine.supportedFeatures ++ machine.mandatoryFeatures))
-        (concatStringsSep "," machine.mandatoryFeatures)
+  mkRemoteBuilderDesc =
+  # lib.traceSeq (machine)
+    (concatStringsSep " " ([
+        "${optionalString (config.sshUser != null) "${config.sshUser}@"}${config.hostName}"
+        (if config.system != null then config.system else if config.systems != [ ] then concatStringsSep "," config.systems else "-")
+        (if config.sshKey != null then config.sshKey else "-")
+        (toString config.maxJobs)
+        (toString config.speedFactor)
+        (concatStringsSep "," (config.supportedFeatures ++ config.mandatoryFeatures))
+        (concatStringsSep "," config.mandatoryFeatures)
       ]
-      ++ optional (isNixAtLeast "2.4pre") (if machine.publicHostKey != null then machine.publicHostKey else "-"));
+      ++ optional isNixAtLeastPre24 (if config.publicHostKey != null then config.publicHostKey else "-")));
 
   # TODO rename into module one
   machineSubmodule = {
@@ -124,9 +124,17 @@ let
             };
             rendered = mkOption {
               internal = true;
+              readOnly = true;
               type = types.str;
-              apply = mkRemoteBuilderDesc config;
+              # apply =
+                # x: "toto";
+                # mkRemoteBuilderDesc config;
             };
+          };
+
+          config = {
+            rendered = mkRemoteBuilderDesc config.config;
+
           };
         };
     in
