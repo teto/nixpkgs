@@ -31,12 +31,12 @@ let
     in
     {
     pname = "playwright-driver";
-    version = "1.27.1";
+    version = "1.30.0";
 
     src = fetchurl {
       url = "https://playwright.azureedge.net/builds/driver/${filename}";
       sha256 = {
-        x86_64-linux = "0x71b4kb8hlyacixipgfbgjgrbmhckxpbmrs2xk8iis7n5kg7539";
+        x86_64-linux = "sha256-b4fe1VAifK7Oo388ysP8CNus8zahyO8GGaE/I0GSYmY=";
         aarch64-linux = "125lih7g2gj91k7j196wy5a5746wyfr8idj3ng369yh5wl7lfcfv";
         x86_64-darwin = "0z2kww4iby1izkwn6z2ai94y87bkjvwak8awdmjm8sgg00pa9l1a";
         aarch64-darwin = "0qajh4ac5lr1sznb2c471r5c5g2r0dk2pyqz8vhvnbk36r524h1h";
