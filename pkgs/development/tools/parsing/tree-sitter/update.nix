@@ -118,6 +118,10 @@ let
       orga = "travonted";
       repo = "tree-sitter-fennel";
     };
+    "tree-sitter-just" = {
+      orga = "IndianBoy42";
+      repo = "tree-sitter-just";
+    };
     "tree-sitter-make" = {
       orga = "alemuller";
       repo = "tree-sitter-make";
