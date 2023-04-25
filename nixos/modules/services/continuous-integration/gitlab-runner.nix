@@ -17,7 +17,7 @@ let
 
   hashedServices = mapAttrs'
     (name: service: nameValuePair (genRunnerName name service) service) cfg.services;
-  configPath = ''"$HOME"/.gitlab-runner/config.toml'';
+  configPath = ''"$HOME"/config.toml'';
   configureScript = pkgs.writeShellApplication {
     name = "gitlab-runner-configure";
     runtimeInputs = with pkgs; [
@@ -36,7 +36,6 @@ let
       # make config file readable by service
       chown -R --reference="$HOME" "$(dirname ${configPath})"
     '' else ''
-      export CONFIG_FILE=${configPath}
 
       mkdir -p "$(dirname ${configPath})"
       touch ${configPath}
@@ -146,7 +145,6 @@ let
     '';
   };
   startScript = pkgs.writeShellScriptBin "gitlab-runner-start" ''
-    export CONFIG_FILE=${configPath}
     exec gitlab-runner run --working-directory $HOME
   '';
 in {
@@ -547,6 +545,7 @@ in {
       requires = optional hasDocker "docker.service";
       wantedBy = [ "multi-user.target" ];
       environment = config.networking.proxy.envVars // {
+        CONFIG_FILE=configPath;
         HOME = "/var/lib/gitlab-runner";
       };
       path = with pkgs; [
