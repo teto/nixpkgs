@@ -42,10 +42,10 @@ let
         config.services.postgresql.package
       ];
 
+      # umask 0077 # ensure backup is only readable by postgres user
       script = ''
         set -e -o pipefail
 
-        umask 0077 # ensure backup is only readable by postgres user
 
         if [ -e ${curFile} ]; then
           rm -f ${toString prevFiles}
@@ -173,7 +173,8 @@ in
     }
     (lib.mkIf cfg.enable {
       systemd.tmpfiles.rules = [
-        "d '${cfg.location}' 0700 postgres - - -"
+        # TODO check how
+        # "d '${cfg.location}' 0700 postgres - - -"
       ];
     })
     (lib.mkIf (cfg.enable && cfg.backupAll) {
