@@ -630,11 +630,13 @@ in
 
     services.postgresql.settings = {
       hba_file = "${pkgs.writeText "pg_hba.conf" cfg.authentication}";
-      ident_file = "${pkgs.writeText "pg_ident.conf" cfg.identMap}";
+      # ident_file = "${pkgs.writeText "pg_ident.conf" cfg.identMap}";
       log_destination = "stderr";
       listen_addresses = if cfg.enableTCPIP then "*" else "localhost";
       jit = mkDefault (if cfg.enableJIT then "on" else "off");
-    };
+      } // lib.optionalAttrs (cfg.identMap != "") {
+        ident_file = "${pkgs.writeText "pg_ident.conf" cfg.identMap}";
+      };
 
     services.postgresql.package =
       let
