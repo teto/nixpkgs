@@ -5,7 +5,7 @@ with pkgs;
 let
   pyEnv = python3.withPackages (ps: [
     ps.gitpython
-    ps.pytreesitter
+    ps.py-tree-sitter
   ]);
 in
 
@@ -16,4 +16,6 @@ mkShell {
     nix
     nix-prefetch-scripts
   ];
+
+  NIX_GRAMMAR = tree-sitter-grammars.tree-sitter-nix;
 }

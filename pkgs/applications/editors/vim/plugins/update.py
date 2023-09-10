@@ -26,7 +26,7 @@ import textwrap
 from typing import List, Tuple
 from pathlib import Path
 
-import git
+from tree_sitter import Language, Parser
 
 log = logging.getLogger()
 
@@ -131,12 +131,43 @@ class VimEditor(pluginupdate.Editor):
 def main():
 
     global luaPlugins
-    luaPlugins = run_nix_expr(GET_PLUGINS_LUA)
+    # luaPlugins = run_nix_expr(GET_PLUGINS_LUA)
 
-    with open(f"{ROOT}/get-plugins.nix") as f:
-        GET_PLUGINS = f.read()
-    editor = VimEditor("vim", ROOT, GET_PLUGINS)
-    editor.run()
+    # GO_LANGUAGE = Language('build/my-languages.so', 'go')
+    # JS_LANGUAGE = Language('build/my-languages.so', 'javascript')
+    # PY_LANGUAGE = Language('build/my-languages.so', 'python')
+    NIX_LANGUAGE = Language(os.getenv("NIX_GRAMMAR") + "/parser", 'nix')
+    parser = Parser()
+    parser.set_language(NIX_LANGUAGE)
+    # editor.default_out
+    print("Loading generated2.nix")
+    with open("pkgs/applications/editors/vim/plugins/generated2.nix", "rb") as f:
+        # GET_PLUGINS = f.read()
+        # bytes("""
+        #         def foo():
+        #             if bar:
+        #                 baz()
+        #         """, "utf8")
+        print("Started parsing..")
+        tree = parser.parse(f.read())
+        print(tree)
+        print("parsing finished.")
+        query = NIX_LANGUAGE.query("""
+        (function_definition
+        name: (identifier) @function.def)
+
+        (call
+        function: (identifier) @function.call)
+        """)
+
+# captures = query.captures(tree.root_node)
+# assert len(captures) == 2
+# assert captures[0][0] == function_name_node
+# assert captures[0][1] == "function.def"
+    # with open(f"{ROOT}/get-plugins.nix") as f:
+    #     GET_PLUGINS = f.read()
+    # editor = VimEditor("vim", ROOT, GET_PLUGINS)
+    # editor.run()
 
 
 if __name__ == "__main__":
