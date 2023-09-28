@@ -37,26 +37,52 @@ let
     # lua code to put into the generated init.lua file
     , luaRcContent ? ""
     # entry to load in packpath
-    , packpathDirs
+    # , packpathDirs
+
+    , plugins ? []
+
+    # user viml configuration
+    , customRC ? ""
+    # user lua code only, the full init.lua is built from this but plugin configs, customRC etc
+    , customRClua ? ""
     , ...
   }:
   assert withPython2 -> throw "Python2 support has been removed from the neovim wrapper, please remove withPython2 and python2Env.";
 
-  stdenv.mkDerivation (finalAttrs:
-  let
+  stdenv.mkDerivation (finalAttrs: let
+    # transform all plugins into an attrset
+    # { optional = bool; plugin = package; }
+    pluginsNormalized = neovimUtils.normalizePlugins plugins;
 
-    rcContent = ''
-      ${luaRcContent}
-    '' + lib.optionalString (!isNull neovimRcContent) ''
-      vim.cmd.source "${writeText "init.vim" neovimRcContent}"
+    myVimPackage = neovimUtils.normalizedPluginsToVimPackage pluginsNormalized;
+
+    rubyEnv = bundlerEnv {
+      name = "neovim-ruby-env";
+      gemdir = ./ruby_provider;
+      postBuild = ''
+        ln -sf ${ruby}/bin/* $out/bin
     '';
+    };
+
+
+    python3Env = python3Packages.python.withPackages (ps:
+      [ ps.pynvim ]
+      # ++ (extraPython3Packages ps)
+      ++ (lib.concatMap (f: f ps) pluginPython3Packages));
+
+    getDeps = attrname: map (plugin: plugin.${attrname} or (_: [ ]));
+
+    requiredPlugins = vimUtils.requiredPluginsForPackage myVimPackage;
+    pluginPython3Packages = getDeps "python3Dependencies" requiredPlugins;
+
+    packpathDirs.myNeovimPackages = myVimPackage;
 
     wrapperArgsStr = if lib.isString wrapperArgs then wrapperArgs else lib.escapeShellArgs wrapperArgs;
 
     generatedWrapperArgs =
       # vim accepts a limited number of commands so we join them all
           [
-            "--add-flags" ''--cmd "lua ${providerLuaRc}"''
+            "--add-flags" ''--cmd "lua ${finalAttrs.providerLuaRc}"''
             # (lib.intersperse "|" hostProviderViml)
           ] ++ lib.optionals (packpathDirs.myNeovimPackages.start != [] || packpathDirs.myNeovimPackages.opt != []) [
             "--add-flags" ''--cmd "set packpath^=${vimUtils.packDir packpathDirs}"''
@@ -78,13 +104,15 @@ let
     finalMakeWrapperArgs =
       [ "${neovim-unwrapped}/bin/nvim" "${placeholder "out"}/bin/nvim" ]
       ++ [ "--set" "NVIM_SYSTEM_RPLUGIN_MANIFEST" "${placeholder "out"}/rplugin.vim" ]
-      ++ lib.optionals finalAttrs.wrapRc [ "--add-flags" "-u ${writeText "init.lua" rcContent}" ]
+      ++ lib.optionals finalAttrs.wrapRc [ "--add-flags" "-u ${writeText "init.lua" neovimRcContent}" ]
       ++ finalAttrs.generatedWrapperArgs
       ;
 
     perlEnv = perl.withPackages (p: [ p.NeovimExt p.Appcpanminus ]);
   in {
       name = "neovim-${lib.getVersion neovim-unwrapped}${extraName}";
+
+      inherit plugins;
 
       __structuredAttrs = true;
       dontUnpack = true;
@@ -93,7 +121,7 @@ let
       inherit python3Env rubyEnv;
       withRuby = rubyEnv != null;
       inherit wrapperArgs generatedWrapperArgs;
-      luaRcContent = rcContent;
+      luaRcContent = neovimRcContent;
       # Remove the symlinks created by symlinkJoin which we need to perform
       # extra actions upon
       postBuild = lib.optionalString stdenv.isLinux ''
