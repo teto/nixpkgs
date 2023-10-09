@@ -1,4 +1,7 @@
 { stdenv, symlinkJoin, lib, makeWrapper
+, bundlerEnv
+, ruby
+, nodejs
 , writeText
 , nodePackages
 , python3
@@ -15,12 +18,14 @@ neovim-unwrapped:
 let
   wrapper = {
       extraName ? ""
-    # should contain all args but the binary. Can be either a string or list
+    # passed as args but the binary. Can be either a string or list
     , wrapperArgs ? []
     # a limited RC script used only to generate the manifest for remote plugins
     , manifestRc ? null
     , withPython2 ? false
-    , withPython3 ? true,  python3Env ? python3
+    , withPython3 ? true
+    # TODO deprecate
+    , python3Env ? python3
     , withNodeJs ? false
     , withPerl ? false
     , rubyEnv ? null
@@ -40,6 +45,9 @@ let
     # , packpathDirs
 
     , plugins ? []
+
+    /* the function you would have passed to lua.withPackages */
+    , extraLuaPackages ? (_: [])
 
     # user viml configuration
     , customRC ? ""
@@ -79,6 +87,10 @@ let
 
     wrapperArgsStr = if lib.isString wrapperArgs then wrapperArgs else lib.escapeShellArgs wrapperArgs;
 
+    ## Here we calculate all of the arguments to the 1st call of `makeWrapper`
+    # We start with the executable itself NOTE we call this variable "initial"
+    # because if configure != {} we need to call makeWrapper twice, in order to
+    # avoid double wrapping, see comment near finalMakeWrapperArgs
     generatedWrapperArgs =
       # vim accepts a limited number of commands so we join them all
           [
@@ -109,6 +121,10 @@ let
       ;
 
     perlEnv = perl.withPackages (p: [ p.NeovimExt p.Appcpanminus ]);
+
+    # finalAttrs.
+    luaEnv = neovim-unwrapped.lua.withPackages(extraLuaPackages);
+
   in {
       name = "neovim-${lib.getVersion neovim-unwrapped}${extraName}";
 
