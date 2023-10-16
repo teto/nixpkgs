@@ -307,8 +307,8 @@ let
       azure-mgmt-applicationinsights = overrideAzureMgmtPackage super.azure-mgmt-applicationinsights "1.0.0" "zip"
         "sha256-woeix9703hn5LAwxugKGf6xvW433G129qxkoi7RV/Fs=";
 
-      azure-mgmt-authorization = overrideAzureMgmtPackage super.azure-mgmt-authorization "3.0.0" "zip"
-        "sha256-Cl1/aDvzNyI2uEHNvUZ39rCO185BuZnD5kTUKGJSBX0=";
+      # azure-mgmt-authorization = overrideAzureMgmtPackage super.azure-mgmt-authorization "3.0.0" "zip"
+      #   "sha256-Cl1/aDvzNyI2uEHNvUZ39rCO185BuZnD5kTUKGJSBX0=";
 
       azure-mgmt-storage = overrideAzureMgmtPackage super.azure-mgmt-storage "21.0.0" "zip"
         "sha256-brE+7s+JGVsrX0e+Bnnj8niI79e9ITLux+vLznXLE3c=";
