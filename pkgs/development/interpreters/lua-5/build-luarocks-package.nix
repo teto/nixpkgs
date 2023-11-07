@@ -97,7 +97,7 @@ let
     lua  # for lua.h
     wrapLua
     luarocks_bootstrap
-  ];
+  ] ++ lib.optionals self.doCheck ([ luarocksCheckHook ] ++ self.nativeCheckInputs);
 
   inherit doCheck extraConfig rockspecFilename externalDeps nativeCheckInputs;
   inherit knownRockspec;

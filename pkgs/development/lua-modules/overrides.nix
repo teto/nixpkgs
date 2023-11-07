@@ -173,6 +173,26 @@ in
     '';
   });
 
+  # # Until https://github.com/swarn/fzy-lua/pull/8 is merged,
+  # # we have to invoke busted manually
+  # fzy = prev.fzy.overrideAttrs(oa: {
+  #   doCheck = true;
+  #   nativeCheckInputs = [ prev.busted ];
+  #   checkPhase = ''
+  #     busted test/test.lua
+  #   '';
+  # });
+
+  gitsigns-nvim = prev.gitsigns-nvim.overrideAttrs {
+    doCheck = false;
+    # TODO need busted
+    checkPhase = ''
+      runHook preCheck
+      make test
+      runHook postCheck
+    '';
+  };
+
   http = prev.http.overrideAttrs (oa: {
     patches = [
       (fetchpatch {
