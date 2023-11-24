@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
+set -x
 # --print: avoid dependency on environment
 optPrint=
 if [ "$1" == "--print" ]; then
@@ -83,7 +84,7 @@ newPkgs() {
     for i in 1 2; do
         local l
         l="$($MKTEMP)"
-        list[$i]="$l"
+        list[i]="$l"
         toRemove+=("$l")
 
         local expr
@@ -108,13 +109,13 @@ declare -a tree
 for i in 1 2; do
     if [ -n "${!i}" ]; then # use the given commit
         dir="$($MKTEMP -d)"
-        tree[$i]="$dir"
+        tree[i]="$dir"
         toRemove+=("$dir")
 
         git clone --shared --no-checkout --quiet . "${tree[$i]}"
         (cd "${tree[$i]}" && git checkout --quiet "${!i}")
     else #use the current tree
-        tree[$i]="$(pwd)"
+        tree[i]="$(pwd)"
     fi
 done
 
