@@ -448,6 +448,16 @@ with prev;
     };
   });
 
+  haskell-tools-nvim  = prev.haskell-tools-nvim.overrideAttrs(oa: {
+    doCheck = true;
+    nativeCheckInputs = [
+      final.nlua
+    ];
+    checkPhase = ''
+
+      luarocks config interpreter
+    '';
+  });
 
   # as advised in https://github.com/luarocks/luarocks/issues/1402#issuecomment-1080616570
   # we shouldn't use luarocks machinery to build complex cmake components
