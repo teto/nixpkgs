@@ -12,18 +12,11 @@
 , pkgsHostHost
 , pkgsTargetTarget
 , passthruFun
-, enableFFI ? true
-, enableJIT ? true
-, enableJITDebugModule ? enableJIT
-, enableGC64 ? true
-, enable52Compat ? false
-, enableValgrindSupport ? false
-, valgrind ? null
-, enableGDBJITSupport ? false
-, enableAPICheck ? false
-, enableVMAssertions ? false
-, enableRegisterAllocationRandomization ? false
-, useSystemMalloc ? false
+, lua5_1
+
+, valgrind
+
+
 # Upstream generates randomized string id's by default for security reasons
 # https://github.com/LuaJIT/LuaJIT/issues/626. Deterministic string id's should
 # never be needed for correctness (that should be fixed in the lua code),
@@ -32,26 +25,13 @@
 , deterministicStringIds ? false
 , luaAttr ? "luajit_${lib.versions.major version}_${lib.versions.minor version}"
 } @ inputs:
-assert enableJITDebugModule -> enableJIT;
-assert enableGDBJITSupport -> enableJIT;
-assert enableValgrindSupport -> valgrind != null;
+
+# assert enableJITDebugModule -> enableJIT;
+# assert enableGDBJITSupport -> enableJIT;
+# assert enableValgrindSupport -> valgrind != null;
 let
 
   luaPackages = self.pkgs;
-
-  XCFLAGS = with lib;
-    optional (!enableFFI) "-DLUAJIT_DISABLE_FFI"
-    ++ optional (!enableJIT) "-DLUAJIT_DISABLE_JIT"
-    ++ optional enable52Compat "-DLUAJIT_ENABLE_LUA52COMPAT"
-    ++ optional (!enableGC64) "-DLUAJIT_DISABLE_GC64"
-    ++ optional useSystemMalloc "-DLUAJIT_USE_SYSMALLOC"
-    ++ optional enableValgrindSupport "-DLUAJIT_USE_VALGRIND"
-    ++ optional enableGDBJITSupport "-DLUAJIT_USE_GDBJIT"
-    ++ optional enableAPICheck "-DLUAJIT_USE_APICHECK"
-    ++ optional enableVMAssertions "-DLUAJIT_USE_ASSERT"
-    ++ optional enableRegisterAllocationRandomization "-DLUAJIT_RANDOM_RA"
-    ++ optional deterministicStringIds "-DLUAJIT_SECURITY_STRID=0"
-  ;
 
   # LuaJIT requires build for 32bit architectures to be build on x86 not x86_64
   # TODO support also other build architectures. The ideal way would be to use
@@ -62,11 +42,24 @@ let
     else buildPackages.stdenv;
 
 in
-stdenv.mkDerivation rec {
+lua5_1.overrideAttrs(finalAttrs: {
   pname = "luajit";
+  luaversion = "5.1";
   inherit version src;
 
-  luaversion = "5.1";
+  enableFFI = true;
+  enableJIT = true;
+  enableJITDebugModule = true;
+  enableGC64 = true;
+  enable52Compat = false;
+  enableValgrindSupport = false;
+  valgrind = null;
+  enableGDBJITSupport = false;
+  enableAPICheck = false;
+  enableVMAssertions = false;
+  enableRegisterAllocationRandomization = false;
+  useSystemMalloc = false;
+
 
   postPatch = ''
     substituteInPlace Makefile --replace ldconfig :
@@ -79,16 +72,16 @@ stdenv.mkDerivation rec {
     {
       echo -e '
         #undef  LUA_PATH_DEFAULT
-        #define LUA_PATH_DEFAULT "./share/lua/${luaversion}/?.lua;./?.lua;./?/init.lua"
+        #define LUA_PATH_DEFAULT "./share/lua/${finalAttrs.luaversion}/?.lua;./?.lua;./?/init.lua"
         #undef  LUA_CPATH_DEFAULT
-        #define LUA_CPATH_DEFAULT "./lib/lua/${luaversion}/?.so;./?.so;./lib/lua/${luaversion}/loadall.so"
+        #define LUA_CPATH_DEFAULT "./lib/lua/${finalAttrs.luaversion}/?.so;./?.so;./lib/lua/${finalAttrs.luaversion}/loadall.so"
       '
     } >> src/luaconf.h
   '';
 
   dontConfigure = true;
 
-  buildInputs = lib.optional enableValgrindSupport valgrind;
+  buildInputs = lib.optional finalAttrs.enableValgrindSupport valgrind;
 
   buildFlags = [
     "amalg" # Build highly optimized version
@@ -98,10 +91,25 @@ stdenv.mkDerivation rec {
     "DEFAULT_CC=cc"
     "CROSS=${stdenv.cc.targetPrefix}"
     "HOST_CC=${buildStdenv.cc}/bin/cc"
-  ] ++ lib.optional enableJITDebugModule "INSTALL_LJLIBD=$(INSTALL_LMOD)"
+  ] ++ lib.optional finalAttrs.enableJITDebugModule "INSTALL_LJLIBD=$(INSTALL_LMOD)"
     ++ lib.optional stdenv.hostPlatform.isStatic "BUILDMODE=static";
   enableParallelBuilding = true;
-  env.NIX_CFLAGS_COMPILE = toString XCFLAGS;
+  env.NIX_CFLAGS_COMPILE = let
+    XCFLAGS = with lib;
+    optional (!enableFFI) "-DLUAJIT_DISABLE_FFI"
+    ++ optional (!finalAttrs.enableJIT) "-DLUAJIT_DISABLE_JIT"
+    ++ optional finalAttrs.enable52Compat "-DLUAJIT_ENABLE_LUA52COMPAT"
+    ++ optional (!finalAttrs.enableGC64) "-DLUAJIT_DISABLE_GC64"
+    ++ optional finalAttrs.useSystemMalloc "-DLUAJIT_USE_SYSMALLOC"
+    ++ optional finalAttrs.enableValgrindSupport "-DLUAJIT_USE_VALGRIND"
+    ++ optional finalAttrs.enableGDBJITSupport "-DLUAJIT_USE_GDBJIT"
+    ++ optional finalAttrs.enableAPICheck "-DLUAJIT_USE_APICHECK"
+    ++ optional finalAttrs.enableVMAssertions "-DLUAJIT_USE_ASSERT"
+    ++ optional finalAttrs.enableRegisterAllocationRandomization "-DLUAJIT_RANDOM_RA"
+    ++ optional finalAttrs.deterministicStringIds "-DLUAJIT_SECURITY_STRID=0"
+    ;
+  in
+    toString XCFLAGS;
 
   postInstall = ''
     ( cd "$out/include"; ln -s luajit-*/* . )
@@ -116,21 +124,6 @@ stdenv.mkDerivation rec {
 
   setupHook = luaPackages.lua-setup-hook luaPackages.luaLib.luaPathList luaPackages.luaLib.luaCPathList;
 
-  # copied from python
-  passthru = let
-    # When we override the interpreter we also need to override the spliced versions of the interpreter
-    inputs' = lib.filterAttrs (n: v: ! lib.isDerivation v && n != "passthruFun") inputs;
-    override = attr: let lua = attr.override (inputs' // { self = lua; }); in lua;
-  in passthruFun rec {
-    inherit self luaversion packageOverrides luaAttr;
-    executable = "lua";
-    luaOnBuildForBuild = override pkgsBuildBuild.${luaAttr};
-    luaOnBuildForHost = override pkgsBuildHost.${luaAttr};
-    luaOnBuildForTarget = override pkgsBuildTarget.${luaAttr};
-    luaOnHostForHost = override pkgsHostHost.${luaAttr};
-    luaOnTargetForTarget = lib.optionalAttrs (lib.hasAttr luaAttr pkgsTargetTarget) (override pkgsTargetTarget.${luaAttr});
-  };
-
   meta = with lib; {
     description = "High-performance JIT compiler for Lua 5.1";
     homepage = "https://luajit.org/";
@@ -142,4 +135,4 @@ stdenv.mkDerivation rec {
     ];
     maintainers = with maintainers; [ thoughtpolice smironov vcunat lblasc ];
   } // extraMeta;
-}
+})
