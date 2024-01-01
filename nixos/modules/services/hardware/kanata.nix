@@ -118,7 +118,7 @@ let
           ${utils.escapeSystemdExecArgs keyboard.extraArgs}
       '';
 
-      DynamicUser = true;
+      # DynamicUser = true;
       RuntimeDirectory = mkName name;
       SupplementaryGroups = with config.users.groups; [
         input.name
