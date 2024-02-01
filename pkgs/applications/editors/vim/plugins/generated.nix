@@ -10611,8 +10611,8 @@ final: prev:
     src = fetchFromGitHub {
       owner = "unisonweb";
       repo = "unison";
-      rev = "f98ea54153835938fc62df41f32e942d44b46e30";
-      sha256 = "1jasyc768xjj0ppb13fg82fiwcqvq9g9x4anc5p2g9pc67n07b27";
+      rev = "cfb58a67ea1e28bda3c37e50c2ee397c495b8723";
+      sha256 = "0gli7i88193hq9psqdh5qca0fwi3bjby9wm99k21axa5l572xggi";
     };
     meta.homepage = "https://github.com/unisonweb/unison/";
   };
