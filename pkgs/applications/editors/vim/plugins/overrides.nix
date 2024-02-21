@@ -1007,11 +1007,11 @@
       };
     in
     (lib.optionalAttrs stdenv.isLinux {
-      dependencies = with self;
-        [ plenary-nvim ];
+      dependencies = [ self.plenary-nvim ];
       postInstall = ''
         ln -s ${spectre_oxi}/lib/libspectre_oxi.* $out/lua/spectre_oxi.so
       '';
+      nvimRequireCheck = "spectre";
     }));
 
   nvim-teal-maker = super.nvim-teal-maker.overrideAttrs {
@@ -1124,6 +1124,8 @@
       plenary-nvim
       (nvim-treesitter.withPlugins (p: [ p.http p.json ]))
     ];
+
+    nvimRequireCheck = "rest-nvim";
   };
 
   roslyn-nvim = super.roslyn-nvim.overrideAttrs {
