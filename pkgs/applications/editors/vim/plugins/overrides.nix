@@ -1064,6 +1064,8 @@
 
   orgmode = super.orgmode.overrideAttrs {
     dependencies = with self; [ (nvim-treesitter.withPlugins (p: [ p.org ])) ];
+
+    nvimRequireCheck = "orgmode";
   };
 
   overseer-nvim = super.overseer-nvim.overrideAttrs {
