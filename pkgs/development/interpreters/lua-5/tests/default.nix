@@ -35,12 +35,13 @@ let
     "5.2" = "${lua}/share/lua/5.2/?.lua;${lua}/share/lua/5.2/?/init.lua;${lua}/lib/lua/5.2/?.lua;${lua}/lib/lua/5.2/?/init.lua;./?.lua";
     "5.3" = "${lua}/share/lua/5.3/?.lua;${lua}/share/lua/5.3/?/init.lua;${lua}/lib/lua/5.3/?.lua;${lua}/lib/lua/5.3/?/init.lua;./?.lua;./?/init.lua";
     "5.4" = "${lua}/share/lua/5.4/?.lua;${lua}/share/lua/5.4/?/init.lua;${lua}/lib/lua/5.4/?.lua;${lua}/lib/lua/5.4/?/init.lua;./?.lua;./?/init.lua";
+    "luajit" = "./?.lua;${lua}/share/luajit-2.1/?.lua;/usr/local/share/lua/5.1/?.lua;/usr/local/share/lua/5.1/?/init.lua;${lua}/share/lua/5.1/?.lua;${lua}/share/lua/5.1/?/init.lua";
   };
 in
   pkgs.recurseIntoAttrs ({
 
   checkInterpreterPatch = let
-    golden_LUA_PATH = golden_LUA_PATHS.${lua.luaversion};
+    golden_LUA_PATH = if lua.pkgs.luaLib.isLuaJIT then golden_LUA_PATHS."luajit" else golden_LUA_PATHS.${lua.luaversion};
   in
     runTest lua {
     name = "check-default-lua-path";
