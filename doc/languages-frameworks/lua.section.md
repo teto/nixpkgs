@@ -17,6 +17,9 @@ The main package set contains aliases to these package sets, e.g.
 `luaPackages` refers to `lua5_1.pkgs` and `lua52Packages` to
 `lua5_2.pkgs`.
 
+Note that nixpkgs patches the non-luajit interpreters to avoid referring to
+`/usr` and have `;;` (the "reset" LUA_PATH pattern) work correctly.
+
 ### Installing Lua and packages {#installing-lua-and-packages}
 
 #### Lua environment defined in separate `.nix` file {#lua-environment-defined-in-separate-.nix-file}
