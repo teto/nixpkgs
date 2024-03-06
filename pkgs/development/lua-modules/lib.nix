@@ -22,13 +22,8 @@ rec {
   inherit overrideLuarocks;
   inherit hasLuaModule requiredLuaModules;
 
-  luaPathList = [
-    "share/lua/${lua.luaversion}/?.lua"
-    "share/lua/${lua.luaversion}/?/init.lua"
-  ];
-  luaCPathList = [
-    "lib/lua/${lua.luaversion}/?.so"
-  ];
+  luaPathList = lua.LUA_PATH_PATTERN;
+  luaCPathList = lua.LUA_CPATH_PATTERN;
 
   /* generate paths without a prefix
   */

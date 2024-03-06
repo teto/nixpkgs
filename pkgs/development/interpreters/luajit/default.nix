@@ -68,6 +68,20 @@ stdenv.mkDerivation (finalAttrs: {
 
   luaversion = "5.1";
 
+  LUA_PATH_PATTERN = [
+    "./?.lua"
+    "./share/lua/luajit-${finalAttrs.version}/?.lua"
+    "./share/lua/luajit-${finalAttrs.version}/?/init.lua"
+  ];
+
+  LUA_CPATH_PATTERN = [
+    "./?.so"
+    "./lib/lua/${finalAttrs.luaversion}/?.so"
+    "./lib/lua/${finalAttrs.luaversion}/loadall.so"
+  ];
+
+  # to compare with the default value, run `luajit -e "print(package.path)"`
+  # we patch the defaults otherwise `;;` will revert to an FHS setting
   postPatch = ''
     substituteInPlace Makefile --replace ldconfig :
     if test -n "''${dontStrip-}"; then

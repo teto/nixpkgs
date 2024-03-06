@@ -42,6 +42,7 @@ stdenv.mkDerivation (finalAttrs:
   {
   pname = "lua";
   inherit version;
+
   outputs = [ "out" "doc" ];
 
   src = fetchurl {
@@ -51,9 +52,29 @@ stdenv.mkDerivation (finalAttrs:
 
   LuaPathSearchPaths  = luaPackages.luaLib.luaPathList;
   LuaCPathSearchPaths = luaPackages.luaLib.luaCPathList;
+
+  # hook
+  LUA_PATH_PATTERN = [
+    "share/lua/${luaversion}/?.lua"
+    "share/lua/${luaversion}/?/init.lua"
+  ]
+  ++ lib.optionals (lib.versionAtLeast self.luaversion "5.3") [
+    "./?.lua"
+    "./?/init.lua"
+    "lib/lua/${luaversion}/?.lua"
+    "lib/lua/${luaversion}/?/init.lua"
+  ];
+
+  LUA_CPATH_PATTERN = [
+    "lib/lua/${luaversion}/?.so"
+  ]
+  ++ lib.optionals (lib.versionAtLeast self.luaversion "5.3") [
+    "./?.so"
+  ];
+
   setupHook = luaPackages.lua-setup-hook
-    finalAttrs.LuaPathSearchPaths
-    finalAttrs.LuaCPathSearchPaths;
+    finalAttrs.LUA_PATH_PATTERN
+    finalAttrs.LUA_CPATH_PATTERN;
 
   nativeBuildInputs = [ makeWrapper ];
   buildInputs = [ readline ];
