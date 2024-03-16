@@ -3,6 +3,17 @@
 # variable is passed in from the buildLuarocksPackage function.
 set -e
 
+nix_print() {
+  if [ ${NIX_DEBUG:-0} -ge $1 ]; then
+    echo "$2"
+  fi
+}
+
+nix_debug() {
+  nix_print 3 "$1"
+}
+
+
 wrapLuaPrograms() {
   wrapLuaProgramsIn "$out/bin" "$out $luaPath"
 }
@@ -18,10 +29,12 @@ buildLuaPath() {
   # variables.
   declare -A luaPathsSeen=()
   program_PATH=
+  program_LUA_PATH=
   luaPathsSeen["@lua@"]=1
   addToSearchPath program_PATH @lua@/bin
   for path in $luaPath; do
-    addToLuaPath "$path"
+    # addToLuaPath "$path"
+    loadFromPropagatedInputs "$path"
   done
 }
 
@@ -82,10 +95,10 @@ loadFromPropagatedInputs() {
   if [ -n "${luaPathsSeen[$dir]}" ]; then
     return
   fi
-  luaPathsSeen[$dir]=1
+  luaPathsSeen[$dir]=true
 
   addToLuaPath "$dir"
-  addToSearchPath program_PATH $dir/bin
+  addToSearchPath program_PATH "$dir/bin"
 
   # Inspect the propagated inputs (if they exist) and recur on them.
   local prop="$dir/nix-support/propagated-native-build-inputs"
@@ -96,3 +109,40 @@ loadFromPropagatedInputs() {
     done
   fi
 }
+
+# TODO update from setup-hook
+addToLuaSearchPathWithCustomDelimiter() {
+  local varName="$1"
+  local absPattern="$2"
+  # delete longest match starting from the lua placeholder '?'
+  local topDir="${absPattern%%\?*}"
+
+  # export only if the folder exists else LUA_PATH/LUA_CPATH grow too large
+  if [[ ! -d "$topDir" ]]; then return; fi
+
+  # export only if we haven't already got this dir in the search path
+  if [[ ${!varName-} == *"$absPattern"* ]]; then return; fi
+
+  export "${varName}=${!varName:+${!varName};}${absPattern}"
+}
+
+addToLuaPath() {
+  local dir="$1"
+
+  if [ ! -d "$dir" ]; then
+    nix_debug "$dir not a directory abort"
+    return 0
+  fi
+  # TODO take pattern from LUA_PATH
+  cd "$dir"
+  for pattern in @luapathsearchpaths@; do
+    addToLuaSearchPathWithCustomDelimiter LUA_PATH "$PWD/$pattern"
+  done
+
+  # LUA_CPATH
+  for pattern in @luacpathsearchpaths@; do
+    addToLuaSearchPathWithCustomDelimiter LUA_CPATH "$PWD/$pattern"
+  done
+  cd - >/dev/null
+}
+
