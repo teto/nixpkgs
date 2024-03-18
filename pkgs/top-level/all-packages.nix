@@ -27609,7 +27609,6 @@ with pkgs;
 
   paperlike-go = callPackage ../tools/misc/paperlike-go { };
 
-  papis-zotero = callPackage ../tools/misc/papis/zotero.nix { };
   paps = callPackage ../tools/misc/paps { };
 
   pecita = callPackage ../data/fonts/pecita { };

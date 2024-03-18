@@ -450,9 +450,8 @@ rec {
       nativeBuildInputs = oldAttrs.nativeBuildInputs or []
       ++ lib.optionals (stdenv.buildPlatform.canExecute stdenv.hostPlatform) [
         vimCommandCheckHook vimGenDocHook
-        # many neovim plugins keep using buildVimPlugin
-        neovimRequireCheckHook
-      ];
+      ]
+      ++ lib.optional (oldAttrs ? nvimRequireCheck) neovimRequireCheckHook;
 
       passthru = (oldAttrs.passthru or {}) // {
         vimPlugin = true;

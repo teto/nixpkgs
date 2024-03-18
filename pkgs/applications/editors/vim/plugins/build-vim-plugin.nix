@@ -8,7 +8,7 @@ rec {
   addRtp = drv:
     drv // {
       rtp = lib.warn "`rtp` attribute is deprecated, use `outPath` instead." drv.outPath;
-      overrideAttrs = f: addRtp (drv.overrideAttrs f);
+      # overrideAttrs = f: addRtp (drv.overrideAttrs f);
     };
 
   buildVimPlugin =
@@ -26,8 +26,9 @@ rec {
     }@attrs:
     let
       drv = stdenv.mkDerivation (finalAttrs: attrs // {
-        inherit name;
+        name = name;
 
+        # __structuredAttrs = true;
         inherit unpackPhase configurePhase buildPhase addonInfo preInstall postInstall;
 
         installPhase = ''

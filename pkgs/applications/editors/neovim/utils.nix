@@ -98,7 +98,9 @@ let
       };
     in
 
-    builtins.removeAttrs args ["plugins"] // {
+    # builtins.removeAttrs args ["plugins"] //
+    args //
+    {
       wrapperArgs = [];
       inherit packpathDirs;
       inherit neovimRcContent;

@@ -7,7 +7,7 @@
 , fstrm, protobufc # more optionals
 # test-only deps.
 , cmocka, which, cacert
-, extraFeatures ? true /* catch-all if defaults aren't enough */
+, extraFeatures ? false /* catch-all if defaults aren't enough */
 }:
 let # un-indented, over the whole file
 

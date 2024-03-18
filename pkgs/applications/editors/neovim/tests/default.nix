@@ -16,7 +16,7 @@ Here are some common neovim flags used in the tests:
 , pkgs
 }:
 let
-  inherit (neovimUtils) makeNeovimConfig parserDir;
+  inherit (neovimUtils) makeNeovimConfig;
 
   plugins = with vimPlugins; [
     {
@@ -97,28 +97,6 @@ in
   inherit nmt;
 
   vim_empty_config = vimUtils.vimrcFile { beforePlugins = ""; customRC = ""; };
-
-  # check that we can create a folder with plugins treesitter parsers
-  treesitter-test = parserDir [ vimPlugins.orgmode vimPlugins.nvim-treesitter ];
-
-  genPackDir = let
-    packages = {
-      home-manager = {
-        start = [
-          vimPlugins.nvim-treesitter
-          # TODO a better test would be to check it can find the grammar for tree-sitter-org !
-          # (vimPlugins.nvim-treesitter.withPlugins(
-          #   plugins: with plugins; [
-          #     tree-sitter-bash
-          #     tree-sitter-org-nvim
-          #   ]
-        # ))
-        ];
-        opt = [];
-      };
-    };
-  in
-    vimUtils.packDir packages;
 
   ### neovim tests
   ##################

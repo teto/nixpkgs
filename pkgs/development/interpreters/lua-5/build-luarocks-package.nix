@@ -101,6 +101,7 @@ let
 
   inherit doCheck extraConfig rockspecFilename externalDeps nativeCheckInputs;
   inherit knownRockspec;
+  inherit dontWrapLuaPrograms;
 
   buildInputs = let
     # example externalDeps': [ { name = "CRYPTO"; dep = pkgs.openssl; } ]
@@ -112,7 +113,9 @@ let
     ;
 
   # propagate lua to active setup-hook in nix-shell
-  propagatedBuildInputs = propagatedBuildInputs ++ [ lua ];
+  propagatedBuildInputs = propagatedBuildInputs
+  # ++ [ lua ]
+  ;
 
   # @-patterns do not capture formal argument default values, so we need to
   # explicitly inherit this for it to be available as a shell variable in the
@@ -164,7 +167,6 @@ let
   # generate a list of candidates
   configurePhase = ''
     runHook preConfigure
-    set -x
     rockspecFilename="''${rockspecFilename:-${self.generatedRockspecFilename}}"
   ''
   + lib.optionalString (self.knownRockspec != null) ''
@@ -202,10 +204,12 @@ let
     runHook postBuild
   '';
 
-  # wrapLuaPrograms fails with 'toLuaPath' not available
   postFixup = lib.optionalString (!dontWrapLuaPrograms) ''
+    wrapLuaPrograms
   '' + attrs.postFixup or "";
 
+  # see https://github.com/luarocks/luarocks/issues/1659
+  # --no-manifest empeche la creation de say-scm-1-rocks/manifest
   installPhase = ''
     runHook preInstall
 

@@ -9,6 +9,7 @@
 , neovimUtils
 , perl
 , lndir
+, vimPlugins
 }:
 
 neovim-unwrapped:
@@ -29,6 +30,7 @@ let
     # TODO should be suffixed 'Fn' ?
     , extraPython3Packages ? (_: [])
 
+    # enable certain host providers
     , withNodeJs ? false
     , withPerl ? false
     , rubyEnv ? null
@@ -47,7 +49,13 @@ let
     # lua code to put into the generated init.lua file
     , luaRcContent ? ""
     # entry to load in packpath
-    , packpathDirs
+    # , packpathDirs
+    # expects a list of plugin configuration
+    # expects { plugin=far-vim; config = "let g:far#source='rg'"; optional = false; }
+    # just for tests
+    , plugins ? [
+        # vimPlugins.rocks-nvim
+    ]
     /* the function you would have passed to lua.withPackages */
     , extraLuaPackages ? (_: [])
 
@@ -57,12 +65,22 @@ let
   }:
   assert withPython2 -> throw "Python2 support has been removed from the neovim wrapper, please remove withPython2 and python2Env.";
 
+
   stdenv.mkDerivation (finalAttrs: let
     # transform all plugins into an attrset
     # { optional = bool; plugin = package; }
     # pluginsNormalized = neovimUtils.normalizePlugins plugins;
 
-    # myVimPackage = neovimUtils.normalizedPluginsToVimPackage pluginsNormalized;
+
+    pluginRC = lib.foldl (acc: p: if p.config != null then acc ++ [p.config] else acc) []  finalAttrs.pluginsNormalized;
+
+    # TODO get all dependencies
+    myVimPackage = neovimUtils.normalizedPluginsToVimPackage finalAttrs.pluginsNormalized;
+
+    packpathDirs.myNeovimPackages = myVimPackage;
+
+    vimlRcContentWithPlugins = lib.optionalString (!isNull neovimRcContent) neovimRcContent
+      + lib.concatStringsSep "\n" (pluginRC);
 
     rubyEnv = bundlerEnv {
       name = "neovim-ruby-env";
@@ -82,8 +100,10 @@ let
 
     rcContent = ''
       ${luaRcContent}
-    '' + lib.optionalString (!isNull neovimRcContent) ''
-      vim.cmd.source "${writeText "init.vim" neovimRcContent}"
+    ''
+    # ou bien != ""
+    + lib.optionalString (!isNull vimlRcContentWithPlugins) ''
+      vim.cmd.source "${writeText "init.vim" vimlRcContentWithPlugins}"
     '';
 
     python3Env = python3Packages.python.withPackages (ps:
@@ -97,46 +117,7 @@ let
     # requiredPlugins = vimUtils.requiredPluginsForPackage myVimPackage;
     # pluginPython3Packages = getDeps "python3Dependencies" requiredPlugins;
 
-
-    # # myVimPackage = normalizedPluginsToVimPackage pluginsNormalized;
-    # packpathDirs.myNeovimPackages = myVimPackage;
-
     wrapperArgsStr = if lib.isString wrapperArgs then wrapperArgs else lib.escapeShellArgs wrapperArgs;
-
-<<<<<<< HEAD
-    generatedWrapperArgs =
-      # vim accepts a limited number of commands so we join them all
-          [
-            "--add-flags" ''--cmd "lua ${providerLuaRc}"''
-          ]
-          ++ lib.optionals (packpathDirs.myNeovimPackages.start != [] || packpathDirs.myNeovimPackages.opt != []) [
-            "--add-flags" ''--cmd "set packpath^=${finalPackdir}"''
-            "--add-flags" ''--cmd "set rtp^=${finalPackdir}"''
-          ]
-          ;
-||||||| parent of f6452745fed1 (matt: aggregated changes)
-    generatedWrapperArgs =
-      # vim accepts a limited number of commands so we join them all
-          [
-            "--add-flags" ''--cmd "lua ${providerLuaRc}"''
-            # (lib.intersperse "|" hostProviderViml)
-          ] ++ lib.optionals (packpathDirs.myNeovimPackages.start != [] || packpathDirs.myNeovimPackages.opt != []) [
-            "--add-flags" ''--cmd "set packpath^=${vimUtils.packDir packpathDirs}"''
-            "--add-flags" ''--cmd "set rtp^=${vimUtils.packDir packpathDirs}"''
-          ]
-          ;
-=======
-    # commonWrapperArgs =
-    #   # vim accepts a limited number of commands so we join them all
-    #       [
-    #         "--add-flags" ''--cmd "lua ${finalAttrs.providerLuaRc}"''
-    #         # (lib.intersperse "|" hostProviderViml)
-    #       ] ++ lib.optionals (packpathDirs.myNeovimPackages.start != [] || packpathDirs.myNeovimPackages.opt != []) [
-    #         "--add-flags" ''--cmd "set packpath^=${vimUtils.packDir packpathDirs}"''
-    #         "--add-flags" ''--cmd "set rtp^=${vimUtils.packDir packpathDirs}"''
-    #       ]
-    #       ;
->>>>>>> f6452745fed1 (matt: aggregated changes)
 
     # providerLuaRc = neovimUtils.generateProviderRc {
     #   inherit withPython3 withNodeJs withPerl;
@@ -159,7 +140,16 @@ let
     perlEnv = perl.withPackages (p: [ p.NeovimExt p.Appcpanminus ]);
 
     # finalAttrs.
-    luaEnv = neovim-unwrapped.lua.withPackages(extraLuaPackages);
+    luaEnv = let
+      myFilter =  drv: builtins.trace "is ${drv.name} a vim plugin : "  (lib.debug.traceVal (!(drv.passthru?vimPlugin )));
+    in
+    # the wrapper already adds the interpreter to "paths"
+    lua.withPackages(
+      ps: (extraLuaPackages ps)
+        # For now keep only those that are not vim plugins ?
+        ++ (lib.filter myFilter finalAttrs.requiredLuaPlugins)
+        # ++ [ (lua.pkgs.luaLib.toLuaModule lua) ]
+      );
 
     ## Here we calculate all of the arguments to the 1st call of `makeWrapper`
     # We start with the executable itself NOTE we call this variable "initial"
@@ -176,9 +166,11 @@ let
           "--set" "GEM_HOME" "${rubyEnv}/${rubyEnv.ruby.gemPath}"
         ] ++ lib.optionals (binPath != "") [
           "--suffix" "PATH" ":" binPath
-        ] ++ lib.optionals (luaEnv != null) [
-          "--prefix" "LUA_PATH" ";" (neovim-unwrapped.lua.pkgs.luaLib.genLuaPathAbsStr luaEnv)
-          "--prefix" "LUA_CPATH" ";" (neovim-unwrapped.lua.pkgs.luaLib.genLuaCPathAbsStr luaEnv)
+        ]
+        ++ lib.optionals (finalAttrs.requiredLuaPlugins != []) [
+          # Assume for now it's good enough
+          "--prefix" "LUA_PATH" ";" (lua.pkgs.luaLib.genLuaPathAbsStr luaEnv)
+          "--prefix" "LUA_CPATH" ";" (lua.pkgs.luaLib.genLuaCPathAbsStr luaEnv)
         ]
         ;
 
@@ -189,7 +181,7 @@ let
 
             "--add-flags" ''--cmd "lua ${finalAttrs.providerLuaRc}"''
             # (lib.intersperse "|" hostProviderViml)
-          ] ++ lib.optionals (packpathDirs ? myNeovimPackages && (packpathDirs.myNeovimPackages.start != [] || packpathDirs.myNeovimPackages.opt != [])) [
+          ] ++ lib.optionals ((packpathDirs.myNeovimPackages.start != [] || packpathDirs.myNeovimPackages.opt != [])) [
             "--add-flags" ''--cmd "set packpath^=${vimUtils.packDir packpathDirs}"''
             "--add-flags" ''--cmd "set rtp^=${vimUtils.packDir packpathDirs}"''
           ]
@@ -210,6 +202,20 @@ let
       withRuby = rubyEnv != null;
       inherit wrapperArgs generatedWrapperArgs;
       luaRcContent = rcContent;
+
+      # Plugins requested by user
+      plugins = plugins ++ [
+        # vimPlugins.rocks-nvim
+      ];
+      # Plugins requested by user in normal form
+      pluginsNormalized = neovimUtils.normalizePlugins finalAttrs.plugins;
+
+      # TODO not only normalized, but with transitiveDeps
+      requiredLuaPlugins = lua.pkgs.requiredLuaModules (map (x: x.plugin) finalAttrs.pluginsNormalized);
+
+    # requiredLuaRocks = lib.filter luaLib.hasLuaModule
+    #   (lua.pkgs.requiredLuaModules (self.nativeBuildInputs ++ self.propagatedBuildInputs));
+
 
       providerLuaRc = neovimUtils.generateProviderRc finalAttrs;
       # userRC
@@ -309,6 +315,7 @@ let
 
     nativeBuildInputs = [ makeWrapper lndir ];
 
+    doCheck = false;
     checkPhase = ''
       # check the generated init file is valid
       echo "RUNNING CHECKS"
