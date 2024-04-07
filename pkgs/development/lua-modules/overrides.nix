@@ -584,7 +584,7 @@ in
       export HOME=$(mktemp -d)
       busted --lua=nlua
       runHook postCheck
-      '';
+    '';
   });
 
   lze  = prev.lze.overrideAttrs(oa: {
