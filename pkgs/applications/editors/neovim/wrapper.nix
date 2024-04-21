@@ -26,9 +26,13 @@ let
     , withPython3 ? true
     # TODO deprecate
     , python3Env ? python3
+
+    # enable certain host providers
     , withNodeJs ? false
     , withPerl ? false
     , rubyEnv ? null
+
+    # wether to create aliases in $out/bin/vi(m) -> $out/bin/nvim
     , vimAlias ? false
     , viAlias ? false
 
@@ -41,18 +45,26 @@ let
     , neovimRcContent ? null
     # lua code to put into the generated init.lua file
     , luaRcContent ? ""
-    # entry to load in packpath
-    # , packpathDirs
 
+    # expects a list of plugin configuration
+    # expects { plugin=far-vim; config = "let g:far#source='rg'"; optional = false; }
+    # just for tests
     , plugins ? []
 
     /* the function you would have passed to lua.withPackages */
     , extraLuaPackages ? (_: [])
 
     # user viml configuration
+    # vimL code that should be sourced as part of the generated init.lua file
+    # , customRC ? ""
+
+    # custom viml config appended after plugin-specific config
     , customRC ? ""
+
     # user lua code only, the full init.lua is built from this but plugin configs, customRC etc
     , customRClua ? ""
+
+    , packpathdir ? lib.warn "deprecated. pass customRC instead" {}
     , ...
   }:
   assert withPython2 -> throw "Python2 support has been removed from the neovim wrapper, please remove withPython2 and python2Env.";
@@ -87,6 +99,8 @@ let
 
     wrapperArgsStr = if lib.isString wrapperArgs then wrapperArgs else lib.escapeShellArgs wrapperArgs;
 
+    luaEnv = neovim-unwrapped.lua.withPackages(extraLuaPackages);
+
     ## Here we calculate all of the arguments to the 1st call of `makeWrapper`
     # We start with the executable itself NOTE we call this variable "initial"
     # because if configure != {} we need to call makeWrapper twice, in order to
@@ -100,12 +114,23 @@ let
             "--add-flags" ''--cmd "set packpath^=${vimUtils.packDir packpathDirs}"''
             "--add-flags" ''--cmd "set rtp^=${vimUtils.packDir packpathDirs}"''
           ]
-          ;
+          ++ lib.optionals (luaEnv != null) [
+            "--prefix" "LUA_PATH" ";" (neovim-unwrapped.lua.pkgs.luaLib.genLuaPathAbsStr luaEnv)
+            "--prefix" "LUA_CPATH" ";" (neovim-unwrapped.lua.pkgs.luaLib.genLuaCPathAbsStr luaEnv)
+          ];
 
     providerLuaRc = neovimUtils.generateProviderRc {
       inherit withPython3 withNodeJs withPerl;
       withRuby = rubyEnv != null;
     };
+
+      # manifestRc = vimUtils.vimrcContent ({ customRC = ""; }) ;
+    # we call vimrcContent without 'packages' to avoid the init.vim generation
+    neovimRcContent = vimUtils.vimrcContent ({
+      beforePlugins = "";
+      customRC = lib.concatStringsSep "\n" (pluginRC ++ [customRC]);
+      packages = null;
+    });
 
     # If configure != {}, we can't generate the rplugin.vim file with e.g
     # NVIM_SYSTEM_RPLUGIN_MANIFEST *and* NVIM_RPLUGIN_MANIFEST env vars set in
@@ -117,13 +142,11 @@ let
       [ "${neovim-unwrapped}/bin/nvim" "${placeholder "out"}/bin/nvim" ]
       ++ [ "--set" "NVIM_SYSTEM_RPLUGIN_MANIFEST" "${placeholder "out"}/rplugin.vim" ]
       ++ lib.optionals finalAttrs.wrapRc [ "--add-flags" "-u ${writeText "init.lua" neovimRcContent}" ]
+
       ++ finalAttrs.generatedWrapperArgs
       ;
 
     perlEnv = perl.withPackages (p: [ p.NeovimExt p.Appcpanminus ]);
-
-    # finalAttrs.
-    luaEnv = neovim-unwrapped.lua.withPackages(extraLuaPackages);
 
   in {
       name = "neovim-${lib.getVersion neovim-unwrapped}${extraName}";
@@ -137,7 +160,13 @@ let
       inherit python3Env rubyEnv;
       withRuby = rubyEnv != null;
       inherit wrapperArgs generatedWrapperArgs;
-      luaRcContent = neovimRcContent;
+      # inherit luaRcContent;
+      # programs.neovim.generatedConfigViml = neovimConfig.neovimRcContent;
+      # Todo rename to vimlRcContent
+      vimlRcContent= lib.concatenateStringSep "\n" (lib.filter (!isNull) [
+          (lib.warn "Renamed to customRC" neovimRcContent) customRC]);
+
+      inherit luaRcContent;
       # Remove the symlinks created by symlinkJoin which we need to perform
       # extra actions upon
       postBuild = lib.optionalString stdenv.isLinux ''

@@ -1,6 +1,6 @@
 # run tests by building `neovim.tests`
 { vimUtils, writeText, neovim, vimPlugins
-, lib, fetchFromGitHub, neovimUtils, wrapNeovimUnstable
+, lib, neovimUtils, wrapNeovimUnstable
 , neovim-unwrapped
 , fetchFromGitLab
 , runCommandLocal
@@ -79,6 +79,10 @@ let
       vimrcGeneric="$out/patched.vim"
       mkdir $out
       ${pkgs.perl}/bin/perl -pe "s|\Q$NIX_STORE\E/[a-z0-9]{32}-|$NIX_STORE/eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee-|g" < "$vimrc" > "$vimrcGeneric"
+
+      set -x
+      cat "$luarc"
+      cat "$luarcGeneric"
       ${pkgs.perl}/bin/perl -pe "s|\Q$NIX_STORE\E/[a-z0-9]{32}-|$NIX_STORE/eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee-|g" < "$luarc" > "$luarcGeneric"
     '' + buildCommand);
 
@@ -92,6 +96,8 @@ rec {
   nvim_with_plugins = wrapNeovim2 "-with-plugins" nvimConfNix;
 
   singlelinesconfig = runTest (wrapNeovim2 "-single-lines" nvimConfSingleLines) ''
+      set -x
+      cat "$luarcGeneric"
       assertFileContains \
         "$luarcGeneric" \
         "vim.cmd.source \"/nix/store/eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee-init.vim"
