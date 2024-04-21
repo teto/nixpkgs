@@ -1352,17 +1352,17 @@
   };
 
   telescope-fzf-native-nvim = super.telescope-fzf-native-nvim.overrideAttrs {
-    dependencies = with self; [ telescope-nvim ];
+    dependencies = [ self.telescope-nvim ];
     buildPhase = "make";
     meta.platforms = lib.platforms.all;
   };
 
   telescope-fzf-writer-nvim = super.telescope-fzf-writer-nvim.overrideAttrs {
-    dependencies = with self; [ telescope-nvim ];
+    dependencies = [ self.telescope-nvim ];
   };
 
   telescope-fzy-native-nvim = super.telescope-fzy-native-nvim.overrideAttrs (old: {
-    dependencies = with self; [ telescope-nvim ];
+    dependencies = [ self.telescope-nvim ];
     preFixup =
       let
         fzy-lua-native-path = "deps/fzy-lua-native";
@@ -1397,23 +1397,23 @@
   };
 
   telescope-nvim = super.telescope-nvim.overrideAttrs {
-    dependencies = with self; [ plenary-nvim ];
+    dependencies = [ self.plenary-nvim ];
   };
 
   telescope-symbols-nvim = super.telescope-symbols-nvim.overrideAttrs {
-    dependencies = with self; [ telescope-nvim ];
+    dependencies = [ self.telescope-nvim ];
   };
 
   telescope-undo-nvim = super.telescope-undo-nvim.overrideAttrs {
-    dependencies = with self; [ telescope-nvim ];
+    dependencies = [ self.telescope-nvim ];
   };
 
   telescope-z-nvim = super.telescope-z-nvim.overrideAttrs {
-    dependencies = with self; [ telescope-nvim ];
+    dependencies = [ self.telescope-nvim ];
   };
 
   telescope-zoxide = super.telescope-zoxide.overrideAttrs {
-    dependencies = with self; [ telescope-nvim ];
+    dependencies = [ self.telescope-nvim ];
 
     buildInputs = [ zoxide ];
 
