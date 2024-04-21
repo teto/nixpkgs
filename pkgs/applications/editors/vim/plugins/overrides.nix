@@ -1389,6 +1389,13 @@
     dependencies = with self; [ telescope-nvim popup-nvim plenary-nvim ];
   };
 
+  telescope-manix = super.telescope-manix.overrideAttrs {
+    dependencies = [ self.telescope-nvim ];
+
+    doInstallCheck = true;
+    nvimRequireCheck = "telescope-manix";
+  };
+
   telescope-nvim = super.telescope-nvim.overrideAttrs {
     dependencies = with self; [ plenary-nvim ];
   };
