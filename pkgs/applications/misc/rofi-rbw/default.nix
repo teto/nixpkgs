@@ -6,7 +6,7 @@
 , poetry-core
 , rbw
 
-, waylandSupport ? false
+, waylandSupport ? true
 , wl-clipboard
 , wtype
 
