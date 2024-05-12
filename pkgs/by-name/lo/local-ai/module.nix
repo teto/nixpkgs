@@ -56,6 +56,7 @@ in
       wantedBy = [ "multi-user.target" ];
       environment.LLAMACPP_PARALLEL = toString cfg.parallelRequests;
       serviceConfig = {
+        # User = "teto";
         DynamicUser = true;
         ExecStart = lib.escapeShellArgs (
           [
