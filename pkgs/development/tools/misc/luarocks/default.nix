@@ -24,7 +24,7 @@ with two "luarocks" derivations.
 }:
 
 stdenv.mkDerivation (finalAttrs: {
-  pname = "luarocks";
+  pname = "luarocks_bootstrap";
   version = "3.11.0";
 
   src = fetchFromGitHub {

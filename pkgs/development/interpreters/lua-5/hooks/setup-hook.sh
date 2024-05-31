@@ -1,4 +1,5 @@
 # set -e
 
 source ./utils.sh
-addEnvHooks "$hostOffset" addToLuaPath
+addEnvHooks "$hostOffset" buildLuaPath
+# addEnvHooks "$hostOffset" buildLuaPath

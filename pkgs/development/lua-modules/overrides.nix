@@ -526,7 +526,7 @@ in
 
   # can't find penlight
   neotest  = prev.neotest.overrideAttrs(oa: {
-    doCheck = true;
+    doCheck = false;
     nativeCheckInputs = [ final.nlua final.busted ];
     checkPhase = ''
       runHook preCheck

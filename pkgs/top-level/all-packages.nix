@@ -17302,7 +17302,7 @@ with pkgs;
 
   luajit = luajit_2_1;
 
-  luarocks = luaPackages.luarocks;
+  # luarocks = luaPackages.luarocks;
   luarocks-nix = luaPackages.luarocks-nix;
 
   luarocks-packages-updater = callPackage ../development/lua-modules/updater {
