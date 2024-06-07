@@ -85,7 +85,7 @@ buildLuaPath() {
 
   echo "BUILD_LUA_PATH"
 
-  set -x
+  # set -x
   # Create an empty table of paths (see doc on loadFromPropagatedInputs
   # for how this is used). Build up the program_PATH and program_LUA_PATH
   # variables.
