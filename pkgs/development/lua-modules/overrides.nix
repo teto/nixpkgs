@@ -62,7 +62,7 @@
 
 final: prev:
 let
-  inherit (prev) luaOlder luaAtLeast lua isLuaJIT;
+  inherit (prev) luaOlder luaAtLeast lua isLuaJIT isLua51;
 in
 {
   argparse = prev.argparse.overrideAttrs(oa: {
@@ -525,13 +525,38 @@ in
   });
 
   # can't find penlight
-  neotest  = prev.neotest.overrideAttrs(oa: {
-    doCheck = false;
-    nativeCheckInputs = [ final.nlua final.busted ];
+      # runHook preCheck
+  neotest = prev.neotest.overrideAttrs(oa: {
+    meta = oa.meta // { broken = !isLua51; };
+    doCheck = true;
+    nativeCheckInputs = oa.nativeCheckInputs ++ [ final.nlua final.busted
+    neovim-unwrapped
+  ];
+
+
     checkPhase = ''
-      runHook preCheck
+      echo "LUA_PATH: $LUA_PATH"
+      echo "CPATH: $LUA_CPATH"
+      ${lib.getExe which} busted
+      ${lib.getExe which} nlua
+      nlua <(echo "print(package.path)")
+      nlua <(echo "print(package.cpath)")
+      nlua <(echo "require'lfs'")
       export HOME=$(mktemp -d)
-      busted --lua=nlua
+      echo "PWD: $PWD"
+      ls -l
+      ls -l lua
+      ls -lR tests
+      # --lpath or --cpath
+      # --lpath='./lua/?.lua;./lua/?/init.lua'
+      export LUA_PATH="./lua/?.lua;./lua/?/init.lua;$LUA_PATH"
+      # echo $LUA_PATH
+      # busted  --lua=nlua  tests
+
+      nvim --headless -i NONE \
+        --cmd "set rtp+=${vimPlugins.plenary-nvim}" \
+        -c "PlenaryBustedDirectory tests/ {}"
+
       runHook postCheck
       '';
   });
