@@ -9,35 +9,9 @@
 , python3Packages
 , wrapNeovimUnstable
 , runCommand
-, vimPlugins
 }:
 let
   inherit (vimUtils) toVimPlugin;
-
-  /* transform all plugins into an attrset
-   { optional = bool; plugin = package; }
-  */
-  normalizePlugins = plugins:
-      let
-        defaultPlugin = {
-          plugin = null;
-          config = null;
-          optional = false;
-        };
-      in
-        # TODO use (coercedTo package (v: { plugin = v; }) pluginWithConfigType);
-        map (x: defaultPlugin // (if (x ? plugin) then x else { plugin = x; })) plugins;
-
-
-  /* accepts a list of
-  */
-  normalizedPluginsToVimPackage = normalizedPlugins:
-    let
-      pluginsPartitioned = lib.partition (x: x.optional == true) normalizedPlugins;
-    in {
-        start = map (x: x.plugin) pluginsPartitioned.wrong;
-        opt = map (x: x.plugin) pluginsPartitioned.right;
-      };
 
    /* returns everything needed for the caller to wrap its own neovim:
    - the generated content of the future init.vim
@@ -50,9 +24,11 @@ let
    anymore, $MYVIMRC wont be set etc
    */
   makeNeovimConfig =
-    {
+    { withPython3 ? true
     /* the function you would have passed to python3.withPackages */
-      extraPython3Packages ? (_: [ ])
+    , extraPython3Packages ? (_: [ ])
+    , withNodeJs ? false
+    , withRuby ? true
     /* the function you would have passed to lua.withPackages */
     , extraLuaPackages ? (_: [ ])
 
@@ -66,47 +42,101 @@ let
     , ...
     }@args:
     let
+      rubyEnv = bundlerEnv {
+        name = "neovim-ruby-env";
+        gemdir = ./ruby_provider;
+        postBuild = ''
+          ln -sf ${ruby}/bin/* $out/bin
+        '';
+      };
 
       # transform all plugins into an attrset
       # { optional = bool; plugin = package; }
-      pluginsNormalized = normalizePlugins plugins;
-
+      pluginsNormalized = let
+        defaultPlugin = {
+          plugin = null;
+          config = null;
+          optional = false;
+        };
+      in
+        map (x: defaultPlugin // (if (x ? plugin) then x else { plugin = x; })) plugins;
 
       pluginRC = lib.foldl (acc: p: if p.config != null then acc ++ [p.config] else acc) []  pluginsNormalized;
 
-      # pluginsPartitioned = lib.partition (x: x.optional == true) pluginsNormalized;
+      pluginsPartitioned = lib.partition (x: x.optional == true) pluginsNormalized;
       requiredPlugins = vimUtils.requiredPluginsForPackage myVimPackage;
       getDeps = attrname: map (plugin: plugin.${attrname} or (_: [ ]));
-      myVimPackage = normalizedPluginsToVimPackage pluginsNormalized;
+      myVimPackage = {
+            start = map (x: x.plugin) pluginsPartitioned.wrong;
+            opt = map (x: x.plugin) pluginsPartitioned.right;
+      };
 
       pluginPython3Packages = getDeps "python3Dependencies" requiredPlugins;
-      extraPython3PackagesGenerated = ps:
+      python3Env = python3Packages.python.withPackages (ps:
         [ ps.pynvim ]
-        ++ (lib.concatMap (f: f ps) pluginPython3Packages);
+        ++ (extraPython3Packages ps)
+        ++ (lib.concatMap (f: f ps) pluginPython3Packages));
 
+<<<<<<< HEAD
       luaEnv = neovim-unwrapped.lua.withPackages extraLuaPackages;
+||||||| parent of d572c4d01af3 (revert neovim changes relative to master)
+      # luaEnv = neovim-unwrapped.lua.withPackages(extraLuaPackages);
+=======
+      luaEnv = neovim-unwrapped.lua.withPackages(extraLuaPackages);
+>>>>>>> d572c4d01af3 (revert neovim changes relative to master)
 
       # as expected by packdir
       packpathDirs.myNeovimPackages = myVimPackage;
+      ## Here we calculate all of the arguments to the 1st call of `makeWrapper`
+      # We start with the executable itself NOTE we call this variable "initial"
+      # because if configure != {} we need to call makeWrapper twice, in order to
+      # avoid double wrapping, see comment near finalMakeWrapperArgs
+      makeWrapperArgs =
+        let
+          binPath = lib.makeBinPath (lib.optionals withRuby [ rubyEnv ] ++ lib.optionals withNodeJs [ nodejs ]);
+        in
+        [
+          "--inherit-argv0"
+        ] ++ lib.optionals withRuby [
+          "--set" "GEM_HOME" "${rubyEnv}/${rubyEnv.ruby.gemPath}"
+        ] ++ lib.optionals (binPath != "") [
+          "--suffix" "PATH" ":" binPath
+        ] ++ lib.optionals (luaEnv != null) [
+          "--prefix" "LUA_PATH" ";" (neovim-unwrapped.lua.pkgs.luaLib.genLuaPathAbsStr luaEnv)
+          "--prefix" "LUA_CPATH" ";" (neovim-unwrapped.lua.pkgs.luaLib.genLuaCPathAbsStr luaEnv)
+        ];
 
+<<<<<<< HEAD
       manifestRc = vimUtils.vimrcContent { customRC = ""; };
+||||||| parent of d572c4d01af3 (revert neovim changes relative to master)
+=======
+      manifestRc = vimUtils.vimrcContent ({ customRC = ""; }) ;
+>>>>>>> d572c4d01af3 (revert neovim changes relative to master)
       # we call vimrcContent without 'packages' to avoid the init.vim generation
+<<<<<<< HEAD
       neovimRcContent = vimUtils.vimrcContent {
+||||||| parent of d572c4d01af3 (revert neovim changes relative to master)
+      # we could skip that altogether
+      neovimRcContent = vimUtils.vimrcContent ({
+=======
+      neovimRcContent = vimUtils.vimrcContent ({
+>>>>>>> d572c4d01af3 (revert neovim changes relative to master)
         beforePlugins = "";
         customRC = lib.concatStringsSep "\n" (pluginRC ++ [customRC]);
         packages = null;
       };
     in
 
-    # builtins.removeAttrs args ["plugins"] //
-    args //
-    {
-      wrapperArgs = [];
+    builtins.removeAttrs args ["plugins"] // {
+      wrapperArgs = makeWrapperArgs;
       inherit packpathDirs;
       inherit neovimRcContent;
-      # inherit python3Env;
-      extraPython3Packages = ps: (extraPython3Packages ps) ++ (extraPython3PackagesGenerated ps);
-      # inherit luaEnv;
+      inherit manifestRc;
+      inherit python3Env;
+      inherit luaEnv;
+      inherit withNodeJs;
+    } // lib.optionalAttrs withRuby {
+      inherit rubyEnv;
     };
 
 
@@ -125,8 +155,6 @@ let
     , viAlias ? false
     , configure ? {}
     , extraName ? ""
-    # to ignore some parameters I develop
-    , ...
   }:
     let
 
@@ -268,8 +296,6 @@ in
   inherit legacyWrapper;
   inherit grammarToPlugin;
   inherit packDir;
-
-  inherit normalizePlugins normalizedPluginsToVimPackage;
 
   inherit buildNeovimPlugin;
   buildNeovimPluginFrom2Nix = lib.warn "buildNeovimPluginFrom2Nix was renamed to buildNeovimPlugin" buildNeovimPlugin;
