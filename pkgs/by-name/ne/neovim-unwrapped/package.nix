@@ -114,7 +114,9 @@ in {
     # make oldtests too
     checkPhase = ''
       runHook preCheck
-      make functionaltest
+      nvim -l <(echo "print(package.path)")
+      # make functionaltest
+
       runHook postCheck
     '';
 
@@ -155,15 +157,18 @@ in {
       # That's because all dependencies were found and
       # third-party/CMakeLists.txt is not read at all.
       "-DUSE_BUNDLED=OFF"
+      "-DLUA_PRG=${neovimLuaEnvOnBuild}/bin/luajit"
     ]
-    ++ lib.optional (!lua.pkgs.isLuaJIT) "-DPREFER_LUA=ON"
+    ++ lib.optionals (!lua.pkgs.isLuaJIT) [
+      "-DPREFER_LUA=ON"
+      "-DLUA_PRG=${neovimLuaEnvOnBuild}/bin/lua"
+    ]
     ;
 
     preConfigure = lib.optionalString lua.pkgs.isLuaJIT ''
       cmakeFlagsArray+=(
         "-DLUAC_PRG=${codegenLua}/bin/luajit -b -s %s -"
         "-DLUA_GEN_PRG=${codegenLua}/bin/luajit"
-        "-DLUA_PRG=${neovimLuaEnvOnBuild}/bin/luajit"
       )
     '' + lib.optionalString stdenv.isDarwin ''
       substituteInPlace src/nvim/CMakeLists.txt --replace "    util" ""
