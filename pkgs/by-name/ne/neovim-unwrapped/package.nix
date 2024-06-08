@@ -157,17 +157,20 @@ in {
       # That's because all dependencies were found and
       # third-party/CMakeLists.txt is not read at all.
       "-DUSE_BUNDLED=OFF"
+      "-DLUA_PRG=${neovimLuaEnvOnBuild}/bin/luajit"
     ]
-    ++ (if (!lua.pkgs.isLuaJIT) then [
-      "-DLUAC_PRG=${codegenLua}/bin/luajit -b -s %s -"
-      "-DLUA_GEN_PRG=${codegenLua}/bin/luajit"
-    ] else [
+    ++ lib.optionals (!lua.pkgs.isLuaJIT) [
       "-DPREFER_LUA=ON"
       "-DLUA_PRG=${neovimLuaEnvOnBuild}/bin/lua"
-    ])
+    ]
     ;
 
-    preConfigure = lib.optionalString stdenv.isDarwin ''
+    preConfigure = lib.optionalString lua.pkgs.isLuaJIT ''
+      cmakeFlagsArray+=(
+        "-DLUAC_PRG=${codegenLua}/bin/luajit -b -s %s -"
+        "-DLUA_GEN_PRG=${codegenLua}/bin/luajit"
+      )
+    '' + lib.optionalString stdenv.isDarwin ''
       substituteInPlace src/nvim/CMakeLists.txt --replace "    util" ""
     '' + ''
       mkdir -p $out/lib/nvim/parser
