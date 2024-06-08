@@ -65,7 +65,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   postInstall = ''
     sed -e "1s@.*@#! ${lua}/bin/lua$LUA_SUFFIX@" -i "$out"/bin/*
-    substituteInPlace $out/etc/luarocks/* \
+    substituteInPlace --replace-warn $out/etc/luarocks/* \
      --replace '${lua.luaOnBuild}' '${lua}'
    ''
     + lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
