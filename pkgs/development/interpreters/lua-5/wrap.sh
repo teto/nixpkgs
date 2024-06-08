@@ -29,7 +29,6 @@ wrapLuaProgramsIn() {
   # Find all regular files in the output directory that are executable.
   find "$dir" -type f -perm -0100 -print0 | while read -d "" f; do
     # Rewrite "#! .../env lua" to "#! /nix/store/.../lua".
-    # Strip suffix, like "3" or "2.7m" -- we don't have any choice on which
     # Lua to use besides one with this hook anyway.
     if head -n1 "$f" | grep -q '#!.*/env.*\(lua\)'; then
       sed -i "$f" -e "1 s^.*/env[ ]*\(lua\)[^ ]*^#! @executable@^"
