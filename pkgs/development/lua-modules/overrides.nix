@@ -723,6 +723,31 @@ in
     };
   })) {};
 
+  rest-nvim = prev.rest-nvim.overrideAttrs(oa: {
+
+    doCheck = true;
+    checkInputs = [
+      # which
+      neovim-unwrapped
+      # coreutils
+      # findutils
+    ];
+
+    # needs plenary
+    checkPhase = ''
+      echo "LUA_PATH: $LUA_PATH"
+      runHook preCheck
+
+      require("plenary.test_harness").test_directory(test_file, {
+        minimal_init = "tests/minimal_init.lua",
+        sequential = true,
+      })
+
+
+      runHook postCheck
+      '';
+
+  });
 
   sqlite = prev.sqlite.overrideAttrs (drv: {
 
