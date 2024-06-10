@@ -729,21 +729,27 @@ in
     checkInputs = [
       # which
       neovim-unwrapped
+      final.plenary-nvim
       # coreutils
       # findutils
     ];
 
     # needs plenary
+    #TODO use addToLuaPath "lua" instead
     checkPhase = ''
+      ls -R lua
+      export LUA_PATH="$PWD/lua/?.lua;$PWD/lua/?/init.lua;$LUA_PATH"
       echo "LUA_PATH: $LUA_PATH"
       runHook preCheck
 
       cat <<-EOF > nixpkgs-test.lua
+      test_file = "tests/specs/"
+
       require("plenary.test_harness").test_directory(test_file, {
         sequential = true,
       })
       EOF
-      lua nixpkgs-test.lua
+      nvim -l nixpkgs-test.lua
 
 
       runHook postCheck
