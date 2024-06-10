@@ -738,10 +738,12 @@ in
       echo "LUA_PATH: $LUA_PATH"
       runHook preCheck
 
+      cat <<-EOF > nixpkgs-test.lua
       require("plenary.test_harness").test_directory(test_file, {
-        minimal_init = "tests/minimal_init.lua",
         sequential = true,
       })
+      EOF
+      lua nixpkgs-test.lua
 
 
       runHook postCheck
