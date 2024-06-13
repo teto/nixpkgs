@@ -13,6 +13,31 @@
 let
   inherit (vimUtils) toVimPlugin;
 
+  /* transform all plugins into an attrset
+   { optional = bool; plugin = package; }
+  */
+  normalizePlugins = plugins:
+      let
+        defaultPlugin = {
+          plugin = null;
+          config = null;
+          optional = false;
+        };
+      in
+        # TODO use (coercedTo package (v: { plugin = v; }) pluginWithConfigType);
+        map (x: defaultPlugin // (if (x ? plugin) then x else { plugin = x; })) plugins;
+
+
+  /* accepts a list of
+  */
+  normalizedPluginsToVimPackage = normalizedPlugins:
+    let
+      pluginsPartitioned = lib.partition (x: x.optional == true) normalizedPlugins;
+    in {
+        start = map (x: x.plugin) pluginsPartitioned.wrong;
+        opt = map (x: x.plugin) pluginsPartitioned.right;
+      };
+
    /* returns everything needed for the caller to wrap its own neovim:
    - the generated content of the future init.vim
    - the arguments to wrap neovim with
@@ -295,8 +320,10 @@ in
   inherit generateProviderRc;
   inherit legacyWrapper;
   inherit grammarToPlugin;
-  inherit packDir;
+
+  inherit normalizePlugins normalizedPluginsToVimPackage;
 
   inherit buildNeovimPlugin;
+  inherit packDir;
   buildNeovimPluginFrom2Nix = lib.warn "buildNeovimPluginFrom2Nix was renamed to buildNeovimPlugin" buildNeovimPlugin;
 }
