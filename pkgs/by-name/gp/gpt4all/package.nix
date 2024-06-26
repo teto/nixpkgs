@@ -4,6 +4,7 @@
 , fetchFromGitHub
 , fetchurl
 , cmake
+, autoAddDriverRunpath
 , qt6
 , fmt
 , shaderc
