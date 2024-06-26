@@ -20,18 +20,18 @@ stdenv.mkDerivation rec {
   pname = "popcorntime";
   version = "0.5.1";
 
-  # src = fetchurl {
-  #   url = "https://github.com/popcorn-official/popcorn-desktop/releases/download/v${version}/Popcorn-Time-${version}-linux64.zip";
-  #   hash = "sha256-lCsIioR252GWP/+wNwkTw5PLSal/M9x6mlR/EKOd/hs=";
-  # };
-  #
-  src = fetchFromGitHub {
-    owner = "teto";
-    repo = "popcorn-desktop";
-    rev = "3f0a9cac186601a20ce75615f10ee24f7479dd73";
-    # hash = "sha256-lCsIioR251GWP/+wNwkTw5PLSal/M9x6mlR/EKOd/hs=";
-    hash = "sha256-AcQAliNyZtuNRgmYdhbCrLu9k5fLc9NgixIlPYQP8io=";
+  src = fetchurl {
+    url = "https://github.com/popcorn-official/popcorn-desktop/releases/download/v${version}/Popcorn-Time-${version}-linux64.zip";
+    hash = "sha256-lCsIioR252GWP/+wNwkTw5PLSal/M9x6mlR/EKOd/hs=";
   };
+
+  # src = fetchFromGitHub {
+  #   owner = "teto";
+  #   repo = "popcorn-desktop";
+  #   rev = "3f0a9cac186601a20ce75615f10ee24f7479dd73";
+  #   # hash = "sha256-lCsIioR251GWP/+wNwkTw5PLSal/M9x6mlR/EKOd/hs=";
+  #   hash = "sha256-AcQAliNyZtuNRgmYdhbCrLu9k5fLc9NgixIlPYQP8io=";
+  # };
 
   nativeBuildInputs = [
     autoPatchelfHook
