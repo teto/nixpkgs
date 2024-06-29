@@ -6,6 +6,7 @@
 , pkg-config
 , wayland-scanner
 , libGL
+, libliftoff
 , wayland
 , wayland-protocols
 , libinput
