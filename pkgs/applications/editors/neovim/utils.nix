@@ -102,13 +102,7 @@ let
         ++ (extraPython3Packages ps)
         ++ (lib.concatMap (f: f ps) pluginPython3Packages));
 
-<<<<<<< HEAD
       luaEnv = neovim-unwrapped.lua.withPackages extraLuaPackages;
-||||||| parent of d572c4d01af3 (revert neovim changes relative to master)
-      # luaEnv = neovim-unwrapped.lua.withPackages(extraLuaPackages);
-=======
-      luaEnv = neovim-unwrapped.lua.withPackages(extraLuaPackages);
->>>>>>> d572c4d01af3 (revert neovim changes relative to master)
 
       # as expected by packdir
       packpathDirs.myNeovimPackages = myVimPackage;
@@ -131,21 +125,9 @@ let
           "--prefix" "LUA_CPATH" ";" (neovim-unwrapped.lua.pkgs.luaLib.genLuaCPathAbsStr luaEnv)
         ];
 
-<<<<<<< HEAD
       manifestRc = vimUtils.vimrcContent { customRC = ""; };
-||||||| parent of d572c4d01af3 (revert neovim changes relative to master)
-=======
-      manifestRc = vimUtils.vimrcContent ({ customRC = ""; }) ;
->>>>>>> d572c4d01af3 (revert neovim changes relative to master)
       # we call vimrcContent without 'packages' to avoid the init.vim generation
-<<<<<<< HEAD
       neovimRcContent = vimUtils.vimrcContent {
-||||||| parent of d572c4d01af3 (revert neovim changes relative to master)
-      # we could skip that altogether
-      neovimRcContent = vimUtils.vimrcContent ({
-=======
-      neovimRcContent = vimUtils.vimrcContent ({
->>>>>>> d572c4d01af3 (revert neovim changes relative to master)
         beforePlugins = "";
         customRC = lib.concatStringsSep "\n" (pluginRC ++ [customRC]);
         packages = null;
