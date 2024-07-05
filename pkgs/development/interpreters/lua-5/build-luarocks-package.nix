@@ -156,11 +156,12 @@ let
     };
 
     luarocksConfig' = lib.recursiveUpdate luarocksConfig
-      (lib.optionalAttrs (attrs ? extraVariables) (lib.warn "extraVariables in buildLuarocksPackage is deprecated, use luarocksConfig instead"
+      ((lib.optionalAttrs (attrs ? extraVariables) (lib.warn "extraVariables in buildLuarocksPackage is deprecated, use luarocksConfig instead"
       {
         variables = attrs.extraVariables;
+      })) // {
         rocks_subdir = self.rocksSubdir;
-      }))
+      })
     ;
   in lib.recursiveUpdate generatedConfig luarocksConfig';
 
