@@ -142,6 +142,7 @@ let
     generatedConfig = luaLib.generateLuarocksConfig {
       externalDeps = lib.unique (self.externalDeps ++ externalDepsGenerated);
       local_cache = "";
+      # rocksSubdir = "rocks-subdir";
 
       # To prevent collisions when creating environments, we install the rock
       # files into per-package subdirectories
@@ -158,6 +159,7 @@ let
       (lib.optionalAttrs (attrs ? extraVariables) (lib.warn "extraVariables in buildLuarocksPackage is deprecated, use luarocksConfig instead"
       {
         variables = attrs.extraVariables;
+        rocks_subdir = self.rocksSubdir;
       }))
     ;
   in lib.recursiveUpdate generatedConfig luarocksConfig';
