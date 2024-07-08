@@ -2133,6 +2133,30 @@ buildLuarocksPackage {
   };
 }) {};
 
+luarocks-tag-release = callPackage({ buildLuarocksPackage, dkjson, fetchurl, fetchzip, lua-curl, luaOlder }:
+buildLuarocksPackage {
+  pname = "luarocks-tag-release";
+  version = "7.1.0-1";
+  knownRockspec = (fetchurl {
+    url    = "mirror://luarocks/luarocks-tag-release-7.1.0-1.rockspec";
+    sha256 = "08k00nbj4d7h93rnk6kkx49cm9gxqam0nriy361b06jr0f84bqc9";
+  }).outPath;
+  src = fetchzip {
+    url    = "https://github.com/nvim-neorocks/luarocks-tag-release/archive/v7.1.0.zip";
+    sha256 = "0xcil6b75jvrb6hr115lg9xc7h8h2p0zskkks89khkxsybz1vs3i";
+  };
+
+  disabled = luaOlder "5.1";
+  propagatedBuildInputs = [ dkjson lua-curl ];
+
+  meta = {
+    homepage = "https://github.com/nvim-neorocks/luarocks-tag-release";
+    description = "Luarocks release workflow for GitHub";
+    maintainers = with lib.maintainers; [ mrcjkb ];
+    license.fullName = "AGPL-3.0";
+  };
+}) {};
+
 luasec = callPackage({ buildLuarocksPackage, fetchFromGitHub, fetchurl, luaOlder, luasocket }:
 buildLuarocksPackage {
   pname = "luasec";
