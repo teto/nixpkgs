@@ -105,6 +105,7 @@ luarocks-build-tree-sitter-cli,,,,,,
 luarocks-build-treesitter-parser,,,,,,mrcjkb
 luarocks-build-treesitter-parser-cpp,,,,,,mrcjkb
 luasec,,,,,,flosse alerque
+luarocks-tag-release,,,,,,mrcjkb
 luasnip,,,,,,
 luasocket,,,,,,alerque
 luasql-sqlite3,,,,,,
