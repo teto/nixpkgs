@@ -86,6 +86,7 @@ luarocks,,,,,,mrcjkb teto
 luarocks-build-rust-mlua,,,,,,mrcjkb
 luarocks-build-treesitter-parser,,,,,,mrcjkb
 luarocks-build-treesitter-parser-cpp,,,,,,mrcjkb
+luarocks-tag-release,,,,,,mrcjkb
 luasec,,,,,,flosse
 luasnip,,,,,,
 luasocket,,,,,,
