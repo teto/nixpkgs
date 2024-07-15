@@ -63,6 +63,7 @@ rustPlatform.buildRustPackage rec {
     sqlite
   ];
 
+  # for exec
   nativeCheckInputs = [
     file
     gnum4
@@ -79,6 +80,11 @@ rustPlatform.buildRustPackage rec {
   preCheck = ''
     export HOME=$(mktemp -d)
   '';
+
+  # for libs
+  checkInputs = [
+    gnum4
+  ];
 
   checkFlags = [
     "--skip=conf::tests::test_config_parse"            # panicking due to sandbox
