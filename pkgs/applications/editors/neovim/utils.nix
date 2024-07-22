@@ -13,6 +13,8 @@
 let
   inherit (vimUtils) toVimPlugin;
 
+  module = import ./module.nix {};
+
   /* transform all plugins into an attrset
    { optional = bool; plugin = package; }
   */
