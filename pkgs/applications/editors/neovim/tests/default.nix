@@ -156,7 +156,6 @@ rec {
   run_nvim_with_ftplugin = runTest nvim_with_ftplugin ''
     export HOME=$TMPDIR
     echo '\documentclass{article}' > main.tex
-
     ${nvim_with_ftplugin}/bin/nvim main.tex -c "set ft?" -c quit
     ls -l $TMPDIR
     # if the file exists, then our plugin has been loaded instead of neovim's
