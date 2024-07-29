@@ -1,5 +1,5 @@
 # { config, }:
-{ config, lib, ... }:
+{ config, lib, neovimUtils, ... }:
 let
   generateInitNvim = toto:
     ''placeholder'';
@@ -30,7 +30,7 @@ in
 
   options = {
       plugins = lib.mkOption {
-        type = with lib; listOf (either package pluginWithConfigType);
+        type = with lib.types; listOf (either package pluginWithConfigType);
         default = [ ];
         example = lib.literalExpression ''
           with pkgs.vimPlugins; [
@@ -49,19 +49,20 @@ in
         '';
       };
 
-    # intermediateNixConfig = mkOption {
-    #   readOnly = true;
-    #   type = types.lines;
-    #   example = ''
-    #     USB? y
-    #     DEBUG n
-    #   '';
-    #   description = ''
-    #     The result of converting the structured kernel configuration in settings
-    #     to an intermediate string that can be parsed by generate-config.pl to
-    #     answer the kernel `make defconfig`.
-    #   '';
-    # };
+    packpathDirs = lib.mkOption {
+      readOnly = true;
+      # type = any;
+      # lib.types.lines;
+      description = ''
+      '';
+    };
+
+    initLua = lib.mkOption {
+      readOnly = true;
+      type = lib.types.lines;
+      description = ''
+      '';
+    };
 
     # settings = mkOption {
     #   type = types.attrsOf kernelItem;
@@ -78,6 +79,8 @@ in
 
 
   config = {
-    luaConf = generateInitNvim config.plugins;
+    initLua = "toto"; # generateInitNvim config.plugins;
+
+    packpathDirs = neovimUtils.normalizedPluginsToVimPackage config.plugins;
   };
 }

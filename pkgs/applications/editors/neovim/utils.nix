@@ -13,8 +13,6 @@
 let
   inherit (vimUtils) toVimPlugin;
 
-  module = import ./module.nix {};
-
   /* transform all plugins into an attrset
    { optional = bool; plugin = package; }
   */
@@ -90,13 +88,16 @@ let
 
       pluginRC = lib.foldl (acc: p: if p.config != null then acc ++ [p.config] else acc) []  pluginsNormalized;
 
-      pluginsPartitioned = lib.partition (x: x.optional == true) pluginsNormalized;
+      # pluginsPartitioned = lib.partition (x: x.optional == true) pluginsNormalized;
       requiredPlugins = vimUtils.requiredPluginsForPackage myVimPackage;
       getDeps = attrname: map (plugin: plugin.${attrname} or (_: [ ]));
-      myVimPackage = {
-            start = map (x: x.plugin) pluginsPartitioned.wrong;
-            opt = map (x: x.plugin) pluginsPartitioned.right;
-      };
+
+      myVimPackage = normalizedPluginsToVimPackage pluginsNormalized;
+
+      # myVimPackage = {
+      #       start = map (x: x.plugin) pluginsPartitioned.wrong;
+      #       opt = map (x: x.plugin) pluginsPartitioned.right;
+      # };
 
       pluginPython3Packages = getDeps "python3Dependencies" requiredPlugins;
       python3Env = python3Packages.python.withPackages (ps:
@@ -107,7 +108,7 @@ let
       luaEnv = neovim-unwrapped.lua.withPackages extraLuaPackages;
 
       # as expected by packdir
-      packpathDirs.myNeovimPackages = myVimPackage;
+      # packpathDirs.myNeovimPackages = myVimPackage;
       ## Here we calculate all of the arguments to the 1st call of `makeWrapper`
       # We start with the executable itself NOTE we call this variable "initial"
       # because if configure != {} we need to call makeWrapper twice, in order to
@@ -134,12 +135,30 @@ let
         customRC = lib.concatStringsSep "\n" (pluginRC ++ [customRC]);
         packages = null;
       };
+
+      module = import ./module.nix;
+      moduleBasedConfig = (lib.evalModules {
+        args = {
+          neovimUtils = {inherit normalizedPluginsToVimPackage;};
+        };
+        modules = [
+          module
+          {
+            _file = "pkgs/applications/editors/neovim/module.nix";
+            # plugins = [];
+            inherit plugins;
+          }
+        ]
+        ;
+      }).config;
+
     in
 
     builtins.removeAttrs args ["plugins"] // {
       wrapperArgs = makeWrapperArgs;
-      inherit packpathDirs;
-      inherit neovimRcContent;
+      packpathDirs.myNeovimPackages = moduleBasedConfig.packpathDirs;
+      # inherit packpathDirs;
+      neovimRcContent = neovimRcContent + moduleBasedConfig.initLua;
       inherit manifestRc;
       inherit python3Env;
       inherit luaEnv;
