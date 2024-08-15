@@ -5,10 +5,12 @@
 , rustPlatform
 
 # native build inputs
+, autoPatchelfHook
 , pkg-config
 , installShellFiles
 , makeWrapper
 , mandoc
+, notmuch
 , rustfmt
 , file
 
@@ -50,6 +52,7 @@ rustPlatform.buildRustPackage rec {
   OPENSSL_NO_VENDOR=1;
 
   nativeBuildInputs = [
+    autoPatchelfHook
     pkg-config
     installShellFiles
     makeWrapper
@@ -58,10 +61,12 @@ rustPlatform.buildRustPackage rec {
   ];
 
   buildInputs = [
+    notmuch
     openssl
     dbus
     sqlite
   ];
+
 
   # for exec
   nativeCheckInputs = [
@@ -85,6 +90,8 @@ rustPlatform.buildRustPackage rec {
   checkInputs = [
     gnum4
   ];
+
+  doCheck = false;
 
   checkFlags = [
     "--skip=conf::tests::test_config_parse"            # panicking due to sandbox

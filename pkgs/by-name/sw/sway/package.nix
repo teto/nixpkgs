@@ -54,13 +54,9 @@ in symlinkJoin rec {
   postBuild = ''
     ${optionalString withGtkWrapper "gappsWrapperArgsHook"}
 
-    ls -l $out/bin
-
     wrapProgram $out/bin/${sway.meta.mainProgram} \
       ${optionalString withGtkWrapper ''"''${gappsWrapperArgs[@]}"''} \
       ${optionalString (extraOptions != []) "${concatMapStrings (x: " --add-flags " + x) extraOptions}"}
-
-    ls -l $out/bin
   '';
 
   passthru = {
