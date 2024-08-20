@@ -23,7 +23,7 @@
 
 # Dependencies needed for running the checkPhase.
 # These are added to nativeBuildInputs when doCheck = true.
-, nativeCheckInputs ? [ lua.pkgs.busted ]
+, nativeCheckInputs ? []
 
 # propagate build dependencies so in case we have A -> B -> C,
 # C can import package A propagated by B
@@ -68,11 +68,6 @@
 # Keep extra attributes from `attrs`, e.g., `patchPhase', etc.
 
 let
-  # lua_modules_path = "."
-  # -- lib_modules_path = "/lib/lua/"..lua_version,
-  # -- rocks_subdir = "/lib/luarocks/rocks-"..lua_version,
-
-  # generatedRockspecFilename = "${rockspecDir}/${pname}-${rockspecVersion}.rockspec";
 
   # TODO fix warnings "Couldn't load rockspec for ..." during manifest
   # construction -- from initial investigation, appears it will require
@@ -99,9 +94,8 @@ let
     luarocks_bootstrap
   ] ++ lib.optionals self.doCheck ([ luarocksCheckHook ] ++ self.nativeCheckInputs);
 
-  inherit doCheck extraConfig rockspecFilename externalDeps nativeCheckInputs;
-  inherit knownRockspec;
-  inherit dontWrapLuaPrograms;
+  inherit doCheck extraConfig rockspecFilename knownRockspec externalDeps nativeCheckInputs;
+  # inherit dontWrapLuaPrograms;
 
   buildInputs = let
     # example externalDeps': [ { name = "CRYPTO"; dep = pkgs.openssl; } ]
@@ -113,9 +107,7 @@ let
     ;
 
   # propagate lua to active setup-hook in nix-shell
-  propagatedBuildInputs = propagatedBuildInputs
-  # ++ [ lua ]
-  ;
+  propagatedBuildInputs = propagatedBuildInputs ++ [ lua ];
 
   # @-patterns do not capture formal argument default values, so we need to
   # explicitly inherit this for it to be available as a shell variable in the
@@ -142,7 +134,6 @@ let
     generatedConfig = luaLib.generateLuarocksConfig {
       externalDeps = lib.unique (self.externalDeps ++ externalDepsGenerated);
       local_cache = "";
-      # rocksSubdir = "rocks-subdir";
 
       # To prevent collisions when creating environments, we install the rock
       # files into per-package subdirectories
@@ -156,18 +147,14 @@ let
     };
 
     luarocksConfig' = lib.recursiveUpdate luarocksConfig
-      ((lib.optionalAttrs (attrs ? extraVariables) (lib.warn "extraVariables in buildLuarocksPackage is deprecated, use luarocksConfig instead"
+      (lib.optionalAttrs (attrs ? extraVariables) (lib.warn "extraVariables in buildLuarocksPackage is deprecated, use luarocksConfig instead"
       {
         variables = attrs.extraVariables;
-      })) // {
-        rocks_subdir = self.rocksSubdir;
-      })
+      }))
     ;
   in lib.recursiveUpdate generatedConfig luarocksConfig';
 
 
-  # TODO check rockspec was found !
-  # generate a list of candidates
   configurePhase = ''
     runHook preConfigure
     rockspecFilename="''${rockspecFilename:-${self.generatedRockspecFilename}}"
@@ -211,8 +198,6 @@ let
     wrapLuaPrograms
   '' + attrs.postFixup or "";
 
-  # see https://github.com/luarocks/luarocks/issues/1659
-  # --no-manifest empeche la creation de say-scm-1-rocks/manifest
   installPhase = ''
     runHook preInstall
 

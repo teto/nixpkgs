@@ -16,7 +16,6 @@ let
   plugins = callPackage ./generated.nix {
     inherit buildVimPlugin;
     inherit (neovimUtils) buildNeovimPlugin;
-    # buildNeovimPluginFrom2Nix = neovimUtils.buildNeovimPlugin;
   };
 
   # TL;DR

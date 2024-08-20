@@ -1284,6 +1284,10 @@ in
     nvimRequireCheck = "neorg";
   };
 
+  neorg-telescope = super.neorg.overrideAttrs {
+    dependencies = with self; [ neorg telescope-nvim ];
+  };
+
   neotest = super.neotest.overrideAttrs {
     dependencies = with self; [ nvim-nio plenary-nvim ];
   };
@@ -1486,9 +1490,6 @@ in
   };
 
   orgmode = super.orgmode.overrideAttrs {
-    # nvim-treesitter is actually a real dependencu
-    # dependencies = [ (neovimUtils.grammarToPlugin tree-sitter-grammars.tree-sitter-org-nvim) ];
-
     dependencies = with self; [ (nvim-treesitter.withPlugins (p: [ p.org ])) ];
   };
 
@@ -1797,10 +1798,6 @@ in
     inherit (taskwarrior2) version pname;
     src = "${taskwarrior2.src}/scripts/vim";
   };
-
-  # telescope-all-recent-nvim = super.telescope-all-recent-nvim.overrideAttrs {
-  #   dependencies = with self; [ sqlite-lua telescope-nvim ];
-  # };
 
   telescope-cheat-nvim = super.telescope-cheat-nvim.overrideAttrs {
     dependencies = with self; [ sqlite-lua telescope-nvim ];
