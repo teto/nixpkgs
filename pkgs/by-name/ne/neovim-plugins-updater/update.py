@@ -1,13 +1,20 @@
-def main():
-    editor = LuaEditor(
-        "lua",
-        ROOT,
-        "",
-        default_in=PKG_LIST,
-        default_out=GENERATED_NIXFILE,
-    )
 
-    editor.run()
+
+import updater
+
+INPUT_FILENAME = "pkgs/applications/editors/vim/plugins/neovim-luarocks-plugins.csv"
+# PKG_LIST = "maintainers/scripts/luarocks-packages.csv"
+
+def main():
+    # editor = LuaEditor(
+    #     "lua",
+    #     ROOT,
+    #     "",
+    #     default_in=INPUT_FILENAME,
+    #     default_out=GENERATED_NIXFILE,
+    # )
+    #
+    # editor.run()
 
     print("ttoto")
 
