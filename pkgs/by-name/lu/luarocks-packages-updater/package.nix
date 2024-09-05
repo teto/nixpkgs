@@ -35,6 +35,9 @@ python3Packages.buildPythonApplication {
 
   propagatedBuildInputs = [
     python3Packages.gitpython
+    nix
+    nix-prefetch-scripts
+    luarocks-nix
   ];
 
   # installPhase =
@@ -57,7 +60,6 @@ python3Packages.buildPythonApplication {
      --prefix PYTHONPATH : "${pluginupdate}" \
      --prefix PATH : "${path}"
   '';
-      # --add-flags "--patterns ${allowedPatternsPath}" \
 
   shellHook = ''
     export PYTHONPATH="maintainers/scripts/pluginupdate-py:$PYTHONPATH"
