@@ -133,7 +133,6 @@ packages = ( self:
       sha256 = "1i3id7xw0j4z1a14mscr68ckpgvcwsjpl86lr864wy7w7qcmblx6";
     };
     meta.homepage = "https://github.com/listentolist/kakoune-rainbow/";
-    meta.mainProgram = "kak-rainbow.scm";
   };
 
   kakoune-registers = buildKakounePluginFrom2Nix {
@@ -222,12 +221,12 @@ packages = ( self:
 
   tabs-kak = buildKakounePluginFrom2Nix {
     pname = "tabs-kak";
-    version = "2023-05-15";
+    version = "2024-06-22";
     src = fetchFromGitHub {
       owner = "enricozb";
       repo = "tabs.kak";
-      rev = "f0b3a399db1dfa12b89fbff3eed09aec74725bab";
-      sha256 = "1sg26bv4vr08pqyxp68wsmzj8vhi2qg1bmkqb2jnngi5sjp4r7xy";
+      rev = "a8a401e07b583f6fbef5d4ab61261c21748ed101";
+      sha256 = "1009bcz8w1sspzdwmqn18nlcsps6p55vz5y2z6p3cmidkd97pn19";
     };
     meta.homepage = "https://github.com/enricozb/tabs.kak/";
   };
