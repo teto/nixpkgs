@@ -279,6 +279,7 @@ in
       inherit (cfg) environment;
 
       serviceConfig = commonServiceConfig // {
+        Description = "Photo and video hosting service.";
         ExecStart = lib.getExe cfg.package;
         EnvironmentFile = mkIf (cfg.secretsFile != null) cfg.secretsFile;
         StateDirectory = "immich";
