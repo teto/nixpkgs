@@ -252,6 +252,13 @@ let
     # A Vim "package", see ':h packages'
     vimPackage = myVimPackage;
 
+    checkPhase = ''
+      runHook preCheck
+
+      $out/bin/nvim -i NONE -e +quitall!
+      runHook postCheck
+      '';
+
     passthru = {
       inherit providerLuaRc packpathDirs;
       unwrapped = neovim-unwrapped;
