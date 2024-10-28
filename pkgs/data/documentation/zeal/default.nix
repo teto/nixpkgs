@@ -47,6 +47,7 @@ stdenv.mkDerivation (finalAttrs: {
     libpthreadstubs
     qtbase
     qtimageformats
+    qtwayland
     qtwebengine
     xcbutilkeysyms
   ] ++ lib.optionals isQt5 [ qtx11extras ];
