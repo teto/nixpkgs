@@ -100,7 +100,10 @@ stdenvNoCC.mkDerivation {
     nixdoc
     nix
   ];
-
+  passthru = {
+    json = ./lib-function-locations.nix;
+    libsetsJson = builtins.toJSON libsets;
+  };
   installPhase = ''
     cd ..
 
@@ -126,6 +129,8 @@ stdenvNoCC.mkDerivation {
     }
 
     mkdir -p "$out"
+    cp locations.json $out/
+
 
     cat > "$out/index.md" << 'EOF'
     ```{=include=} sections auto-id-prefix=auto-generated
