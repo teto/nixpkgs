@@ -15,6 +15,48 @@
   vimUtils,
 }:
 
+/**
+  Specialized `assertMsg` for checking if every one of `vals` is one of the elements
+  of the list `xs`. Useful for checking lists of supported attributes.
+
+  # Inputs
+
+  `name`
+
+  : The name of the variable the user entered `val` into, for inclusion in the error message
+
+  `vals`
+
+  : The list of values of what the user provided, to be compared against the values in `xs`
+
+  `xs`
+
+  : The list of valid values
+
+  # Type
+
+  ```
+  assertEachOneOf :: String -> List ComparableVal -> List ComparableVal -> Bool
+  ```
+
+  # Examples
+  :::{.example}
+  ## `lib.asserts.assertEachOneOf` usage example
+
+  ```nix
+  let sslLibraries = [ "libressl" "bearssl" ];
+  in assertEachOneOf "sslLibraries" sslLibraries [ "openssl" "bearssl" ]
+  stderr> error: each element in sslLibraries must be one of [
+  stderr>   "openssl"
+  stderr>   "bearssl"
+  stderr> ], but is: [
+  stderr>   "libressl"
+  stderr>   "bearssl"
+  stderr> ]
+  ```
+
+  :::
+*/
 neovim-unwrapped:
 
 let
