@@ -1915,9 +1915,68 @@ in
     nvimRequireCheck = "rest-nvim";
   };
 
-  rocks-nvim = neovimUtils.buildNeovimPlugin {
+
+  rocks-nvim =let
+    luaInterpreter = neovim-unwrapped.lua;
+
+    # generated-by-nix =
+    #     text = ''
+    #       local M = {}
+    #       M.gcc_path = "${pkgs.gcc}/bin/gcc"
+    #       M.lua_interpreter = "${luaInterpreter}"
+    #       M.luarocks_executable = "${luaInterpreter.pkgs.luarocks_bootstrap}/bin/luarocks"
+    #       return M
+    #     '';
+    #   };
+
+    # could use toLua or buildLuarocksConfig
+    # pkgs.lua.pkgs.luaLib.generateLuarocksConfig
+    "nvim/luarocks-config-generated.lua" =
+      let
+        luarocksStore = luaInterpreter.pkgs.luarocks;
+
+        luarocksConfigAttr =
+          luaInterpreter.pkgs.luaLib.generateLuarocksConfig ({
+            # externalDeps = [ pkgs.curl.dev ];
+          })
+          // {
+            lua_version = "5.1";
+          };
+
+        luarocksConfigAttr2 = lib.recursiveUpdate luarocksConfigAttr {
+          rocks_trees = [
+            # ({
+            #   name = "rocks.nvim";
+            #   root = "/home/teto/.local/share/nvim/rocks";
+            # })
+            ({
+              name = "rocks-generated.nvim";
+              root = "${luarocksStore}";
+            })
+          ];
+
+          # we need variables for lib-curl.lua to be installable
+          variables = {
+
+          };
+
+        };
+
+        luarocksConfigStr = (lib.generators.toLua { asBindings = false; } luarocksConfigAttr2);
+
+      in
+      {
+        enable = true;
+        text = "return ${luarocksConfigStr}";
+      };
+  in
+   neovimUtils.buildNeovimPlugin {
     luaAttr = luaPackages.rocks-nvim;
     nvimRequireCheck = "rocks";
+
+    checkPhase = ''
+
+    '';
   };
 
   rocks-config-nvim = neovimUtils.buildNeovimPlugin {
