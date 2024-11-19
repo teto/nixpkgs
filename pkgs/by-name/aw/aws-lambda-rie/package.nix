@@ -21,6 +21,5 @@ buildGoModule rec {
     mainProgram = "aws-lambda-rie";
     homepage = "https://github.com/aws/aws-lambda-runtime-interface-emulator";
     license = licenses.asl20;
-    maintainers = with maintainers; [ teto ];
   };
 }
