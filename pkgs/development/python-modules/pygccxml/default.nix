@@ -38,6 +38,5 @@ buildPythonPackage rec {
     homepage = "https://github.com/gccxml/pygccxml";
     changelog = "https://github.com/CastXML/pygccxml/blob/v${version}/CHANGELOG.md";
     license = licenses.boost;
-    maintainers = with maintainers; [ teto ];
   };
 }

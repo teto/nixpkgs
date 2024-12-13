@@ -135,7 +135,7 @@ stdenv.mkDerivation rec {
     license = licenses.gpl3;
     description = "Discrete time event network simulator";
     platforms = with platforms; unix;
-    maintainers = with maintainers; [ teto rgrunbla ];
+    maintainers = with maintainers; [ rgrunbla ];
     # never built on aarch64-darwin since first introduction in nixpkgs
     broken = (stdenv.hostPlatform.isDarwin && stdenv.hostPlatform.isAarch64) || (stdenv.hostPlatform.isLinux && stdenv.hostPlatform.isAarch64);
   };

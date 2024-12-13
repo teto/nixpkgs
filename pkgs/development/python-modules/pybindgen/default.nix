@@ -34,6 +34,5 @@ buildPythonPackage rec {
     description = "Python Bindings Generator";
     homepage = "https://github.com/gjcarneiro/pybindgen";
     license = licenses.lgpl21Plus;
-    maintainers = with maintainers; [ teto ];
   };
 }
