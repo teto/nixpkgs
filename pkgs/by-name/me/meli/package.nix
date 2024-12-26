@@ -1,6 +1,7 @@
 {
   stdenv,
   lib,
+  autoPatchelfHook,
   fetchzip,
   rustPlatform,
 
@@ -9,6 +10,7 @@
   installShellFiles,
   makeWrapper,
   mandoc,
+  notmuch,
   rustfmt,
   file,
   writableTmpDirAsHomeHook,
