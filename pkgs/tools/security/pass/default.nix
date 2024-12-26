@@ -20,6 +20,7 @@
   qrencode,
   makeWrapper,
   pass,
+  wrapperArgs ? [],
 
   xclip ? null,
   xdotool ? null,
@@ -140,7 +141,9 @@ stdenv.mkDerivation rec {
 
       # Ensure all dependencies are in PATH
       wrapProgram $out/bin/pass \
-        --prefix PATH : "${wrapperPath}"
+        --prefix PATH : "${wrapperPath}" \
+          ${lib.concatStringsSep " " wrapperArgs};
+
     ''
     + lib.optionalString dmenuSupport ''
       # We just wrap passmenu with the same PATH as pass. It doesn't
