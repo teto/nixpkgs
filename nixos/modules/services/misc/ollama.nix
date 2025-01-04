@@ -193,7 +193,7 @@ in
     users = lib.mkIf staticUser {
       users.${cfg.user} = {
         inherit (cfg) home;
-        isSystemUser = true;
+        # isSystemUser = true;
         group = cfg.group;
       };
       groups.${cfg.group} = { };
