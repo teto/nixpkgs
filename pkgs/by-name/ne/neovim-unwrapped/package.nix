@@ -9,7 +9,6 @@
   luajit,
   pkg-config,
   unibilium,
-  utf8proc,
   tree-sitter,
   wasmtime_36,
   fetchurl,
@@ -105,6 +104,7 @@ stdenv.mkDerivation (
     pname = "neovim-unwrapped";
     version = "0.12.5";
 
+    enableParallelBuilding = true;
     __structuredAttrs = true;
 
     src = fetchFromGitHub {
