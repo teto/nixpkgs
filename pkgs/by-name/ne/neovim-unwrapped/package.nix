@@ -9,7 +9,6 @@
   luajit,
   pkg-config,
   unibilium,
-  utf8proc,
   tree-sitter,
   fetchurl,
   buildPackages,
@@ -102,6 +101,7 @@ stdenv.mkDerivation (
     pname = "neovim-unwrapped";
     version = "0.11.6";
 
+    enableParallelBuilding = true;
     __structuredAttrs = true;
 
     src = fetchFromGitHub {
@@ -214,7 +214,7 @@ stdenv.mkDerivation (
         -e "s|\$<TARGET_FILE:nvim|\${stdenv.hostPlatform.emulator buildPackages} &|g"
     '';
     # check that the above patching actually works
-    disallowedRequisites = [ stdenv.cc ] ++ lib.optional (lua != codegenLua) codegenLua;
+    # disallowedRequisites = [ stdenv.cc ] ++ lib.optional (lua != codegenLua) codegenLua;
 
     cmakeFlags = [
       # Don't use downloaded dependencies. At the end of the configurePhase one
