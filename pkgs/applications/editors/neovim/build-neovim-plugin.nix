@@ -18,7 +18,7 @@ in
 let
   originalLuaDrv =
     if (lib.typeOf luaAttr == "string") then
-      lib.warn
+      lib.warn lib.warn
         "luaAttr as string is deprecated since September 2024. Pass a lua derivation directly ( e.g., `buildNeovimPlugin { luaAttr = lua.pkgs.plenary-nvim; }`)"
         lua.pkgs.${normalizeName luaAttr}
     else
@@ -34,6 +34,12 @@ let
       # neovim expects C modules to also be in the lua directory
       lib_modules_path = "lua";
     };
+
+    # or dont generate a manifest
+    # postFixup = ''
+    #   # to avoid collisions
+    #   rm -f $out/rock_manifest
+    # '';
   });
 
   finalDrv = toVimPlugin (
