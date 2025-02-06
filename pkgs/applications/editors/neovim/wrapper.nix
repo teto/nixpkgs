@@ -93,14 +93,19 @@ let
       # it will append "-u <customRc>" to the wrapped arguments
       # set to false if you want to control where to save the generated config
       # (e.g., in ~/.config/init.vim or project/.nvimrc)
-      wrapRc ? true,
-      # vimL code that should be sourced as part of the generated init.lua file
-      neovimRcContent ? null,
-      # lua code to put into the generated init.lua file
-      luaRcContent ? "",
-      # DEPRECATED: entry to load in packpath
-      # use 'plugins' instead
-      packpathDirs ? null, # not used anymore
+    , wrapRc ? true
+
+    # appends `--set packpath=... --set rtp^=...` to the wrapper
+    # hopefully we can get rid of it
+    , wrapPackpath ? true
+
+    # vimL code that should be sourced as part of the generated init.lua file
+    , neovimRcContent ? null
+    # lua code to put into the generated init.lua file
+    , luaRcContent ? ""
+    # DEPRECATED: entry to load in packpath
+    # use 'plugins' instead
+    , packpathDirs ? null # not used anymore
 
       # a list of neovim plugin derivations, for instance
       #  plugins = [
@@ -218,27 +223,23 @@ let
             ;
         };
 
-        # If `configure` != {}, we can't generate the rplugin.vim file with e.g
-        # NVIM_SYSTEM_RPLUGIN_MANIFEST *and* NVIM_RPLUGIN_MANIFEST env vars set in
-        # the wrapper. That's why only when `configure` != {} (tested both here and
-        # when `postBuild` is evaluated), we call makeWrapper once to generate a
-        # wrapper with most arguments we need, excluding those that cause problems to
-        # generate rplugin.vim, but still required for the final wrapper.
-        finalMakeWrapperArgs =
-          [
-            "${neovim-unwrapped}/bin/nvim"
-            "${placeholder "out"}/bin/nvim"
-          ]
-          ++ [
-            "--set"
-            "NVIM_SYSTEM_RPLUGIN_MANIFEST"
-            "${placeholder "out"}/rplugin.vim"
-          ]
-          ++ lib.optionals finalAttrs.wrapRc [
-            "--add-flags"
-            "-u ${writeText "init.lua" rcContent}"
-          ]
-          ++ finalAttrs.generatedWrapperArgs;
+    # If configure != {}, we can't generate the rplugin.vim file with e.g
+    # NVIM_SYSTEM_RPLUGIN_MANIFEST *and* NVIM_RPLUGIN_MANIFEST env vars set in
+    # the wrapper. That's why only when configure != {} (tested both here and
+    # when postBuild is evaluated), we call makeWrapper once to generate a
+    # wrapper with most arguments we need, excluding those that cause problems to
+    # generate rplugin.vim, but still required for the final wrapper.
+    finalMakeWrapperArgs =
+      [ "${neovim-unwrapped}/bin/nvim" "${placeholder "out"}/bin/nvim" ]
+      ++ [ "--set" "NVIM_SYSTEM_RPLUGIN_MANIFEST" "${placeholder "out"}/rplugin.vim" ]
+      ++ finalAttrs.generatedWrapperArgs
+      # for home-manager scenario or case the user wants full control over plugins folder/init.lua
+      ++ lib.optionals finalAttrs.wrapRc [ "--add-flags" "-u ${writeText "init.lua" rcContent}" ]
+      ++ lib.optionals (wrapPackpath && (finalAttrs.packpathDirs.myNeovimPackages.start != [] || finalAttrs.packpathDirs.myNeovimPackages.opt != [])) [
+          "--add-flags" ''--cmd "set packpath^=${finalPackdir}"''
+          "--add-flags" ''--cmd "set rtp^=${finalPackdir}"''
+        ]
+      ;
 
         perlEnv = perl.withPackages (p: [
           p.NeovimExt
