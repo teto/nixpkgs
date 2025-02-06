@@ -93,14 +93,19 @@ let
       # it sets the VIMINIT environment variable to "lua dofile('${customRc}')"
       # set to false if you want to control where to save the generated config
       # (e.g., in ~/.config/init.vim or project/.nvimrc)
-      wrapRc ? true,
-      # vimL code that should be sourced as part of the generated init.lua file
-      neovimRcContent ? null,
-      # lua code to put into the generated init.lua file
-      luaRcContent ? "",
-      # DEPRECATED: entry to load in packpath
-      # use 'plugins' instead
-      packpathDirs ? null, # not used anymore
+    , wrapRc ? true
+
+    # appends `--set packpath=... --set rtp^=...` to the wrapper
+    # hopefully we can get rid of it
+    , wrapPackpath ? true
+
+    # vimL code that should be sourced as part of the generated init.lua file
+    , neovimRcContent ? null
+    # lua code to put into the generated init.lua file
+    , luaRcContent ? ""
+    # DEPRECATED: entry to load in packpath
+    # use 'plugins' instead
+    , packpathDirs ? null # not used anymore
 
       # a list of neovim plugin derivations, for instance
       #  plugins = [
