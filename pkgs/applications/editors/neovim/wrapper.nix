@@ -235,7 +235,7 @@ let
       ++ finalAttrs.generatedWrapperArgs
       # for home-manager scenario or case the user wants full control over plugins folder/init.lua
       ++ lib.optionals finalAttrs.wrapRc [ "--add-flags" "-u ${writeText "init.lua" rcContent}" ]
-      ++ lib.optionals (wrapPackpath && (finalAttrs.packpathDirs.myNeovimPackages.start != [] || finalAttrs.packpathDirs.myNeovimPackages.opt != [])) [
+      ++ finalAttrs.generatedWrapperArgs
           "--add-flags" ''--cmd "set packpath^=${finalPackdir}"''
           "--add-flags" ''--cmd "set rtp^=${finalPackdir}"''
         ]
