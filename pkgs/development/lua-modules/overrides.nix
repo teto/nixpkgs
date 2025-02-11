@@ -769,6 +769,19 @@ in
     };
   })) {};
 
+  rocks-nvim = prev.rocks-nvim.overrideAttrs(oa: {
+
+    nativeCheckInputs = [ final.nlua final.busted ];
+
+    doCheck = lua.luaversion == "5.1";
+    checkPhase = ''
+      runHook preCheck
+      export HOME=$(mktemp -d)
+      busted --lua=nlua
+      runHook postCheck
+      '';
+  });
+
   rtp-nvim  = prev.rtp-nvim.overrideAttrs(oa: {
     doCheck = lua.luaversion == "5.1";
     nativeCheckInputs = [ final.nlua final.busted ];
