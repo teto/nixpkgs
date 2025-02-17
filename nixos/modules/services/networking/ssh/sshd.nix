@@ -835,13 +835,13 @@ in
       ${lib.concatMapStrings (port: ''
         Port ${toString port}
       '') cfg.ports}
+      ''
 
-        ${lib.concatMapStrings ({ port, addr, ... }: ''
+        (lib.concatMapStrings (
         { port, addr, ... }:
         ''
           ListenAddress ${addr}${lib.optionalString (port != null) (":" + toString port)}
-        '') cfg.listenAddresses}
-      ''
+        '') cfg.listenAddresses)
       ]
       ++ lib.optional cfgc.setXAuthLocation "XAuthLocation ${pkgs.xorg.xauth}/bin/xauth"
       ++ lib.optional cfg.allowSFTP ''Subsystem sftp ${cfg.sftpServerExecutable} ${lib.concatStringsSep " " cfg.sftpFlags}''
