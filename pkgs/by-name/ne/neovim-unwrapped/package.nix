@@ -8,7 +8,6 @@
   lua,
   pkg-config,
   unibilium,
-  utf8proc,
   tree-sitter,
   fetchurl,
   buildPackages,
@@ -98,6 +97,7 @@ stdenv.mkDerivation (
     pname = "neovim-unwrapped";
     version = "0.11.1";
 
+    enableParallelBuilding = true;
     __structuredAttrs = true;
 
     src = fetchFromGitHub {
