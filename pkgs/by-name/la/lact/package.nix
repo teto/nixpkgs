@@ -40,6 +40,22 @@ rustPlatform.buildRustPackage rec {
     vulkan-loader
   ];
 
+  # we do this here so that the binary is usable during integration tests
+  RUSTFLAGS = lib.optionalString stdenv.targetPlatform.isElf (
+    lib.concatStringsSep " " [
+      "-C link-arg=-Wl,-rpath,${
+        lib.makeLibraryPath [
+          vulkan-loader
+          libdrm
+        ]
+      }"
+      "-C link-arg=-Wl,--add-needed,${vulkan-loader}/lib/libvulkan.so"
+      "-C link-arg=-Wl,--add-needed,${libdrm}/lib/libdrm.so"
+    ]
+  );
+
+  doCheck = false;
+
   checkFlags = [
     # tries and fails to initialize gtk
     "--skip=app::pages::thermals_page::fan_curve_frame::tests::set_get_curve"

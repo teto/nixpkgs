@@ -86,21 +86,32 @@ in
 
   nui-nvim = prev.nui-nvim.overrideAttrs(oa: {
 
-    doCheck = false;
-    checkInputs = [
-      neovim-unwrapped
-      final.busted
-      final.plenary-nvim
-    ];
+    doCheck = true;
+    # checkInputs = [
+    #   neovim-unwrapped
+    #   final.busted
+    #   final.plenary-nvim
+    # ];
+    #
+    # # export LUA_PATH="src/?.lua;$LUA_PATH"
+    # #       nvim --headless --noplugin -u tests/init.lua -c "lua require('plenary.busted').run('./tests/nui/input_spec.lua')"
+    #
+    # checkPhase = ''
+    #   ls -l tests/nui
+    #   echo $PWD
+    #   nvim --headless --noplugin -u tests/init.lua -c "lua require('plenary.test_harness').test_directory('./tests/input/', { minimal_init = 'tests/init.lua', sequential = true })"
+    # '';
+    # doCheck = true;
+    nativeCheckInputs = [ final.nlua final.busted ];
 
-    # export LUA_PATH="src/?.lua;$LUA_PATH"
-    #       nvim --headless --noplugin -u tests/init.lua -c "lua require('plenary.busted').run('./tests/nui/input_spec.lua')"
-
+    # upstream uses PlenaryBusted which is a pain to setup
     checkPhase = ''
-      ls -l tests/nui
-      echo $PWD
-      nvim --headless --noplugin -u tests/init.lua -c "lua require('plenary.test_harness').test_directory('./tests/input/', { minimal_init = 'tests/init.lua', sequential = true })"
+      runHook preCheck
+      export HOME=$(mktemp -d)
+      busted --lua=nlua --lpath='lua/?.lua' --lpath='lua/?/init.lua' tests/
+      runHook postCheck
     '';
+
   });
 
   ##########################################3
@@ -957,6 +968,26 @@ in
       sed -i -e "1 s|.*|#\!${coreutils}/bin/env -S ${neovim-unwrapped}/bin/nvim -l|" "$out/bin/nlua"
     '';
     dontPatchShebangs = true;
+
+    # the src archive contains nothing, changes must be made upstream
+    # doCheck = true;
+    # checkInputs = [ final.busted ];
+    # checkPhase = "busted spec";
+  });
+
+  oil-nvim = prev.oil-nvim.overrideAttrs(oa: {
+    doCheck = false;
+    nativeCheckInputs = [
+      final.busted
+      final.nlua
+      final.plenary-nvim  # NURR doesn't set plenary as test_deps but it is one
+    ];
+    checkPhase = ''
+      runHook preCheck
+      busted --lua=nlua --lpath='lua/?.lua' --lpath='lua/?/init.lua' tests/
+      make test
+      runHook postCheck
+    '';
   });
 
   psl = prev.psl.overrideAttrs (drv: {
@@ -1023,7 +1054,27 @@ in
     })
   ) { };
 
-  rtp-nvim = prev.rtp-nvim.overrideAttrs (oa: {
+
+  rocks-nvim = prev.rocks-nvim.overrideAttrs(oa: {
+
+    doCheck = false;
+    # doCheck = lua.luaversion == "5.1";
+    nativeCheckInputs = [
+      final.nlua
+      final.busted
+      writableTmpDirAsHomeHook
+    ];
+    checkPhase = ''
+      runHook preCheck
+      rm spec/operations/install_update_spec.lua spec/operations/sync_spec.lua \
+        spec/operations/helpers_spec.lua spec/adapter_spec.lua \
+        spec/operations/pin_spec.lua spec/operations/bulk_install_spec.lua
+      busted spec
+      runHook postCheck
+      '';
+  });
+
+  rtp-nvim  = prev.rtp-nvim.overrideAttrs(oa: {
     doCheck = lua.luaversion == "5.1";
     nativeCheckInputs = [
       final.nlua

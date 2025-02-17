@@ -2957,6 +2957,17 @@ in
 
       });
 
+  rocks-config-nvim = neovimUtils.buildNeovimPlugin {
+    luaAttr = luaPackages.rocks-config-nvim;
+  };
+
+  roslyn-nvim = super.roslyn-nvim.overrideAttrs {
+  };
+
+  rtp-nvim = neovimUtils.buildNeovimPlugin {
+    luaAttr = luaPackages.rtp-nvim;
+  };
+
   rustaceanvim = neovimUtils.buildNeovimPlugin {
     checkInputs = [
       # Optional integration

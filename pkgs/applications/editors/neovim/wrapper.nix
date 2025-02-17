@@ -93,7 +93,7 @@ let
       # it will append "-u <customRc>" to the wrapped arguments
       # set to false if you want to control where to save the generated config
       # (e.g., in ~/.config/init.vim or project/.nvimrc)
-    , wrapRc ? true
+     wrapRc ? true
 
     # appends `--set packpath=... --set rtp^=...` to the wrapper
     # hopefully we can get rid of it
@@ -111,8 +111,8 @@ let
       #  plugins = [
       # { plugin=far-vim; config = "let g:far#source='rg'"; optional = false; }
       # ]
-      plugins ? [ ],
-      ...
+    , plugins ? [ ]
+    , ...
     }@attrs:
     assert
       withPython2
@@ -235,10 +235,10 @@ let
       ++ finalAttrs.generatedWrapperArgs
       # for home-manager scenario or case the user wants full control over plugins folder/init.lua
       ++ lib.optionals finalAttrs.wrapRc [ "--add-flags" "-u ${writeText "init.lua" rcContent}" ]
-      ++ finalAttrs.generatedWrapperArgs
-          "--add-flags" ''--cmd "set packpath^=${finalPackdir}"''
-          "--add-flags" ''--cmd "set rtp^=${finalPackdir}"''
-        ]
+      # ++ finalAttrs.generatedWrapperArgs [
+      #     "--add-flags" ''--cmd "set packpath^=${finalPackdir}"''
+      #     "--add-flags" ''--cmd "set rtp^=${finalPackdir}"''
+      #   ]
       ;
 
         perlEnv = perl.withPackages (p: [
