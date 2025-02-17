@@ -93,7 +93,7 @@ let
       # it sets the VIMINIT environment variable to "lua dofile('${customRc}')"
       # set to false if you want to control where to save the generated config
       # (e.g., in ~/.config/init.vim or project/.nvimrc)
-    , wrapRc ? true
+     wrapRc ? true
 
     # appends `--set packpath=... --set rtp^=...` to the wrapper
     # hopefully we can get rid of it
@@ -111,8 +111,8 @@ let
       #  plugins = [
       # { plugin=far-vim; config = "let g:far#source='rg'"; optional = false; }
       # ]
-      plugins ? [ ],
-      ...
+    , plugins ? [ ]
+    , ...
     }@attrs:
     assert
       withPython2
