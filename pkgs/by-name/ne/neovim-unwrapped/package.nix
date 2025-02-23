@@ -19,7 +19,6 @@
   procps ? null,
   versionCheckHook,
   nix-update-script,
-
   # now defaults to false because some tests can be flaky (clipboard etc), see
   # also: https://github.com/neovim/neovim/issues/16233
   nodejs ? null,
@@ -177,11 +176,11 @@ stdenv.mkDerivation (
 
     # to be exhaustive, one could run
     # make oldtests too
+    # nvim -l <(echo "print(package.path)")
+    # # make functionaltest
     checkPhase = ''
       runHook preCheck
-      nvim -l <(echo "print(package.path)")
-      # make functionaltest
-
+      make functionaltest
       runHook postCheck
     '';
 
