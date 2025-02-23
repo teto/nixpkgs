@@ -18,8 +18,7 @@
   procps ? null,
   versionCheckHook,
   nix-update-script,
-
-  libiconv ? null,
+  utf8proc,
 
   # now defaults to false because some tests can be flaky (clipboard etc), see
   # also: https://github.com/neovim/neovim/issues/16233
@@ -135,6 +134,7 @@ stdenv.mkDerivation (
 
     buildInputs =
       [
+        utf8proc
         libuv
         # This is actually a c library, hence it's not included in neovimLuaEnv,
         # see:
@@ -157,9 +157,7 @@ stdenv.mkDerivation (
     # make oldtests too
     checkPhase = ''
       runHook preCheck
-      nvim -l <(echo "print(package.path)")
-      # make functionaltest
-
+      make functionaltest
       runHook postCheck
     '';
 

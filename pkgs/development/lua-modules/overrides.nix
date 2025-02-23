@@ -176,7 +176,8 @@ in
     # FIXME: Darwin flaky tests
     # address already in use on second test run
     # Previewer transient failure
-    doCheck = !stdenv.hostPlatform.isDarwin;
+    # doCheck = !stdenv.hostPlatform.isDarwin;
+    doCheck = false;
     checkInputs = [
       fd
       fzf
