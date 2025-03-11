@@ -99,18 +99,6 @@ let
         '';
       };
 
-      user = mkOption {
-        type = types.str;
-        default = "root";
-        description = ''
-          TODO
-        '';
-          # If false, libvirtd runs qemu as unprivileged user qemu-libvirtd.
-          # Changing this option to false may cause file permission issues
-          # for existing guests. To fix these, manually change ownership
-          # of affected files in /var/lib/libvirt/qemu to qemu-libvirtd.
-      };
-
       verbatimConfig = mkOption {
         type = types.lines;
         default = ''
@@ -453,12 +441,6 @@ in
     '';
 
     systemd.packages = [ cfg.package ];
-
-    # users.extraUsers.myuser.extraGroups = [ "libvirtd" ];
-    system.activationScripts.libvirtd-chown = ''
-      chown ${cfg.qemu.user}:root /var/lib/libvirt/qemu
-      chown ${cfg.qemu.user}:root /var/lib/libvirt/images
-    '';
 
     systemd.services.libvirtd-config = {
       description = "Libvirt Virtual Machine Management Daemon - configuration";
