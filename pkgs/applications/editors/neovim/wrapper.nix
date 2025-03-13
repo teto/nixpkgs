@@ -193,8 +193,9 @@ let
           ++
             lib.optionals
               (
-                finalAttrs.packpathDirs.myNeovimPackages.start != [ ]
-                || finalAttrs.packpathDirs.myNeovimPackages.opt != [ ]
+                (finalAttrs.packpathDirs.myNeovimPackages.start != [ ]
+                || finalAttrs.packpathDirs.myNeovimPackages.opt != [ ])
+                && wrapPackpath
               )
               [
                 "--add-flags"
