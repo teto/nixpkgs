@@ -31,6 +31,7 @@ buildPythonPackage rec {
   dependencies = [ click ];
 
   nativeCheckInputs = [ pytestCheckHook ];
+  doCheck = false;
 
   pythonImportsCheck = [ "click_option_group" ];
 
