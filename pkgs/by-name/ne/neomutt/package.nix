@@ -30,7 +30,7 @@
   zstd,
   enableZstd ? true,
   enableMixmaster ? false,
-  enableLua ? false,
+  enableLua ? true,
   enableSmimeKeys ? true,
   withContrib ? true,
   withNotmuch ? true,
