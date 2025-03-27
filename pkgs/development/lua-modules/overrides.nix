@@ -916,6 +916,21 @@ in
     dontPatchShebangs = true;
   });
 
+  oil-nvim = prev.oil-nvim.overrideAttrs(oa: {
+    doCheck = true;
+    nativeCheckInputs = [
+      final.busted
+      final.nlua
+      final.plenary-nvim  # NURR doesn't set plenary as test_deps but it is one
+    ];
+    checkPhase = ''
+      runHook preCheck
+      busted --lua=nlua --lpath='lua/?.lua' --lpath='lua/?/init.lua' tests/
+      make test
+      runHook postCheck
+    '';
+  });
+
   psl = prev.psl.overrideAttrs (drv: {
     buildInputs = drv.buildInputs or [ ] ++ [ libpsl ];
 
