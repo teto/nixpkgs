@@ -42,6 +42,7 @@
   mariadb,
   mpfr,
   neovim-unwrapped,
+  neovimUtils,
   oniguruma,
   openldap,
   openssl,
@@ -273,13 +274,6 @@ in
       final.nlua
       final.bustedCheckHook
       writableTmpDirAsHomeHook
-    ];
-  };
-
-  image-nvim = prev.image-nvim.overrideAttrs {
-    propagatedBuildInputs = [
-      # lua
-      lua.pkgs.magick
     ];
   };
 
@@ -847,6 +841,12 @@ in
   });
 
   lux-lua = final.callPackage ./lux-lua.nix { inherit lua; };
+
+  lyaml = prev.lyaml.overrideAttrs {
+    buildInputs = [
+      libyaml
+    ];
+  };
 
   lz-n = prev.lz-n.overrideAttrs {
     doCheck = lua.luaversion == "5.1";
