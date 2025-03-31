@@ -42,6 +42,7 @@
   mariadb,
   mpfr,
   neovim-unwrapped,
+  neovimUtils,
   oniguruma,
   openldap,
   openssl,
@@ -284,13 +285,6 @@ in
     preCheck = ''
       LUA_PATH="${vimPlugins.nvim-dap}/lua/?.lua;${vimPlugins.nvim-dap}/lua/?/init.lua;$LUA_PATH"
     '';
-  };
-
-  image-nvim = prev.image-nvim.overrideAttrs {
-    propagatedBuildInputs = [
-      # lua
-      lua.pkgs.magick
-    ];
   };
 
   ldbus = prev.ldbus.overrideAttrs (old: {
@@ -858,6 +852,12 @@ in
   });
 
   lux-lua = final.callPackage ./lux-lua.nix { inherit lua; };
+
+  lyaml = prev.lyaml.overrideAttrs {
+    buildInputs = [
+      libyaml
+    ];
+  };
 
   lz-n = prev.lz-n.overrideAttrs {
     doCheck = lua.luaversion == "5.1";
