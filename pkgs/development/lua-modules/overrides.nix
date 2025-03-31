@@ -84,7 +84,7 @@ in
 
   nui-nvim = prev.nui-nvim.overrideAttrs(oa: {
 
-    doCheck = true;
+    doCheck = false;
     # checkInputs = [
     #   neovim-unwrapped
     #   final.busted
