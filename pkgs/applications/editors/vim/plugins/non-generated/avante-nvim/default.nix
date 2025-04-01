@@ -10,6 +10,7 @@
   vimUtils,
   makeWrapper,
   pkgs,
+  writableTmpDirAsHomeHook
 }:
 let
   version = "0.0.23";
@@ -80,11 +81,19 @@ vimUtils.buildVimPlugin {
     inherit avante-nvim-lib;
   };
 
+  checkInputs = [ writableTmpDirAsHomeHook];
   nvimSkipModules = [
     # Requires setup with corresponding provider
     "avante.providers.azure"
     "avante.providers.copilot"
   ];
+
+  #     make luatest
+  checkPhase = ''
+    pwd
+    ls -lR
+    nvim -V3log.txt --headless -c "PlenaryBustedDirectory tests/"
+    '';
 
   meta = {
     description = "Neovim plugin designed to emulate the behaviour of the Cursor AI IDE";
