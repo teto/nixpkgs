@@ -846,7 +846,7 @@ in
       ++ lib.optional cfgc.setXAuthLocation "XAuthLocation ${pkgs.xorg.xauth}/bin/xauth"
       ++ lib.optional cfg.allowSFTP ''Subsystem sftp ${cfg.sftpServerExecutable} ${lib.concatStringsSep " " cfg.sftpFlags}''
       ++ [
-      ''}
+      ''
         PrintMotd no # handled by pam_motd
       AuthorizedKeysFile ${toString cfg.authorizedKeysFiles}
         ''
