@@ -187,11 +187,6 @@ let
       export PATH="$TMP/bin:$PATH"
     '';
 
-    postPatch = lib.optionalString hideBuyButton ''
-      substituteInPlace src/lib/components/shared-components/side-bar/purchase-info.svelte \
-        --replace-fail "showBuyButton = getButtonVisibility()" "showBuyButton = false"
-    '';
-
     preBuild = ''
       rm node_modules/@immich/sdk
       ln -s ${openapi} node_modules/@immich/sdk
