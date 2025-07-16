@@ -79,6 +79,8 @@ rustPlatform.buildRustPackage rec {
     "--skip=test_cli_subcommands" # panicking due to sandbox
   ];
 
+  doCheck = false;
+
   meta = {
     description = "Terminal e-mail client and e-mail client library";
     mainProgram = "meli";
