@@ -12,8 +12,6 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [ autoreconfHook pkg-config curl expat libmicrohttpd ];
 
-  #hardeningDisable = [ "fortify" ];
-
   passthru = {
     updateScript = nix-update-script {
       attrPath = pname;
