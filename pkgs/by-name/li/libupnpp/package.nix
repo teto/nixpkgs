@@ -1,4 +1,14 @@
-{ fetchgit, stdenv, lib, autoreconfHook, pkg-config, libnpupnp, curl, expat }:
+{
+  fetchgit,
+  stdenv,
+  lib,
+  meson,
+  ninja,
+  pkg-config,
+  libnpupnp,
+  curl,
+  expat,
+}:
 
 stdenv.mkDerivation rec {
   pname = "libupnpp";
@@ -10,14 +20,24 @@ stdenv.mkDerivation rec {
     sha256 = "sha256-duLmy9Vxh6/IAo/mZlX/VbqFQaXTpgN3nYFUMSn784E=";
   };
 
-  nativeBuildInputs = [ autoreconfHook pkg-config libnpupnp curl expat ];
+  nativeBuildInputs = [
+    meson
+    ninja
+    pkg-config
+  ];
+
+  buildInputs = [
+    libnpupnp
+    curl
+    expat
+  ];
 
   meta = {
     description = "higher level C++ API over libnpupnp or libupnp";
 
     license = "BSD-style";
 
-    homepage = https://framagit.org/medoc92/npupnp;
+    homepage = "https://framagit.org/medoc92/npupnp";
     platforms = lib.platforms.unix;
   };
 }
