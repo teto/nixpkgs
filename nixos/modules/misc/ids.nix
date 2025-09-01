@@ -364,7 +364,6 @@ in
       rstudio-server = 324;
       localtimed = 325;
       automatic-timezoned = 326;
-      upmpdcli = 327;
 
       # When adding a uid, make sure it doesn't match an existing gid.
       #
