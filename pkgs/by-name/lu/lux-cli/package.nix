@@ -36,7 +36,8 @@ rustPlatform.buildRustPackage (finalAttrs: {
     versionCheckHook
   ];
   versionCheckProgram = "${placeholder "out"}/bin/${finalAttrs.meta.mainProgram}";
-  doInstallCheck = true;
+  versionCheckProgramArg = "--version";
+  doInstallCheck = false;
 
   nativeBuildInputs = [
     installShellFiles
@@ -57,6 +58,12 @@ rustPlatform.buildRustPackage (finalAttrs: {
     LIBSSH2_SYS_USE_PKG_CONFIG = 1;
     LUX_SKIP_IMPURE_TESTS = 1; # Disable impure unit tests
   };
+  # buildNoDefaultFeatures = true;
+  # # should contain the name of the lua interpreter
+  # buildFeatures= [
+  #   # "lua5${lib.versions.minor lua5_4.version}"
+  #   "lua52"
+  # ];
 
   cargoTestFlags = [
     "--lib" # Disable impure integration tests

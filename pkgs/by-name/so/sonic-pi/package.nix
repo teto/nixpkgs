@@ -206,7 +206,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   stripDebugList = [
     "app"
-    "bin"
+    # "bin"
   ];
 
   desktopItems = [
