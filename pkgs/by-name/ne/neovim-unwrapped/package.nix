@@ -18,6 +18,7 @@
   procps ? null,
   versionCheckHook,
   nix-update-script,
+
   # now defaults to false because some tests can be flaky (clipboard etc), see
   # also: https://github.com/neovim/neovim/issues/16233
   nodejs ? null,
@@ -161,7 +162,6 @@ stdenv.mkDerivation (
       neovimLuaEnv
       tree-sitter
       unibilium
-      utf8proc
     ]
     ++ lib.optionals finalAttrs.finalPackage.doCheck [
       glibcLocales
