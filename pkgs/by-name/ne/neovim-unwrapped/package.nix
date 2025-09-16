@@ -164,7 +164,6 @@ stdenv.mkDerivation (
       neovimLuaEnv
       treeSitterForNeovim
       unibilium
-      utf8proc
     ]
     ++ lib.optionals wasmSupport [
       wasmtime_36

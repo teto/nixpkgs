@@ -10865,4 +10865,44 @@ with pkgs;
   };
 
   feishin-web = feishin.override { webVersion = true; };
+
+  fetchLuxDeps = callPackage ../build-support/fetch-lux-deps.nix { };
+
+  buildLuxPackage = callPackage ../development/interpreters/lua-5/build-lux-package.nix {
+    # lux-cli = lux-cli.override { lua5_4 = lua; };
+  };
+
+  inherit
+    (callPackages ../build-support/lua/hooks/default.nix {
+      # inherit
+      #   stdenv
+      #   ;
+    })
+    luxBuildHook
+    luxCheckHook
+    luxSetupHook
+    ;
+
+  rikai-nvim-vendor = fetchLuxDeps {
+    src = /home/teto/neovim/rikai.nvim;
+    # sourceRoot = "timeless/src/rust";
+    hash = "sha256-5TV7iCzaaFwROfJNO5pvSUbJBzV+wZlU5+ZK4AMT6X0=";
+  };
+
+  # just to test buildLuxPackage
+  rikai-nvim =
+    # callPackage ({
+    #   buildLuxPackage,
+    #   ...
+    # }:
+    (
+      buildLuxPackage {
+
+        name = "rikai-nvim-by-lux";
+        version = "1.1";
+        src = /home/teto/neovim/rikai.nvim;
+
+        inherit (lua51Packages.rocks-nvim) meta;
+      }
+    );
 }
