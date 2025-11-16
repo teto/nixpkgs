@@ -12,8 +12,9 @@
   fftw,
   curl,
   gcc,
-  libsForQt5,
-  libxt,
+  # libsForQt6,
+  wrapQtAppsHook,
+  libXt,
   qtbase,
   qttools,
   qtwebengine,
@@ -32,22 +33,16 @@
 
 stdenv.mkDerivation rec {
   pname = "supercollider";
-  version = "3.13.1";
+  version = "3.14.0";
 
   src = fetchurl {
     url = "https://github.com/supercollider/supercollider/releases/download/Version-${version}/SuperCollider-${version}-Source.tar.bz2";
-    sha256 = "sha256-aXnAFdqs/bVZMovoDV1P4mv2PtdFD2QuXHjnsnEyMSs=";
+    sha256 = "sha256-q3EOhDdvXAgskvzqdGW4XTdZNPPafe7Vg0V6CkiwqRg=";
   };
 
   patches = [
     # add support for SC_DATA_DIR and SC_PLUGIN_DIR env vars to override compile-time values
-    ./supercollider-3.12.0-env-dirs.patch
-
-    # Fixes the build with CMake 4
-    (fetchpatch {
-      url = "https://github.com/supercollider/supercollider/commit/7d1f3fbe54e122889489a2f60bbc6cd6bb3bce28.patch";
-      hash = "sha256-gyE0B2qTbj0ppbLlYTMa2ooY3FHzzIrdrpWYr81Hy1Y=";
-    })
+    # ./supercollider-3.12.0-env-dirs.patch
 
     # Fixes the build with GCC 15
     (fetchpatch {
@@ -66,7 +61,7 @@ stdenv.mkDerivation rec {
     cmake
     pkg-config
     qttools
-    libsForQt5.wrapQtAppsHook
+    wrapQtAppsHook
   ]
   ++ lib.optionals useSCEL [ emacs ];
 
@@ -79,7 +74,7 @@ stdenv.mkDerivation rec {
     libxt
     qtbase
     qtwebsockets
-    qtwayland
+    # qtwayland
     readline
   ]
   ++ lib.optional withWebengine qtwebengine
