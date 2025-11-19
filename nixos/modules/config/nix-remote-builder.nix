@@ -8,7 +8,7 @@ with lib;
 let
   isNixAtLeast = lib.versionAtLeast nixVersion;
 
-  mkRemoteBuilderDesc = lib.mkRemoteBuilderDesc nixVersion machine;
+  mkRemoteBuilderDesc = lib.mkRemoteBuilderDesc nixVersion;
   # concatStringsSep " " (
   #   [
   #     "${optionalString (machine.protocol != null) "${machine.protocol}://"}${
