@@ -104,6 +104,7 @@ let
 
       # network
       network = callLibs ./network;
+      nix-utils = callLibs ./builders.nix;
 
       # flakes
       flakes = callLibs ./flakes.nix;
@@ -609,6 +610,10 @@ let
       inherit (self.flakes)
         parseFlakeRef
         flakeRefToString
+        ;
+
+      inherit (self.nix-utils)
+        mkRemoteBuilderDesc
         ;
     }
   );
