@@ -49,6 +49,11 @@ in
   ###### implementation
 
   config = mkIf (cfg.enable) {
+
+  systemd.tmpfiles.rules = [
+    "f /var/cache/powertop/saved_parameters.powertop 0600 root root"
+  ];
+
     systemd.services = {
       powertop = {
         documentation = [ "man:powertop(8)" ];
