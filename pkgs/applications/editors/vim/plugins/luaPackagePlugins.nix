@@ -47,10 +47,17 @@ let
     "telescope-nvim"
     # keep-sorted end
   ];
+
+  # Position string for this file - used to override meta.position
+  thisFilePosition = "pkgs/applications/editors/vim/plugins/luaPackagePlugins.nix:10";
 in
 lib.genAttrs luarocksPackageNames (
   name:
-  buildNeovimPlugin {
+  (buildNeovimPlugin {
     luaAttr = luaPackages.${name};
-  }
+  }).overrideAttrs (old: {
+    meta = (old.meta or {}) // {
+      position = thisFilePosition;
+    };
+  })
 )
