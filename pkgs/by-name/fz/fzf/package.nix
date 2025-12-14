@@ -66,6 +66,10 @@ buildGoModule (finalAttrs: {
     # Install shell integrations
     install -D shell/* -t $out/share/fzf/
 
+    # Install shell completions
+    installShellCompletion --bash shell/completion.bash \
+      --zsh shell/completion.zsh
+
     cat <<SCRIPT > $out/bin/fzf-share
     #!${runtimeShell}
     # Run this script to find the fzf shared folder where all the shell

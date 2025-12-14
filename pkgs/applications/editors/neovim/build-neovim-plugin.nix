@@ -16,11 +16,13 @@ in
   ...
 }@attrs:
 let
-      originalLuaDrv = if (lib.typeOf luaAttr == "string") then
+  originalLuaDrv =
+    if (lib.typeOf luaAttr == "string") then
       lib.warn
-        lib.warn "luaAttr as string is deprecated since September 2024. Pass a lua derivation directly ( e.g., `buildNeovimPlugin { luaAttr = lua.pkgs.plenary-nvim; }`)" lua.pkgs.${normalizeName luaAttr}
-        else luaAttr;
-
+        "luaAttr as string is deprecated since September 2024. Pass a lua derivation directly ( e.g., `buildNeovimPlugin { luaAttr = lua.pkgs.plenary-nvim; }`)"
+        lua.pkgs.${normalizeName luaAttr}
+    else
+      luaAttr;
 
   luaDrv = originalLuaDrv.overrideAttrs (old: {
     version = attrs.version or old.version;
@@ -29,7 +31,7 @@ let
 
 
         # update luarocks, this didn't work
-        luarocksConfig = lib.recursiveUpdate oa.luarocksConfig {
+        luarocksConfig = lib.recursiveUpdate old.luarocksConfig {
           # to create a flat hierarchy
           lua_modules_path = "lua";
         };

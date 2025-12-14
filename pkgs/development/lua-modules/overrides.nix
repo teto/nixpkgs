@@ -88,6 +88,9 @@ in
     nativeBuildInputs = old.nativeBuildInputs ++ [
       installShellFiles
     ];
+
+    # hack to remove
+    # propagatedBuildInputs = oa.propagatedBuildInputs ++ [ final.luafilesystem ];
     postInstall = ''
       installShellCompletion --cmd busted \
         --zsh completions/zsh/_busted \
