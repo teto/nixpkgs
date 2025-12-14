@@ -18,7 +18,7 @@ in
 let
   originalLuaDrv =
     if (lib.typeOf luaAttr == "string") then
-      lib.warn lib.warn
+      lib.warn
         "luaAttr as string is deprecated since September 2024. Pass a lua derivation directly ( e.g., `buildNeovimPlugin { luaAttr = lua.pkgs.plenary-nvim; }`)"
         lua.pkgs.${normalizeName luaAttr}
     else
