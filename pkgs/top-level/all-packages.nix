@@ -10886,7 +10886,7 @@ with pkgs;
   rikai-nvim-vendor = fetchLuxDeps {
     src = /home/teto/neovim/rikai.nvim;
     # sourceRoot = "timeless/src/rust";
-    hash = "sha256-5TV7iCzaaFwROfJNO5pvSUbJBzV+wZlU5+ZK4AMT6X0=";
+    hash = "sha256-hnoJ6cjzmftHeJGz9XXSaUrUs/Oeu0l6fOteAjc4DJc=";
   };
 
   # just to test buildLuxPackage
@@ -10900,6 +10900,7 @@ with pkgs;
 
         name = "rikai-nvim-by-lux";
         version = "1.1";
+        # rikai-nvim-vendor;
         src = /home/teto/neovim/rikai.nvim;
 
         inherit (lua51Packages.rocks-nvim) meta;
