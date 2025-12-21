@@ -9,28 +9,39 @@ luxBuildHook() {
     # separateDebugInfo.
     export "lux_PROFILE_${luxBuildType@U}_STRIP"=false
 
-    if [ -n "${buildAndTestSubdir-}" ]; then
-        # ensure the output doesn't end up in the subdirectory
-        lux_TARGET_DIR="$(pwd)/target"
-        export lux_TARGET_DIR
-
-        pushd "${buildAndTestSubdir}"
-    fi
+    # if [ -n "${buildAndTestSubdir-}" ]; then
+    #     # ensure the output doesn't end up in the subdirectory
+    #     lux_TARGET_DIR="$(pwd)/target"
+    #     export lux_TARGET_DIR
+    #
+    #     pushd "${buildAndTestSubdir}"
+    # fi
 
     local flagsArray=(
         # "-j" "$NIX_BUILD_CORES"
         # "--offline"
     )
 
-    concatTo flagsArray luxBuildFlags
-
+    # if       --tree \
     which pkg-config
     which lua
 
+    set -x
+    echo "luxdeps: $luxDeps"
+
+    if [ -z $luxDeps ]; then
+      flagsArray+="--tree=$luxDeps"
+    fi
+
+
+    concatTo flagsArray luxBuildFlags
+
+
     echoCmd 'luxBuildHook flags' "${flagsArray[@]}"
     # TODO pass a tree to work on --tree=$out ?
-    set -x
-    strace -o log -f @setEnv@ lx --no-progress --verbose "--lua-version=@luaversion@" build "${flagsArray[@]}"
+    # strace -o log -f @setEnv@
+    lx --no-progress --verbose "--lua-version=@luaversion@" \
+      build "${flagsArray[@]}"
 
     if [ -n "${buildAndTestSubdir-}" ]; then
         popd
