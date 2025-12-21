@@ -19,6 +19,7 @@ let
       ]
       ++ requests.optional-dependencies.socks; # to support socks proxy envs like ALL_PROXY in requests
     flakeIgnore = [
+      "E128"
       "E501"
     ];
   } (builtins.readFile ./lua/fetch-lux-deps-util.py);
