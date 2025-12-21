@@ -55,7 +55,7 @@
     name = "lux-setup-hook.sh";
     propagatedBuildInputs = [ ];
     substitutions = {
-      defaultConfig = ../fetchlux-default-config.toml;
+      # defaultConfig = ../fetchlux-default-config.toml;
 
       # Specify the stdenv's `diff` by abspath to ensure that the user's build
       # inputs do not cause us to find the wrong `diff`.
