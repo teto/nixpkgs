@@ -2215,6 +2215,8 @@ assertNoAdditions {
 
   neorg = super.neorg.overrideAttrs {
     dependencies = [
+      # workaround a dependency problem in https://github.com/NixOS/nixpkgs/pull/203666
+      luaPackages.lua-utils-nvim
       (neovimUtils.grammarToPlugin tree-sitter-grammars.tree-sitter-norg)
       (neovimUtils.grammarToPlugin tree-sitter-grammars.tree-sitter-norg-meta)
     ];
