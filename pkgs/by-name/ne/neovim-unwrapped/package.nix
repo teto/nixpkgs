@@ -123,9 +123,6 @@ stdenv.mkDerivation (
       ./system_rplugin_manifest.patch
     ];
 
-    dontFixCmake = true;
-
-    inherit neovimLuaEnv;
     inherit lua;
     treesitter-parsers =
       lib.mapAttrs
