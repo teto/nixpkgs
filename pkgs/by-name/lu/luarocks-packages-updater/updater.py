@@ -452,13 +452,13 @@ class LuaEditor(nixpkgs_plugin_update.Editor):
         # not implemented yet
         # fieldnames = ['name', 'server', 'version', 'luaversion', 'maintainers']
         # input_file = "toto.csv"
-        with open(input_file, newline='') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            writer.writeheader()
-            for row in reader:
-                # name,server,version,luaversion,maintainers
-                plugin = LuaPlugin(**row)
-                luaPackages.append(plugin)
+        # with open(input_file, newline='') as csvfile:
+        #     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        #     writer.writeheader()
+        #     for row in reader:
+        #         # name,server,version,luaversion,maintainers
+        #         plugin = LuaPlugin(**row)
+        #         luaPackages.append(plugin)
         pass
 
 
