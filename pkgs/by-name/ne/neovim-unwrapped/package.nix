@@ -9,6 +9,7 @@
   luajit,
   pkg-config,
   unibilium,
+  utf8proc,
   tree-sitter,
   fetchurl,
   buildPackages,
@@ -162,6 +163,7 @@ stdenv.mkDerivation (
       neovimLuaEnv
       tree-sitter
       unibilium
+      utf8proc
     ]
     ++ lib.optionals finalAttrs.finalPackage.doCheck [
       glibcLocales
