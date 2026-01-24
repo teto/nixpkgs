@@ -856,15 +856,19 @@ in
       writableTmpDirAsHomeHook
     ];
 
-    preCheck = ''
-      LUA_PATH="lua/?.lua;lua/?/init.lua;$LUA_PATH"
-    '';
+    preCheck = ''LUA_PATH="lua/?.lua;lua/?/init.lua;$LUA_PATH"'';
     bustedFlags = [
       "tests/"
     ];
   };
 
   orgmode = prev.orgmode.overrideAttrs {
+    doCheck = true;
+    nativeCheckInputs = [
+      final.bustedCheckHook
+      final.nlua
+    ];
+
     # Patch in tree-sitter-orgmode dependency
     postPatch = ''
       substituteInPlace lua/orgmode/config/init.lua \
@@ -875,6 +879,10 @@ in
         "require('orgmode.utils.treesitter.install').reinstall()" \
         "pcall(function() vim.treesitter.language.add('org', { path = '${final.tree-sitter-orgmode}/lib/lua/${final.tree-sitter-orgmode.lua.luaversion}/parser/org.so'}) end)"
     '';
+
+    bustedFlags = [ "tests/"];
+    preCheck = ''LUA_PATH="lua/?.lua;lua/?/init.lua;$LUA_PATH"'';
+
   };
 
   plenary-nvim = prev.plenary-nvim.overrideAttrs {
