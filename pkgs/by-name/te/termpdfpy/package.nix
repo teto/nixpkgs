@@ -1,19 +1,19 @@
 {
   lib,
-  buildPythonApplication,
+  python3,
   fetchFromGitHub,
-  bibtool,
-  pybtex,
-  pymupdf,
-  pynvim,
-  pyperclip,
-  roman,
-  pdfrw,
-  pagelabels,
-  setuptools,
+  # bibtool,
+  # pybtex,
+  # pymupdf,
+  # pynvim,
+  # pyperclip,
+  # roman,
+  # pdfrw,
+  # pagelabels,
+  # setuptools,
 }:
 
-buildPythonApplication {
+python3.pkgs.buildPythonApplication {
   pname = "termpdf.py";
   version = "2022-03-28";
   format = "setuptools";
@@ -25,8 +25,8 @@ buildPythonApplication {
     sha256 = "HLQZBaDoZFVBs4JfJcwhrLx8pxdEI56/iTpUjT5pBhk=";
   };
 
-  propagatedBuildInputs = [
-    bibtool
+  propagatedBuildInputs = with python3.pkgs; [
+    # bibtool # broken
     pybtex
     pymupdf
     pyperclip

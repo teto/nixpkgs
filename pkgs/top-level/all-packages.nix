@@ -12275,7 +12275,10 @@ with pkgs;
     hasktags = haskellPackages.hasktags;
   };
 
-  termpdfpy = python3Packages.callPackage ../applications/misc/termpdf.py { };
+
+  # termpdfpy = python3Packages.callPackage ../applications/misc/termpdf.py { };
+
+  tellico = kdePackages.callPackage ../applications/misc/tellico { };
 
   inherit (callPackage ../applications/networking/cluster/terraform { })
     mkTerraform
