@@ -159,6 +159,10 @@ python3Packages.buildPythonApplication (finalAttrs: {
 
   inherit cargoDeps;
 
+  pythonRelaxDeps = [
+    "typing_extensions"
+  ];
+
   missingHashes = ./missing-hashes.json;
   yarnOfflineCache = yarn-berry.fetchYarnBerryDeps {
     inherit (finalAttrs) missingHashes;
