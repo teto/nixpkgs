@@ -92,6 +92,14 @@ in
       '';
     };
 
+
+    luaDependencies = lib.mkOption {
+      readOnly = true;
+      type = lib.types.listOf lib.types.lines;
+      description = ''
+        Packages required by the plugins to work with the python3 provider.
+      '';
+    };
   };
 
   config =
@@ -121,5 +129,8 @@ in
       ) [ ] pluginsNormalized;
 
       pluginPython3Packages = (plugin: plugin.python3Dependencies or (_: [ ])) pluginsNormalized;
+
+      # TODO recursive like in python
+      luaDependencies = (plugin: plugin.python3Dependencies or (_: [ ])) pluginsNormalized;
     };
 }
