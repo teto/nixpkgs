@@ -17,48 +17,6 @@
   runCommand,
 }:
 
-/**
-  Specialized `assertMsg` for checking if every one of `vals` is one of the elements
-  of the list `xs`. Useful for checking lists of supported attributes.
-
-  # Inputs
-
-  `name`
-
-  : The name of the variable the user entered `val` into, for inclusion in the error message
-
-  `vals`
-
-  : The list of values of what the user provided, to be compared against the values in `xs`
-
-  `xs`
-
-  : The list of valid values
-
-  # Type
-
-  ```
-  assertEachOneOf :: String -> List ComparableVal -> List ComparableVal -> Bool
-  ```
-
-  # Examples
-  :::{.example}
-  ## `lib.asserts.assertEachOneOf` usage example
-
-  ```nix
-  let sslLibraries = [ "libressl" "bearssl" ];
-  in assertEachOneOf "sslLibraries" sslLibraries [ "openssl" "bearssl" ]
-  stderr> error: each element in sslLibraries must be one of [
-  stderr>   "openssl"
-  stderr>   "bearssl"
-  stderr> ], but is: [
-  stderr>   "libressl"
-  stderr>   "bearssl"
-  stderr> ]
-  ```
-
-  :::
-*/
 neovim-unwrapped:
 
 let
@@ -181,15 +139,14 @@ let
       # it sets the VIMINIT environment variable to "lua dofile('${customRc}')"
       # set to false if you want to control where to save the generated config
       # (e.g., in ~/.config/init.vim or project/.nvimrc)
-     wrapRc ? true
-
-    # vimL code that should be sourced as part of the generated init.lua file
-    , neovimRcContent ? null
-    # lua code to put into the generated init.lua file
-    , luaRcContent ? ""
-    # DEPRECATED: entry to load in packpath
-    # use 'plugins' instead
-    , packpathDirs ? null # not used anymore
+      wrapRc ? true,
+      # vimL code that should be sourced as part of the generated init.lua file
+      neovimRcContent ? null,
+      # lua code to put into the generated init.lua file
+      luaRcContent ? "",
+      # DEPRECATED: entry to load in packpath
+      # use 'plugins' instead
+      packpathDirs ? null, # not used anymore
 
       # a list of neovim plugin derivations, for instance
       #  plugins = [
@@ -277,15 +234,17 @@ let
         );
 
         python3Env =
-          lib.warnIf (attrs ? python3Env)
-            "Pass your python packages via the `extraPython3Packages`, e.g., `extraPython3Packages = ps: [ ps.pandas ]`"
-            python3.pkgs.python.withPackages
-            (
+          let
+            pyEnv = python3.pkgs.python.withPackages (
               ps:
               [ ps.pynvim ]
               ++ (extraPython3Packages ps)
               ++ (lib.concatMap (f: f ps) vimPackageInfo.pluginPython3Packages)
             );
+          in
+          lib.warnIf (attrs ? python3Env)
+            "Pass your python packages via the `extraPython3Packages`, e.g., `extraPython3Packages = ps: [ ps.pandas ]`"
+            (lib.optionalDrvAttr finalAttrs.withPython3 pyEnv);
 
         wrapperArgsStr = if lib.isString wrapperArgs then wrapperArgs else lib.escapeShellArgs wrapperArgs;
 
@@ -468,6 +427,7 @@ let
               rm "${placeholder "out"}/bin/nvim-wrapper"
             ''
           )
+          # TODO remove the wrapping of LUA_PATH and do it via nix instead
           + ''
             rm $out/bin/nvim
             touch $out/rplugin.vim
