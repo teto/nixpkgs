@@ -102,7 +102,7 @@ let
         generatedRockspecFilename = "./${self.pname}-${self.rockspecVersion}.rockspec";
 
         nativeBuildInputs = [
-          lua  # for lua.h
+          lua # for lua.h
           wrapLua
           luarocks_bootstrap
         ]

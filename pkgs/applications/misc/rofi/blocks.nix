@@ -1,23 +1,24 @@
-{ stdenv
-, lib
-, fetchFromGitHub
-, autoreconfHook
-, pkg-config
-, libxkbcommon
-, pango
-, which
-, git
-, cairo
-, libxcb
-, xcbutil
-, xcbutilwm
-, xcbutilxrm
-, xcb-util-cursor
-, libstartup_notification
-, bison
-, flex
-, librsvg
-, check
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  autoreconfHook,
+  pkg-config,
+  libxkbcommon,
+  pango,
+  which,
+  git,
+  cairo,
+  libxcb,
+  xcbutil,
+  xcbutilwm,
+  xcbutilxrm,
+  xcb-util-cursor,
+  libstartup_notification,
+  bison,
+  flex,
+  librsvg,
+  check,
 }:
 
 stdenv.mkDerivation rec {
@@ -38,7 +39,10 @@ stdenv.mkDerivation rec {
   #   sed -i 's/~root/~nobody/g' test/helper-expand.c
   # '';
 
-  nativeBuildInputs = [ autoreconfHook pkg-config ];
+  nativeBuildInputs = [
+    autoreconfHook
+    pkg-config
+  ];
   buildInputs = [
     libxkbcommon
     pango
@@ -67,7 +71,3 @@ stdenv.mkDerivation rec {
   #   platforms = with platforms; linux;
   # };
 }
-
-
-
-

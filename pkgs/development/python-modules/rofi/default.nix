@@ -1,4 +1,8 @@
-{ buildPythonPackage, lib, fetchPypi }:
+{
+  buildPythonPackage,
+  lib,
+  fetchPypi,
+}:
 
 buildPythonPackage rec {
   pname = "python-rofi";
@@ -14,7 +18,7 @@ buildPythonPackage rec {
 
   meta = {
     description = "Create simple GUIs using the Rofi application";
-    homepage = https://github.com/bcbnz/python-rofi;
+    homepage = "https://github.com/bcbnz/python-rofi";
     license = lib.licenses.mit;
     maintainers = [ lib.maintainers.teto ];
   };

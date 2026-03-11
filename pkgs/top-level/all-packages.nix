@@ -10744,8 +10744,8 @@ with pkgs;
 
   qpdfview = libsForQt5.callPackage ../applications/office/qpdfview { };
 
-
-  neovimConfig = structuredConfigure:
+  neovimConfig =
+    structuredConfigure:
     let
       module = import ../applications/editors/neovim/module.nix;
       # Generate init.vim configuration
@@ -12274,7 +12274,6 @@ with pkgs;
   sourceAndTags = callPackage ../misc/source-and-tags {
     hasktags = haskellPackages.hasktags;
   };
-
 
   # termpdfpy = python3Packages.callPackage ../applications/misc/termpdf.py { };
 

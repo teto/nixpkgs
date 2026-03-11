@@ -50,9 +50,9 @@ in
 
   config = mkIf (cfg.enable) {
 
-  systemd.tmpfiles.rules = [
-    "f /var/cache/powertop/saved_parameters.powertop 0600 root root"
-  ];
+    systemd.tmpfiles.rules = [
+      "f /var/cache/powertop/saved_parameters.powertop 0600 root root"
+    ];
 
     systemd.services = {
       powertop = {

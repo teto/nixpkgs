@@ -337,21 +337,26 @@ let
   #   parsers/c.so
   # }
   # for lang in "c" "bash" "json" ; do
-	# cp $(nix-build -A tree-sitter.builtGrammars."$lang" ~/nixpkgs)/parser config/nvim/parser/${lang}.so
-# done
+  # cp $(nix-build -A tree-sitter.builtGrammars."$lang" ~/nixpkgs)/parser config/nvim/parser/${lang}.so
+  # done
 
   # TODO put plugin in it too
-  vimRuntime = { parsers ? [], ... }@settings:
+  vimRuntime =
+    {
+      parsers ? [ ],
+      ...
+    }@settings:
     stdenv.mkDerivation {
       name = "vim-runtime";
       src = ./.;
       installPhase = ''
         mkdir -p parser/
-      '' ++ lib.concatStringsSep "\n"
-      # (lib.flatten (lib.mapAttrsToList packageLinks packages));
-      # TODO adapt extension for platform
-      (map (parser: "cp ${parser}/parser parser/${parser.name}.so") parsers)
-      ;
+      ''
+      ++
+        lib.concatStringsSep "\n"
+          # (lib.flatten (lib.mapAttrsToList packageLinks packages));
+          # TODO adapt extension for platform
+          (map (parser: "cp ${parser}/parser parser/${parser.name}.so") parsers);
       preferLocalBuild = true;
     };
 in
@@ -561,8 +566,8 @@ rec {
           vimGenDocHook
           # many neovim plugins keep using buildVimPlugin
           neovimRequireCheckHook
-      ]
-      ++ lib.optional (oldAttrs ? nvimRequireCheck) neovimRequireCheckHook;
+        ]
+        ++ lib.optional (oldAttrs ? nvimRequireCheck) neovimRequireCheckHook;
 
       passthru = (oldAttrs.passthru or { }) // {
         vimPlugin = true;

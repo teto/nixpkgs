@@ -86,4 +86,3 @@
   } ./lux-setup-hook.sh;
 
 }
-

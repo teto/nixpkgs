@@ -64,14 +64,16 @@ in
   #     mv hook.sh $out
   #   '';
 
-  luarocksInstallHook = callPackage ({ luarocks }:
+  luarocksInstallHook = callPackage (
+    { luarocks }:
     makeSetupHook {
       name = "luarocks-install-hook";
       deps = [ luarocks ];
       substitutions = {
         # inherit pythonCheckInterpreter setuppy;
       };
-    } ./luarocks-install-hook.sh) {};
+    } ./luarocks-install-hook.sh
+  ) { };
 
   # luaToVimPluginHook = callPackage ({ }:
   #   makeSetupHook {

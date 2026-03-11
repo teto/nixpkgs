@@ -891,6 +891,28 @@ in
     dontPatchShebangs = true;
   };
 
+  ##########################################3
+  #### manual fixes for generated packages
+  ##########################################3
+  nui-nvim = prev.nui-nvim.overrideAttrs (oa: {
+
+    doCheck = false;
+    checkInputs = [
+      neovim-unwrapped
+      final.busted
+      final.plenary-nvim
+    ];
+
+    # export LUA_PATH="src/?.lua;$LUA_PATH"
+    #       nvim --headless --noplugin -u tests/init.lua -c "lua require('plenary.busted').run('./tests/nui/input_spec.lua')"
+
+    checkPhase = ''
+      ls -l tests/nui
+      echo $PWD
+      nvim --headless --noplugin -u tests/init.lua -c "lua require('plenary.test_harness').test_directory('./tests/input/', { minimal_init = 'tests/init.lua', sequential = true })"
+    '';
+  });
+
   nvim-nio = prev.nvim-nio.overrideAttrs {
     doCheck = lua.luaversion == "5.1";
     nativeCheckInputs = [
@@ -1156,29 +1178,6 @@ in
   tree-sitter-norg = prev.tree-sitter-norg.overrideAttrs (old: {
     meta.broken = lua.luaversion != "5.1";
   });
-
-  ##########################################3
-  #### manual fixes for generated packages
-  ##########################################3
-  nui-nvim = prev.nui-nvim.overrideAttrs(oa: {
-
-    doCheck = false;
-    checkInputs = [
-      neovim-unwrapped
-      final.busted
-      final.plenary-nvim
-    ];
-
-    # export LUA_PATH="src/?.lua;$LUA_PATH"
-    #       nvim --headless --noplugin -u tests/init.lua -c "lua require('plenary.busted').run('./tests/nui/input_spec.lua')"
-
-    checkPhase = ''
-      ls -l tests/nui
-      echo $PWD
-      nvim --headless --noplugin -u tests/init.lua -c "lua require('plenary.test_harness').test_directory('./tests/input/', { minimal_init = 'tests/init.lua', sequential = true })"
-    '';
-  });
-
 
   tree-sitter-orgmode = prev.tree-sitter-orgmode.overrideAttrs (old: {
     nativeBuildInputs = old.nativeBuildInputs or [ ] ++ [

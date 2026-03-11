@@ -23,12 +23,14 @@ in
   options = {
     nix = {
       buildMachines = mkOption {
-          type = lib.types.listOf (lib.types.submoduleWith {
+        type = lib.types.listOf (
+          lib.types.submoduleWith {
             modules = [ ./nix-remote-builder.nix ];
             specialArgs = {
               nixVersion = lib.getVersion cfg.package;
             };
-        });
+          }
+        );
         default = [ ];
         description = ''
           This option lists the machines to be used if distributed builds are

@@ -131,7 +131,7 @@
   tree-sitter,
   # ethersync vim plugin
   ethersync,
-  llm-ls
+  llm-ls,
 }:
 self: super:
 let
@@ -429,7 +429,7 @@ assertNoAdditions {
   };
 
   # just for testing
-  lush-nvim = super.lush-nvim.overrideAttrs(oa: {
+  lush-nvim = super.lush-nvim.overrideAttrs (oa: {
     preCheck = ''
       echo "PRECHECK"
       nvim --version

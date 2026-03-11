@@ -7,7 +7,7 @@
   stdenv,
   writableTmpDirAsHomeHook,
   xdg-utils,
-  bashInteractive
+  bashInteractive,
 }:
 buildGoModule (finalAttrs: {
   pname = "aws-vault";

@@ -96,7 +96,7 @@ let
       # it sets the VIMINIT environment variable to "lua dofile('${customRc}')"
       # set to false if you want to control where to save the generated config
       # (e.g., in ~/.config/init.vim or project/.nvimrc)
-     wrapRc ? true
+      wrapRc ? true,
 
     # vimL code that should be sourced as part of the generated init.lua file
     , neovimRcContent ? null

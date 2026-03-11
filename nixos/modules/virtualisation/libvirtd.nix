@@ -71,10 +71,10 @@ let
         description = ''
           TODO
         '';
-          # If false, libvirtd runs qemu as unprivileged user qemu-libvirtd.
-          # Changing this option to false may cause file permission issues
-          # for existing guests. To fix these, manually change ownership
-          # of affected files in /var/lib/libvirt/qemu to qemu-libvirtd.
+        # If false, libvirtd runs qemu as unprivileged user qemu-libvirtd.
+        # Changing this option to false may cause file permission issues
+        # for existing guests. To fix these, manually change ownership
+        # of affected files in /var/lib/libvirt/qemu to qemu-libvirtd.
       };
 
       verbatimConfig = mkOption {

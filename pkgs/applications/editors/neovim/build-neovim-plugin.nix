@@ -29,17 +29,16 @@ let
     __intentionallyOverridingVersion = true;
     rockspecVersion = old.rockspecVersion;
 
+    # update luarocks, this didn't work
+    luarocksConfig = lib.recursiveUpdate old.luarocksConfig {
+      # to create a flat hierarchy
+      lua_modules_path = "lua";
+    };
 
-        # update luarocks, this didn't work
-        luarocksConfig = lib.recursiveUpdate old.luarocksConfig {
-          # to create a flat hierarchy
-          lua_modules_path = "lua";
-        };
-
-        # or dont generate a manifest
-        postFixup = ''
-          # to avoid collisions
-          rm -f $out/rock_manifest
+    # or dont generate a manifest
+    postFixup = ''
+      # to avoid collisions
+      rm -f $out/rock_manifest
     '';
   });
 

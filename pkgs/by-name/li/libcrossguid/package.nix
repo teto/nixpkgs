@@ -3,7 +3,7 @@
   stdenv,
   fetchFromGitHub,
   libuuid,
-  cmake
+  cmake,
 }:
 
 stdenv.mkDerivation (finalAttrs: {

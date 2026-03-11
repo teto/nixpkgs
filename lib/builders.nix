@@ -1,12 +1,10 @@
-/**
-
-*/
 { lib }:
 # with lib;
 # let
 # in
 {
-  mkRemoteBuilderDesc = nixVersion: machine:
+  mkRemoteBuilderDesc =
+    nixVersion: machine:
     lib.concatStringsSep " " (
       [
         "${lib.optionalString (machine.protocol != null) "${machine.protocol}://"}${
@@ -40,4 +38,4 @@
         if machine.publicHostKey != null then machine.publicHostKey else "-"
       )
     );
-  }
+}

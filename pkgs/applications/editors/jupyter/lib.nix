@@ -1,6 +1,7 @@
-{}:
+{ }:
 {
-  mkHaskellKernel = ghcEnv:
+  mkHaskellKernel =
+    ghcEnv:
     let
       ghcEnv' = ghcEnv.withPackages (p: [ p.ihaskell ]);
     in

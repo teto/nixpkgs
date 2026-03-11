@@ -55,9 +55,10 @@ lib.genAttrs luarocksPackageNames (
   name:
   (buildNeovimPlugin {
     luaAttr = luaPackages.${name};
-  }).overrideAttrs (old: {
-    meta = (old.meta or {}) // {
-      position = thisFilePosition;
-    };
-  })
+  }).overrideAttrs
+    (old: {
+      meta = (old.meta or { }) // {
+        position = thisFilePosition;
+      };
+    })
 )
