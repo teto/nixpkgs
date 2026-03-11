@@ -13,19 +13,23 @@
   iproute2,
   net-tools,
   socat,
-  withDoc ? false, doxygen,
+  withDoc ? false,
+  doxygen,
   # for pdflatex
   # , texlive.combined.scheme-minimal pdflatex
-  texlive
+  texlive,
 }:
 
 let
-  pyEnv = python3.withPackages (ps: [
-    ps.setuptools
-    ps.packaging
-    ps.distutils
-  ]
-    ++ lib.optional withDoc ps.doxypypy);
+  pyEnv = python3.withPackages (
+    ps:
+    [
+      ps.setuptools
+      ps.packaging
+      ps.distutils
+    ]
+    ++ lib.optional withDoc ps.doxypypy
+  );
 
   telnet = runCommand "inetutils-telnet" { } ''
     mkdir -p "$out/bin"
@@ -65,7 +69,12 @@ stdenv.mkDerivation (finalAttrs: {
 
   pythonPath = [ python3.pkgs.setuptools ];
 
-  nativeBuildInputs = [ pyEnv which help2man ] ++ lib.optionals withDoc [
+  nativeBuildInputs = [
+    pyEnv
+    which
+    help2man
+  ]
+  ++ lib.optionals withDoc [
     doxygen
     texlive.combined.scheme-full
   ];
@@ -96,7 +105,8 @@ stdenv.mkDerivation (finalAttrs: {
 
   meta = {
     description = "Emulator for rapid prototyping of Software Defined Networks";
-    requiredKernelConfig = [ (kernel.isEnabled "NETNS") ];
+    # breaks nix-index
+    # requiredKernelConfig = [ (kernel.isEnabled "NETNS") ];
     homepage = "https://github.com/mininet/mininet";
     maintainers = with lib.maintainers; [ teto ];
     mainProgram = "mnexec";

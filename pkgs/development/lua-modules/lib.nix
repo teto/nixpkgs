@@ -4,13 +4,13 @@
   lua,
 }:
 let
-  inherit (lib.generators) toLua;
   requiredLuaModules =
     drvs:
     let
       modules = lib.filter hasLuaModule drvs;
     in
     lib.unique ([ lua ] ++ modules ++ lib.concatLists (lib.catAttrs "requiredLuaModules" modules));
+
   # Check whether a derivation provides a lua module.
   hasLuaModule = drv: drv ? luaModule;
 
@@ -80,7 +80,9 @@ rec {
       # Use passthru in order to prevent rebuilds when possible.
       passthru = (oldAttrs.passthru or { }) // {
         luaModule = lua;
-        requiredLuaModules = requiredLuaModules drv.propagatedBuildInputs;
+        requiredLuaModules = builtins.addErrorContext "while calculating requiredLuaModules for ${drv.name or drv.pname}:" (
+          requiredLuaModules drv.propagatedBuildInputs
+        );
       };
     });
 
