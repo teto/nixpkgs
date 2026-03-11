@@ -4,13 +4,13 @@
   lua,
 }:
 let
-  inherit (lib.generators) toLua;
   requiredLuaModules =
     drvs:
     let
       modules = lib.filter hasLuaModule drvs;
     in
     lib.unique ([ lua ] ++ modules ++ lib.concatLists (lib.catAttrs "requiredLuaModules" modules));
+
   # Check whether a derivation provides a lua module.
   hasLuaModule = drv: drv ? luaModule;
 
