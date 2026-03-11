@@ -112,6 +112,7 @@ let
         userPluginViml
         runtimeDeps
         pluginAdvisedLua
+        luaDependencies
         pluginPython3Packages
         luaDependencies
         ;

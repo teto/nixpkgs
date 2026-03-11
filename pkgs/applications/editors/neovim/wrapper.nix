@@ -324,6 +324,7 @@ let
               rm "${placeholder "out"}/bin/nvim-wrapper"
             ''
           )
+          # TODO remove the wrapping of LUA_PATH and do it via nix instead
           + ''
             rm $out/bin/nvim
             touch $out/rplugin.vim
