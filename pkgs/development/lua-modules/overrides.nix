@@ -956,20 +956,18 @@ in
   ##########################################3
   nui-nvim = prev.nui-nvim.overrideAttrs (oa: {
 
-    doCheck = false;
-    checkInputs = [
+    doCheck = true;
+    nativeCheckInputs = [
+      writableTmpDirAsHomeHook
       neovim-unwrapped
       final.busted
       final.plenary-nvim
     ];
 
-    # export LUA_PATH="src/?.lua;$LUA_PATH"
-    #       nvim --headless --noplugin -u tests/init.lua -c "lua require('plenary.busted').run('./tests/nui/input_spec.lua')"
-
     checkPhase = ''
-      ls -l tests/nui
-      echo $PWD
-      nvim --headless --noplugin -u tests/init.lua -c "lua require('plenary.test_harness').test_directory('./tests/input/', { minimal_init = 'tests/init.lua', sequential = true })"
+      runHook preCheck
+      nvim --headless --noplugin -c "lua require('plenary.test_harness').test_directory('./tests/input/', { minimal_init = 'tests/init.lua', sequential = true })"
+      runHook postCheck
     '';
   });
 
