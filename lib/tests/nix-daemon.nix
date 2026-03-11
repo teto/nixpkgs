@@ -15,27 +15,32 @@ let
     ];
   };
 
-  nixConfModule = { config, ... }: {
-    buildMachine = buildMachine1;
-  };
+  nixConfModule =
+    { config, ... }:
+    {
+      buildMachine = buildMachine1;
+    };
 
   finalConfig =
     (lib.modules.evalModules {
       modules = [
         nixConfModule
-        ({ config, ... }: {
-          options = {
-            buildMachine = lib.mkOption {
-              description = lib.mdDoc "PlaceHolder";
-              type = lib.types.submoduleWith {
-                modules = [ ../../nixos/modules/config/nix-remote-builder.nix ];
-                specialArgs = {
-                  nixVersion = "2.32";
+        (
+          { config, ... }:
+          {
+            options = {
+              buildMachine = lib.mkOption {
+                description = lib.mdDoc "PlaceHolder";
+                type = lib.types.submoduleWith {
+                  modules = [ ../../nixos/modules/config/nix-remote-builder.nix ];
+                  specialArgs = {
+                    nixVersion = "2.32";
+                  };
                 };
               };
             };
-          };
-        })
+          }
+        )
       ];
     }).config;
 in

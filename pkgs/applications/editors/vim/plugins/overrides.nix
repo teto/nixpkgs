@@ -136,8 +136,7 @@
   # fugit2-nvim
   gpgme,
   # ethersync vim plugin
-  ethersync,
-  llm-ls
+  llm-ls,
 }:
 self: super:
 let
@@ -159,6 +158,33 @@ let
 in
 assertNoAdditions {
   # keep-sorted start case=no block=yes newline_separated=yes
+  #     preFixup = ''
+  #       substituteInPlace "$out"/lua/kui/cairo/cairo.lua \
+  #         --replace "ffi.load'cairo'" "ffi.load'${cairo}/lib/libcairo.so'"
+  #     '';
+
+  #   # local C = ffi.load'cairo'
+
+  #   propagatedBuildInputs = oa.propagatedBuildInputs or [] ++ [
+  #     cairo
+  #   ];
+
+  # WIP
+  # kui-nvim = super.kui-nvim.overrideAttrs(oa: {
+
+  # disabled because of bug in update script
+  # nvim-telescope-zeal-cli = super.nvim-telescope-zeal-cli.overrideAttrs( oa: {
+  #   # postPatch = ''
+  #   #   substituteInPlace lua/tealmaker/init.lua \
+  #   #     --replace cyan ${luaPackages.cyan}/bin/cyan
+  #   # '';
+  #   # vimCommandCheck = "TealBuild";
+  #   # https://gitlab.com/ivan-cukic/nvim-telescope-zeal-cli
+  #   dependencies = [ self.hotpot-nvim self.telescope-nvim ];
+  #   propagatedBuildInputs = [ pkgs.zeal-cli ];
+
+  # });
+
   ack-vim = super.ack-vim.overrideAttrs (old: {
     meta = old.meta // {
       license = lib.licenses.vim;
@@ -2376,6 +2402,11 @@ assertNoAdditions {
     '';
   };
 
+  llm-nvim = super.llm-nvim.overrideAttrs {
+    # dependencies = [ self.vim-floaterm ];
+    runtimeDeps = [ llm-ls ];
+  };
+
   lsp-format-modifications-nvim = super.lsp-format-modifications-nvim.overrideAttrs {
     dependencies = [ self.plenary-nvim ];
   };
@@ -4544,6 +4575,13 @@ assertNoAdditions {
       plenary-nvim
       telescope-nvim
     ];
+  };
+
+  telescope-manix = super.telescope-manix.overrideAttrs {
+    dependencies = [ self.telescope-nvim ];
+
+    doInstallCheck = true;
+    nvimRequireCheck = "telescope-manix";
   };
 
   telescope-media-files-nvim = super.telescope-media-files-nvim.overrideAttrs {
