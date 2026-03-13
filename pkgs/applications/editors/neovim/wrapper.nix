@@ -18,48 +18,6 @@
   runCommand,
 }:
 
-/**
-  Specialized `assertMsg` for checking if every one of `vals` is one of the elements
-  of the list `xs`. Useful for checking lists of supported attributes.
-
-  # Inputs
-
-  `name`
-
-  : The name of the variable the user entered `val` into, for inclusion in the error message
-
-  `vals`
-
-  : The list of values of what the user provided, to be compared against the values in `xs`
-
-  `xs`
-
-  : The list of valid values
-
-  # Type
-
-  ```
-  assertEachOneOf :: String -> List ComparableVal -> List ComparableVal -> Bool
-  ```
-
-  # Examples
-  :::{.example}
-  ## `lib.asserts.assertEachOneOf` usage example
-
-  ```nix
-  let sslLibraries = [ "libressl" "bearssl" ];
-  in assertEachOneOf "sslLibraries" sslLibraries [ "openssl" "bearssl" ]
-  stderr> error: each element in sslLibraries must be one of [
-  stderr>   "openssl"
-  stderr>   "bearssl"
-  stderr> ], but is: [
-  stderr>   "libressl"
-  stderr>   "bearssl"
-  stderr> ]
-  ```
-
-  :::
-*/
 neovim-unwrapped:
 
 let
@@ -97,14 +55,13 @@ let
       # set to false if you want to control where to save the generated config
       # (e.g., in ~/.config/init.vim or project/.nvimrc)
       wrapRc ? true,
-
     # vimL code that should be sourced as part of the generated init.lua file
-    , neovimRcContent ? null
+      neovimRcContent ? null,
     # lua code to put into the generated init.lua file
-    , luaRcContent ? ""
+      luaRcContent ? "",
     # DEPRECATED: entry to load in packpath
     # use 'plugins' instead
-    , packpathDirs ? null # not used anymore
+      packpathDirs ? null, # not used anymore
 
       # a list of neovim plugin derivations, for instance
       #  plugins = [
