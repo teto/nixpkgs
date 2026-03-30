@@ -3190,6 +3190,14 @@ assertNoAdditions {
 
   none-ls-nvim = super.none-ls-nvim.overrideAttrs {
     dependencies = [ self.plenary-nvim ];
+
+    doCheck = true;
+    nativeCheckInputs = [
+      luaPackages.bustedCheckHook
+    ];
+
+    # TODO LUA_PATH should be set by the preCheck of buildNeovimPlugin
+    bustedFlags = [ "test/spec/" ];
   };
 
   NotebookNavigator-nvim = super.NotebookNavigator-nvim.overrideAttrs (old: {
