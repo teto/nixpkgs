@@ -9382,7 +9382,10 @@ with pkgs;
   # this is a lower-level alternative to wrapNeovim conceived to handle
   # more usecases when wrapping neovim. The interface is being actively worked on
   # so expect breakage. use wrapNeovim instead if you want a stable alternative
-  wrapNeovimUnstable = callPackage ../applications/editors/neovim/wrapper.nix { };
+
+  wrapNeovimUnstable =
+    neovim-unwrapped:
+    callPackage ../applications/editors/neovim/wrapper.nix { inherit neovim-unwrapped; };
   wrapNeovim = neovim-unwrapped: lib.makeOverridable (neovimUtils.legacyWrapper neovim-unwrapped);
 
   neovimUtils = callPackage ../applications/editors/neovim/utils.nix {
