@@ -3590,6 +3590,24 @@ assertNoAdditions {
     callPackage ./nvim-treesitter/overrides.nix { } self super
   );
 
+  nvim-treesitter-context = super.nvim-treesitter-context.overrideAttrs {
+    # Meant for CI installing parsers
+    nvimSkipModules = [ "install_parsers" ];
+
+    doCheck = true;
+    nativeCheckInputs = [
+
+      luaPackages.bustedCheckHook
+    ];
+
+    preCheck = ''
+      LUA_PATH="lua/?.lua;lua/?/init.lua;$LUA_PATH"
+    '';
+
+    # TODO LUA_PATH should be set by the preCheck of buildNeovimPlugin
+    bustedFlags = [ "test/" ];
+  };
+
   # TODO: raise warning at 26.05; drop at 26.11
   nvim-treesitter-legacy =
     let
