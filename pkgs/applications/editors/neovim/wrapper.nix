@@ -15,9 +15,8 @@
   perl,
   lndir,
   runCommand,
+  neovim-unwrapped,
 }:
-
-neovim-unwrapped:
 
 let
   # inherit interpreter from neovim
