@@ -111,6 +111,7 @@ let
   */
   wrapper =
     {
+      package ? neovim-unwrapped,
       extraName ? "",
       # certain plugins need a custom configuration (available in passthru.initLua)
       # to work with nix.
@@ -315,7 +316,7 @@ let
         # wrapper with most arguments we need, excluding those that cause problems to
         # generate rplugin.vim, but still required for the final wrapper.
         finalMakeWrapperArgs = [
-          "${neovim-unwrapped}/bin/nvim"
+          "${package}/bin/nvim"
           "${placeholder "out"}/bin/nvim"
         ]
         ++ [
@@ -336,7 +337,7 @@ let
         ]);
 
         pname = "neovim";
-        version = lib.getVersion neovim-unwrapped;
+        version = lib.getVersion package;
       in
       {
         name = "${pname}-${version}${extraName}";
@@ -378,7 +379,7 @@ let
         postBuild =
           lib.optionalString stdenv.hostPlatform.isLinux ''
             rm $out/share/applications/nvim.desktop
-            substitute ${neovim-unwrapped}/share/applications/nvim.desktop $out/share/applications/nvim.desktop \
+            substitute ${package}/share/applications/nvim.desktop $out/share/applications/nvim.desktop \
               --replace-warn 'Name=Neovim' 'Name=Neovim wrapper'
           ''
           + lib.optionalString finalAttrs.vimAlias ''
@@ -390,7 +391,7 @@ let
           + lib.optionalString (manifestRc != null) (
             let
               manifestWrapperArgs = [
-                "${neovim-unwrapped}/bin/nvim"
+                "${package}/bin/nvim"
                 "${placeholder "out"}/bin/nvim-wrapper"
               ]
               ++ finalAttrs.generatedWrapperArgs;
@@ -438,7 +439,7 @@ let
         buildPhase = ''
           runHook preBuild
           mkdir -p $out
-          for i in ${neovim-unwrapped}; do
+          for i in ${package}; do
             lndir -silent $i $out
           done
           runHook postBuild
@@ -462,14 +463,14 @@ let
 
         passthru = {
           inherit providerLuaRc packpathDirs;
-          unwrapped = neovim-unwrapped;
+          unwrapped = package;
           initRc = neovimRcContent';
 
           tests = callPackage ./tests { };
         };
 
         meta = {
-          inherit (neovim-unwrapped.meta)
+          inherit (package.meta)
             description
             longDescription
             homepage
@@ -482,7 +483,7 @@ let
           # To prevent builds on hydra
           hydraPlatforms = [ ];
           # prefer wrapper over the package
-          priority = (neovim-unwrapped.meta.priority or lib.meta.defaultPriority) - 1;
+          priority = (package.meta.priority or lib.meta.defaultPriority) - 1;
         };
       }
     );
