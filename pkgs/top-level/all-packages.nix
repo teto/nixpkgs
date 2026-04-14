@@ -9375,6 +9375,8 @@ with pkgs;
     callPackage ../applications/editors/neovim/wrapper.nix { inherit neovim-unwrapped; };
   wrapNeovim = neovim-unwrapped: lib.makeOverridable (neovimUtils.legacyWrapper neovim-unwrapped);
 
+  # neovimCustom =
+
   neovimUtils = callPackage ../applications/editors/neovim/utils.nix {
     lua = lua5_1;
   };
