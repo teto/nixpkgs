@@ -39,6 +39,7 @@ buildPythonPackage (finalAttrs: {
 
   dependencies = [
     numpy
+    pyside6
     pyyaml
     requests
     tqdm
