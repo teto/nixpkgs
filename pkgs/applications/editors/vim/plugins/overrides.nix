@@ -547,8 +547,7 @@ assertNoAdditions {
     ];
   };
 
-
-  clang_complete = super.clang_complete.overrideAttrs {
+  clang_complete = super.clang_complete.overrideAttrs (old: {
     # In addition to the arguments you pass to your compiler, you also need to
     # specify the path of the C++ std header (if you are using C++).
     # These usually implicitly set by cc-wrapper around clang (pkgs/build-support/cc-wrapper).
