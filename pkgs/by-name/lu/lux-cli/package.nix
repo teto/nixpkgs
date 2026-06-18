@@ -36,8 +36,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     versionCheckHook
   ];
   versionCheckProgram = "${placeholder "out"}/bin/${finalAttrs.meta.mainProgram}";
-  versionCheckProgramArg = "--version";
-  doInstallCheck = false;
+  doInstallCheck = true;
 
   nativeBuildInputs = [
     installShellFiles
