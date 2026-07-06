@@ -182,6 +182,13 @@ in
     ];
   };
 
+  fennel = prev.fennel.overrideAttrs (oa: {
+
+    meta = oa.meta // {
+      mainProgram = "fennel";
+    };
+  });
+
   fzf-lua = prev.fzf-lua.overrideAttrs {
     # FIXME: https://github.com/NixOS/nixpkgs/issues/431458
     # fzf-lua throws `address already in use` on darwin
