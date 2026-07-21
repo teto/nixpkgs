@@ -316,6 +316,7 @@ let
 
     cudaSupport = mkMassRebuild {
       feature = "build packages with CUDA support by default";
+      default = true;
     };
 
     cudaCapabilities = mkOption {
