@@ -57,8 +57,10 @@ stdenv.mkDerivation (finalAttrs: {
   '';
 
   cmakeFlags = [
+    "-DMEMENTO_QAPPLICATION=ON"
     (lib.cmakeBool "MEMENTO_SYSTEM_QCORO" true)
     (lib.cmakeBool "MEMENTO_SYSTEM_MOCR" true)
+    # (lib.cmakeBool "MEMENTO_QAPPLICATION" true)
   ]
   ++ lib.optionals withOcr [
     (lib.cmakeBool "MEMENTO_OCR_SUPPORT" true)
