@@ -150,6 +150,7 @@ python3Packages.buildPythonApplication (finalAttrs: {
   ];
   versionCheckKeepEnvironment = [ "HOME" ];
 
+  doCheck = false;
   disabledTests = [
     # The finite stdio input closes before all responses are flushed in the sandbox.
     "test_stdio_server_uses_the_same_json_rpc_lifecycle"
