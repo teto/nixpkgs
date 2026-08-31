@@ -225,43 +225,42 @@ in
               '';
             };
 
-            "domain-name" = lib.mkOption {
+            domain-name = lib.mkOption {
               type = lib.types.nullOr lib.types.str;
               default = "local";
               description = "Domain name for all advertisements.";
             };
 
-            "browse-domains" = lib.mkOption {
+            browse-domains = lib.mkOption {
               type = lib.types.listOf lib.types.str;
               default = [ ];
               description = "List of non-local DNS domains to be browsed.";
             };
 
-            "use-ipv4" = lib.mkOption {
+            use-ipv4 = lib.mkOption {
               type = lib.types.bool;
               default = true;
               description = "Whether to use IPv4.";
             };
 
-            "use-ipv6" = lib.mkOption {
+            use-ipv6 = lib.mkOption {
               type = lib.types.bool;
               default = config.networking.enableIPv6;
               defaultText = lib.literalExpression "config.networking.enableIPv6";
               description = "Whether to use IPv6.";
             };
 
-            "allow-interfaces" = lib.mkOption {
+            allow-interfaces = lib.mkOption {
               type = lib.types.nullOr (lib.types.listOf lib.types.str);
               default = null;
               description = ''
-                List of network interfaces that should be used by the
-                {command}`avahi-daemon`. Other interfaces will be ignored. If
-                `null`, all local interfaces except loopback and point-to-point
-                will be used.
+                List of network interfaces that should be used by the {command}`avahi-daemon`.
+                Other interfaces will be ignored. If `null`, all local interfaces
+                except loopback and point-to-point will be used.
               '';
             };
 
-            "deny-interfaces" = lib.mkOption {
+            deny-interfaces = lib.mkOption {
               type = lib.types.nullOr (lib.types.listOf lib.types.str);
               default = null;
               description = ''
@@ -272,7 +271,7 @@ in
               '';
             };
 
-            "allow-point-to-point" = lib.mkOption {
+            allow-point-to-point = lib.mkOption {
               type = lib.types.bool;
               default = false;
               description = ''
@@ -283,7 +282,7 @@ in
               '';
             };
 
-            "cache-entries-max" = lib.mkOption {
+            cache-entries-max = lib.mkOption {
               type = lib.types.nullOr lib.types.int;
               default = null;
               description = ''
@@ -293,32 +292,32 @@ in
             };
           };
 
-          "wide-area"."enable-wide-area" = lib.mkOption {
+          wide-area.enable-wide-area = lib.mkOption {
             type = lib.types.bool;
             default = true;
             description = "Whether to enable wide-area service discovery.";
           };
 
           publish = {
-            "disable-publishing" = lib.mkOption {
+            disable-publishing = lib.mkOption {
               type = lib.types.bool;
               default = true;
               description = "Whether to disable publishing in general.";
             };
 
-            "disable-user-service-publishing" = lib.mkOption {
+            disable-user-service-publishing = lib.mkOption {
               type = lib.types.bool;
               default = true;
               description = "Whether to disable publishing user services.";
             };
 
-            "publish-addresses" = lib.mkOption {
+            publish-addresses = lib.mkOption {
               type = lib.types.bool;
               default = false;
               description = "Whether to register mDNS address records for all local IP addresses.";
             };
 
-            "publish-hinfo" = lib.mkOption {
+            publish-hinfo = lib.mkOption {
               type = lib.types.bool;
               default = false;
               description = ''
@@ -327,7 +326,7 @@ in
               '';
             };
 
-            "publish-workstation" = lib.mkOption {
+            publish-workstation = lib.mkOption {
               type = lib.types.bool;
               default = false;
               description = ''
@@ -336,14 +335,14 @@ in
               '';
             };
 
-            "publish-domain" = lib.mkOption {
+            publish-domain = lib.mkOption {
               type = lib.types.bool;
               default = false;
               description = "Whether to announce the locally used domain name for browsing by other hosts.";
             };
           };
 
-          reflector."enable-reflector" = lib.mkOption {
+          reflector.enable-reflector = lib.mkOption {
             type = lib.types.bool;
             default = false;
             description = "Reflect incoming mDNS requests to all allowed network interfaces.";
@@ -476,21 +475,18 @@ in
         }
       ];
 
-      warnings =
-        [
-          (lib.mkIf cfg.wideArea "Enabling `services.avahi.wideArea` exposes this system to `CVE-2024-52615`.")
-        ]
-          lib.optional
-          (cfg.publish.enable != null)
-          ''
-            The option `services.avahi.publish.enable` is obsolete. Use
-            `services.avahi.settings.publish."disable-publishing" = false;` instead.
-          ''
-        ++ lib.optional (cfg.publish.userServices != null) ''
-          The option `services.avahi.publish.userServices` is obsolete. Use
-          `services.avahi.settings.publish."disable-user-service-publishing" = false;`
-          and `services.avahi.settings.publish."publish-addresses" = true;` instead.
-        '';
+      warnings = [
+        (lib.mkIf cfg.wideArea "Enabling `services.avahi.wideArea` exposes this system to `CVE-2024-52615`.")
+      ]
+      ++ lib.optional (cfg.publish.enable != null) ''
+        The option `services.avahi.publish.enable` is obsolete. Use
+        `services.avahi.settings.publish."disable-publishing" = false;` instead.
+      ''
+      ++ lib.optional (cfg.publish.userServices != null) ''
+        The option `services.avahi.publish.userServices` is obsolete. Use
+        `services.avahi.settings.publish."disable-user-service-publishing" = false;`
+        and `services.avahi.settings.publish."publish-addresses" = true;` instead.
+      '';
 
       services.avahi.settings = lib.mkMerge [
         (lib.mkIf (config.networking.hostName != "") {
@@ -534,7 +530,7 @@ in
         lib.optionals (cfg.nssmdns4 || cfg.nssmdns6) (
           lib.mkMerge [
             (lib.mkBefore [ "${mdns}_minimal [NOTFOUND=return]" ]) # before resolve
-            (lib.mkAfter [ "${mdns}" ]) # after dns
+            (lib.mkAfter (lib.optional cfg.nssmdnsFull "${mdns}")) # after dns
           ]
         );
 
@@ -575,25 +571,7 @@ in
 
         # Make NSS modules visible so that `avahi_nss_support ()' can
         # return a sensible value.
-        RestrictNamespaces = true;
-        RestrictRealtime = true;
         environment.LD_LIBRARY_PATH = config.system.nssModules.path;
-        RestrictSUIDSGID = true;
-        SystemCallArchitectures = "native";
-        SystemCallFilter = [
-          "@system-service"
-          "~@privileged"
-          "@chown setgroups setresuid"
-        ]
-        ++ lib.optionals pkgs.stdenv.hostPlatform.is32bit [
-          # glibc's setresuid()/setgroups() invoke the kernel's 32-bit compat
-          # syscalls (setresuid32/setgroups32) on 32-bit architectures --
-          # distinct syscalls from the ones already allowlisted above, so
-          # without these 2, avahi-daemon is killed with SIGSYS as soon as it
-          # tries to drop privileges.
-          "setgroups32"
-          "setresuid32"
-        ];
 
         path = [
           pkgs.coreutils
@@ -645,6 +623,15 @@ in
             "@system-service"
             "~@privileged"
             "@chown setgroups setresuid"
+          ]
+          ++ lib.optionals pkgs.stdenv.hostPlatform.is32bit [
+            # glibc's setresuid()/setgroups() invoke the kernel's 32-bit compat
+            # syscalls (setresuid32/setgroups32) on 32-bit architectures --
+            # distinct syscalls from the ones already allowlisted above, so
+            # without these 2, avahi-daemon is killed with SIGSYS as soon as it
+            # tries to drop privileges.
+            "setgroups32"
+            "setresuid32"
           ];
           UMask = "0077";
         };
