@@ -1016,10 +1016,7 @@ in
           User = "hass";
           Group = "hass";
           WorkingDirectory = cfg.configDir;
-          Restart = "always";
-          RestartSec = "1s";
-          RestartSteps = 4;
-          RestartMaxDelaySec = "15s";
+          Restart = "on-failure";
 
           # Signal handling
           # homeassistant/helpers/signal.py
