@@ -26,10 +26,11 @@ let
       );
     };
 
-  avahiDaemonConf = pkgs.concatText "avahi-daemon.conf" [
-    (settingsFormat.generate "avahi-daemon.conf" settings)
-    (pkgs.writeText "avahi-daemon-extra.conf" cfg.extraConfig)
-  ];
+    avahiDaemonConf =
+    pkgs.writeText "avahi-daemon.conf"
+        (lib.generators.toINI settings
+        + cfg.extraConfig);
+
 in
 {
   imports = [
