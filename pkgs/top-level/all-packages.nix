@@ -6668,11 +6668,6 @@ with pkgs;
 
   unixodbcDrivers = recurseIntoAttrs (callPackages ../development/libraries/unixODBCDrivers { });
 
-  upmpdcli = callPackage ../tools/networking/upmpdcli {
-    python = python3;
-  };
-
-
   valeStyles = recurseIntoAttrs (callPackages ../by-name/va/vale/styles.nix { });
 
   vencord-web-extension = callPackage ../by-name/ve/vencord/package.nix { buildWebExtension = true; };
