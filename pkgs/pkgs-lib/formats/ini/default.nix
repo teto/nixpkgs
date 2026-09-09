@@ -126,6 +126,13 @@ in
 
       lib.types.atom = atom;
 
+      generateText =
+        value:
+        pipe value [
+          (maybeCoerceAllLists listToValue)
+          (toINI (removeAttrs args ignoredArgs))
+        ];
+
       generate =
         name: value:
         pipe value [
