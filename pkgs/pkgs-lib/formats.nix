@@ -313,6 +313,13 @@ optionalAttrs allowAliases aliases
                 (toINI (removeAttrs args ignoredArgs))
                 (pkgs.writeText name)
               ];
+
+            generateText =
+              value:
+              pipe value [
+                (maybeCoerceAllLists listToValue)
+                (toINI (removeAttrs args ignoredArgs))
+              ];
           };
 
         iniWithGlobalSection =

@@ -28,7 +28,7 @@ let
 
     avahiDaemonConf =
     pkgs.writeText "avahi-daemon.conf"
-        (lib.generators.toINI settings
+        (settingsFormat.generateText settings
         + cfg.extraConfig);
 
 in
