@@ -17,6 +17,7 @@ buildPythonPackage (finalAttrs: {
   pname = "llm-anthropic";
   version = "0.31";
   pyproject = true;
+  __structuredAttrs = true;
 
   src = fetchFromGitHub {
     owner = "simonw";
