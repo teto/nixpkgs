@@ -13,6 +13,7 @@ buildPythonPackage (finalAttrs: {
   pname = "jiter";
   version = "0.17.0";
   pyproject = true;
+  __structuredAttrs = true;
 
   src = fetchFromGitHub {
     owner = "pydantic";
