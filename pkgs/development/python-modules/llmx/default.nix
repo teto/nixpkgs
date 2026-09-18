@@ -26,6 +26,7 @@ buildPythonPackage (finalAttrs: {
   pname = "llmx";
   version = "0.0.21a0";
   pyproject = true;
+  __structuredAttrs = true;
 
   src = fetchPypi {
     inherit (finalAttrs) pname version;
