@@ -172,15 +172,15 @@ in
 
     # These entries are required for "hostname -f" and to resolve both the
     # hostname and FQDN correctly:
-    networking.hosts =
-      let
-        hostnames = # Note: The FQDN (canonical hostname) has to come first:
-          lib.optional (cfg.hostName != "" && cfg.domain != null) "${cfg.hostName}.${cfg.domain}"
-          ++ lib.optional (cfg.hostName != "") cfg.hostName; # Then the hostname (without the domain)
-      in
-      {
-        "127.0.0.2" = hostnames;
-      };
+    # networking.hosts =
+    #   let
+    #     hostnames = # Note: The FQDN (canonical hostname) has to come first:
+    #       lib.optional (cfg.hostName != "" && cfg.domain != null) "${cfg.hostName}.${cfg.domain}"
+    #       ++ lib.optional (cfg.hostName != "") cfg.hostName; # Then the hostname (without the domain)
+    #   in
+    #   {
+    #     "127.0.0.2" = hostnames;
+    #   };
 
     networking.hostFiles =
       let
