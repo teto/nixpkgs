@@ -93,17 +93,40 @@ in
           If neither `quiet` nor `debug` are enabled, logging defaults to the INFO level.
         '';
       };
+      validateConfig = mkOption {
+        type = types.bool;
+        default = true;
+        description = ''
+          Whether to validate the generated configuration with hickory-dns at build time.
+          Disable this if the configuration references files unavailable during the build.
+          This has no effect when `configFile` is specified manually.
+        '';
+      };
       configFile = mkOption {
         type = types.path;
-        default = toml.generate "hickory-dns.toml" (
-          lib.mapAttrs (
-            _: v:
-            if builtins.isList v then
-              map (v: if builtins.isAttrs v then lib.filterAttrs (_: v: v != null) v else v) v
-            else
-              v
-          ) (lib.filterAttrsRecursive (_: v: v != null) cfg.settings)
-        );
+        default =
+          let
+            drv = toml.generate "hickory-dns.toml" (
+              lib.mapAttrs (
+                _: v:
+                if builtins.isList v then
+                  map (v: if builtins.isAttrs v then lib.filterAttrs (_: v: v != null) v else v) v
+                else
+                  v
+              ) (lib.filterAttrsRecursive (_: v: v != null) cfg.settings)
+            );
+          in
+          if cfg.validateConfig then
+            drv.overrideAttrs (old: {
+              SSL_CERT_FILE = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
+              buildCommand = old.buildCommand + ''
+                export SSL_CERT_FILE
+                SSL_CERT_FILE="${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
+                ${lib.getExe cfg.package} --validate --config "$out"
+              '';
+            })
+          else
+            drv;
         defaultText = lib.literalExpression ''
           let toml = pkgs.formats.toml { }; in toml.generate "hickory-dns.toml" cfg.settings
         '';
