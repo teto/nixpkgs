@@ -93,17 +93,26 @@ in
           If neither `quiet` nor `debug` are enabled, logging defaults to the INFO level.
         '';
       };
+      validateConfig = mkOption {
+        type = types.bool;
+        default = true;
+        description = ''
+          Whether to validate the generated configuration with hickory-dns at build time.
+          Disable this if the configuration references files unavailable during the build.
+        '';
+      };
       configFile = mkOption {
         type = types.path;
-        default = toml.generate "hickory-dns.toml" (
-          lib.mapAttrs (
-            _: v:
-            if builtins.isList v then
-              map (v: if builtins.isAttrs v then lib.filterAttrs (_: v: v != null) v else v) v
-            else
-              v
-          ) (lib.filterAttrsRecursive (_: v: v != null) cfg.settings)
-        );
+        default =
+            toml.generate "hickory-dns.toml" (
+              lib.mapAttrs (
+                _: v:
+                if builtins.isList v then
+                  map (v: if builtins.isAttrs v then lib.filterAttrs (_: v: v != null) v else v) v
+                else
+                  v
+              ) (lib.filterAttrsRecursive (_: v: v != null) cfg.settings)
+            );
         defaultText = lib.literalExpression ''
           let toml = pkgs.formats.toml { }; in toml.generate "hickory-dns.toml" cfg.settings
         '';
@@ -172,11 +181,21 @@ in
       serviceConfig = {
         ExecStart =
           let
+            configFile = if cfg.validateConfig then
+              cfg.configFile.overrideAttrs (old: {
+                buildCommand = old.buildCommand + ''
+                  export SSL_CERT_FILE
+                  SSL_CERT_FILE="${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
+                  ${lib.getExe cfg.package} --validate --config "$out"
+                '';
+              })
+              else cfg.configFile;
+
             flags = (lib.optional cfg.debug "--debug") ++ (lib.optional cfg.quiet "--quiet");
             flagsStr = builtins.concatStringsSep " " flags;
           in
           ''
-            ${lib.getExe cfg.package} --config ${cfg.configFile} ${flagsStr}
+            ${lib.getExe cfg.package} --config ${configFile} ${flagsStr}
           '';
         Type = "simple";
         Restart = "on-failure";
