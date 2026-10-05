@@ -400,15 +400,15 @@ in
             || (backup.environmentFile != null);
           message = "services.restic.backups.${name}: exactly one of repository, repositoryFile or environmentFile should be set";
         }
-        {
-          assertion =
-            let
-              fileBackup = (backup.paths != null && backup.paths != [ ]) || backup.dynamicFilesFrom != null;
-              commandBackup = backup.command != [ ];
-            in
-            !(fileBackup || commandBackup);
-          message = "services.restic.backups.${name}: please set one of `command`, `paths` or `dynamicFilesFrom`.";
-        }
+        # {
+        #   assertion =
+        #     let
+        #       fileBackup = (backup.paths != null && backup.paths != [ ]) || backup.dynamicFilesFrom != null;
+        #       commandBackup = backup.command != [ ];
+        #     in
+        #     !(fileBackup || commandBackup);
+        #   message = "services.restic.backups.${name}: please set one of `command`, `paths` or `dynamicFilesFrom`.";
+        # }
         {
           assertion =
             let
