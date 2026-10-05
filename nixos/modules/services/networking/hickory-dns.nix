@@ -105,8 +105,7 @@ in
       configFile = mkOption {
         type = types.path;
         default =
-          let
-            drv = toml.generate "hickory-dns.toml" (
+            toml.generate "hickory-dns.toml" (
               lib.mapAttrs (
                 _: v:
                 if builtins.isList v then
@@ -115,18 +114,6 @@ in
                   v
               ) (lib.filterAttrsRecursive (_: v: v != null) cfg.settings)
             );
-          in
-          if cfg.validateConfig then
-            drv.overrideAttrs (old: {
-              SSL_CERT_FILE = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
-              buildCommand = old.buildCommand + ''
-                export SSL_CERT_FILE
-                SSL_CERT_FILE="${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
-                ${lib.getExe cfg.package} --validate --config "$out"
-              '';
-            })
-          else
-            drv;
         defaultText = lib.literalExpression ''
           let toml = pkgs.formats.toml { }; in toml.generate "hickory-dns.toml" cfg.settings
         '';
@@ -195,11 +182,22 @@ in
       serviceConfig = {
         ExecStart =
           let
+            configFile = if cfg.validateConfig then
+              cfg.configFile.overrideAttrs (old: {
+                SSL_CERT_FILE = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
+                buildCommand = old.buildCommand + ''
+                  export SSL_CERT_FILE
+                  SSL_CERT_FILE="${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
+                  ${lib.getExe cfg.package} --validate --config "$out"
+                '';
+              })
+              else cfg.configFile;
+
             flags = (lib.optional cfg.debug "--debug") ++ (lib.optional cfg.quiet "--quiet");
             flagsStr = builtins.concatStringsSep " " flags;
           in
           ''
-            ${lib.getExe cfg.package} --config ${cfg.configFile} ${flagsStr}
+            ${lib.getExe cfg.package} --config ${configFile} ${flagsStr}
           '';
         Type = "simple";
         Restart = "on-failure";
