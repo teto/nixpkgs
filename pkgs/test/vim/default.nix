@@ -45,6 +45,36 @@ lib.recurseIntoAttrs {
       mkdir -p "$out"
     '';
 
+  test_vim_plugin_final_attrs =
+    let
+      plugin = vimUtils.buildVimPlugin (finalAttrs: {
+        pname = "vim-plugin-final-attrs-test";
+        version = "0";
+        src = pkgs.writeTextDir "probe.vim" ''
+          " ${finalAttrs.pname}
+        '';
+        path = finalAttrs.passthru.installPath;
+        passthru = {
+          installPath = "original";
+          pluginName = finalAttrs.pname;
+        };
+      });
+      overridden = plugin.overrideAttrs (finalAttrs: previousAttrs: {
+        pname = "vim-plugin-final-attrs-overridden";
+        passthru = previousAttrs.passthru // {
+          installPath = "overridden";
+        };
+      });
+    in
+    assert plugin.pluginName == "vim-plugin-final-attrs-test";
+    assert overridden.pluginName == "vim-plugin-final-attrs-overridden";
+    assert plugin.vimPlugin && overridden.vimPlugin;
+    pkgs.runCommand "vim-plugin-final-attrs-test" { } ''
+      grep -Fx '" vim-plugin-final-attrs-test' ${plugin}/original/probe.vim
+      grep -Fx '" vim-plugin-final-attrs-overridden' ${overridden}/overridden/probe.vim
+      mkdir -p "$out"
+    '';
+
   # test that all vimPlugins have `passthru.vimPlugin = true`
   test-all-plugins-have-vimPlugin-true =
     let
