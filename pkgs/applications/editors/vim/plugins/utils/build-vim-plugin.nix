@@ -8,52 +8,54 @@
 {
   addRtp = drv: lib.throw "`addRtp` has been removed.";
 
-  buildVimPlugin =
-    {
-      name ? "${attrs.pname}-${attrs.version}",
-      src,
-      unpackPhase ? "",
-      configurePhase ? ":",
-      buildPhase ? ":",
-      preInstall ? "",
-      postInstall ? "",
-      path ? ".",
-      addonInfo ? null,
-      meta ? { },
-      ...
-    }@attrs:
-    let
-      drv = stdenv.mkDerivation (
-        attrs
-        // {
-          __structuredAttrs = true;
-          inherit
-            unpackPhase
-            configurePhase
-            buildPhase
-            addonInfo
-            preInstall
-            postInstall
-            ;
+  buildVimPlugin = lib.extendMkDerivation {
+    constructDrv = stdenv.mkDerivation;
+    transformDrv = toVimPlugin;
 
-          installPhase =
-            attrs.installPhase or ''
-              runHook preInstall
+    extendDrvArgs =
+      _finalAttrs:
+      {
+        name ? "${attrs.pname}-${attrs.version}",
+        src,
+        unpackPhase ? "",
+        configurePhase ? ":",
+        buildPhase ? ":",
+        preInstall ? "",
+        postInstall ? "",
+        path ? ".",
+        addonInfo ? null,
+        meta ? { },
+        ...
+      }@attrs:
+      {
+        name = lib.warnIf (attrs ? vimprefix) "The 'vimprefix' is now hardcoded in toVimPlugin" name;
 
-              target=$out/${rtpPath}/${path}
-              mkdir -p $out/${rtpPath}
-              ${lib.optionalString (!(attrs.dontUnpack or false)) "cp -r . $target"}
+        __structuredAttrs = true;
+        inherit
+          unpackPhase
+          configurePhase
+          buildPhase
+          addonInfo
+          preInstall
+          postInstall
+          ;
 
-              runHook postInstall
-            '';
+        installPhase =
+          attrs.installPhase or ''
+            runHook preInstall
 
-          meta = {
-            platforms = lib.platforms.all;
-          }
-          // meta;
+            target=$out/${rtpPath}/${path}
+            mkdir -p $out/${rtpPath}
+            ${lib.optionalString (!(attrs.dontUnpack or false)) "cp -r . $target"}
+
+            runHook postInstall
+          '';
+
+        meta = {
+          platforms = lib.platforms.all;
         }
-      );
-    in
-    toVimPlugin drv;
+        // meta;
+      };
+  };
 
 }
