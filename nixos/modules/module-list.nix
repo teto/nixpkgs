@@ -1147,6 +1147,7 @@
   ./services/network-filesystems/davfs2.nix
   ./services/network-filesystems/diod.nix
   ./services/network-filesystems/drbd.nix
+  ./services/network-filesystems/dufs.nix
   ./services/network-filesystems/glusterfs.nix
   ./services/network-filesystems/ipfs-cluster.nix
   ./services/network-filesystems/kbfs.nix
