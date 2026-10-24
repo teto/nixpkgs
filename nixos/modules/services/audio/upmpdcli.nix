@@ -9,14 +9,11 @@ with pkgs;
 with lib;
 
 let
-  uid = config.ids.uids.upmpdcli;
-  gid = config.ids.gids.upmpdcli;
   cfg = config.services.upmpdcli;
 
   defaultConf = {
     # upnp network parameters
     ##upnpiface =
-    upnpip = "127.0.0.1";
     upnpport = 49152; # libupnp/pupnp defaults to using the first free port after 49152. Note that clients do not need to know about the value, which is automatically discovered.
 
     ## media renderer parameters
@@ -27,7 +24,7 @@ let
     ##saveohcredentials = 1
     ##checkcontentformat = 1
     ##iconpath = /usr/share/upmpdcli/icon.png
-    ##cachedir = /var/cache/upmpdcli
+    cachedir = "/var/cache/upmpdcli";
     ##presentationhtml = /usr/share/upmpdcli/presentation.html
 
     ## mpd parameters
@@ -74,13 +71,18 @@ in
     systemd.services.upmpdcli = {
       wantedBy = [ "multi-user.target" ];
       after = [
-        "network.target"
+        "network-online.target"
         "sound.target"
+        "mpd.service"
       ];
+      wants = [ "network-online.target" ];
       description = "upmpdcli music player daemon";
       serviceConfig = {
         ExecStart = "${pkgs.upmpdcli}/bin/upmpdcli -c ${upmpdcliConf}";
         DynamicUser = true;
+        CacheDirectory = "upmpdcli";
+        Restart = "on-failure";
+        RestartSec = "5s";
       };
     };
   };
