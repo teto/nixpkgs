@@ -33,9 +33,10 @@ let
       };
     };
   };
+  # <directory location="/media" mode="inotify" recursive="yes" hidden-files="yes" media-type="Any" />
   toMediaDirectory =
     d:
-    "<directory location=\"${d.path}\" mode=\"inotify\" recursive=\"${lib.boolToYesNo d.recursive}\" hidden-files=\"${lib.boolToYesNo d.hidden-files}\" />\n";
+    ''<directory location="${d.path}" mode="inotify" recursive="${lib.boolToYesNo d.recursive}" hidden-files="${lib.boolToYesNo d.hidden-files}" media-type="Any" />'';
 
   transcodingConfig =
     if cfg.transcoding then
@@ -46,6 +47,7 @@ let
             <transcode mimetype="video/x-flv" using="vlcmpeg" />
             <transcode mimetype="application/ogg" using="vlcmpeg" />
             <transcode mimetype="audio/ogg" using="ogg2mp3" />
+            ${lib.concatMapStringsSep "\n            " (mapping: mapping) cfg.transcodingMimeMappings}
           </mimetype-profile-mappings>
           <profiles>
             <profile name="ogg2mp3" enabled="no" type="external">
@@ -65,6 +67,7 @@ let
                 arguments="-I dummy %in --sout #transcode{venc=ffmpeg,vcodec=mp2v,vb=4096,fps=25,aenc=ffmpeg,acodec=mpga,ab=192,samplerate=44100,channels=2}:standard{access=file,mux=ps,dst=%out} vlc:quit" />
               <buffer size="14400000" chunk-size="512000" fill-size="120000" />
             </profile>
+            ${lib.concatMapStringsSep "\n            " (profile: profile) cfg.transcodingProfiles}
           </profiles>
         </transcoding>
       ''
@@ -114,7 +117,8 @@ let
             </mark-played-items>
           </extended-runtime-options>
         </server>
-        <import hidden-files="no">
+
+        <import follow-symlinks="yes" default-date="yes" import-mode="mt" nomedia-file=".nomedia" readable-names="yes" hidden-files="no">
           <autoscan use-inotify="auto">
           ${lib.concatMapStrings toMediaDirectory cfg.mediaDirectories}
           </autoscan>
@@ -249,6 +253,34 @@ in
         default = false;
         description = ''
           Whether to enable transcoding.
+        '';
+      };
+
+      transcodingMimeMappings = lib.mkOption {
+        type = lib.types.listOf lib.types.lines;
+        default = [ ];
+        example = [ ''<transcode mimetype="video/x-matroska" using="my-profile" />'' ];
+        description = ''
+          Additional XML <transcode> mappings for the transcoding section. Use these
+          to associate MIME types with custom profiles declared in
+          {option}`services.mediatomb.transcodingProfiles`.
+        '';
+      };
+
+      transcodingProfiles = lib.mkOption {
+        type = lib.types.listOf lib.types.lines;
+        default = [ ];
+        example = [
+          ''
+            <profile name="my-profile" enabled="yes" type="external">
+              <mimetype>video/mpeg</mimetype>
+              <agent command="/run/current-system/sw/bin/ffmpeg" arguments="-i %in %out" />
+            </profile>
+          ''
+        ];
+        description = ''
+          Additional XML <profile> definitions for transcoding. These are inserted
+          alongside the built-in ogg2mp3 and vlcmpeg profiles.
         '';
       };
 
