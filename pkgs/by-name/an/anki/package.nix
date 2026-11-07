@@ -9,6 +9,9 @@
   lame,
   mpv-unwrapped,
   ninja,
+  pkg-config,
+  sqlite,
+  zstd,
   callPackage,
   nixosTests,
   nodejs,
@@ -93,6 +96,7 @@ let
       referencing
       rpds-py
       soupsieve
+      tomlkit
       urllib3
       werkzeug
     ]
@@ -186,6 +190,7 @@ python.pkgs.buildPythonApplication (finalAttrs: {
     installShellFiles
     jq
     ninja
+    pkg-config
     nodejs
     python.pkgs.mypy-protobuf
     qt6.wrapQtAppsHook
@@ -200,6 +205,8 @@ python.pkgs.buildPythonApplication (finalAttrs: {
   ++ lib.optional stdenv.hostPlatform.isLinux wrapGAppsHook3;
 
   buildInputs = [
+    sqlite
+    zstd
     qt6.qtbase
     qt6.qtmultimedia
     qt6.qtsvg
