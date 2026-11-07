@@ -77,6 +77,65 @@ let
         </transcoding>
       '';
 
+    freeboxRevolution6mappings = ''
+        <map from="avi" to="video/x-msvideo"/>
+        <map from="flv" to="video/x-flv"/>
+        <map from="mkv" to="video/x-matroska"/>
+        <map from="m2t" to="video/mp2t"/>
+        <map from="m2ts" to="video/mp2t"/>
+        <map from="mp4" to="video/mp4"/>
+        <map from="mov" to="video/quicktime"/>
+        <map from="mts" to="video/mp2t"/>
+        <map from="ts"  to="video/mp2t"/>
+        <map from="wmv" to="video/x-ms-wmv"/>
+        <map from="mpa" to="video/mpeg"/>
+        <map from="mpe" to="video/mpeg"/>
+        <map from="mpeg" to="video/mpeg"/>
+        <map from="mpg" to="video/mpeg"/>
+        <map from="mpv2" to="video/mpeg"/>
+        <map from="ogv" to="video/ogg"/>
+        <map from="ogm" to="video/ogg"/>
+        <map from="wmv" to="video/x-ms-wmv"/>
+        <map from="wmv" to="video/x-ms-wmv"/>
+
+        <map from="flac" to="audio/x-flac"/>
+        <map from="mka" to="audio/x-matroska"/>
+        <map from="mp2" to="audio/mpeg"/>
+        <map from="mp3" to="audio/mpeg"/>
+        <map from="oga" to="audio/ogg"/>
+        <map from="wma" to="audio/x-ms-wma"/>
+
+        <map from="jpe" to="image/jpeg"/>
+        <map from="jpeg" to="image/jpeg"/>
+        <map from="jpg" to="image/jpeg"/>
+        <map from="gif" to="image/gif"/>
+        <map from="png" to="image/png"/>
+
+        <map from="ogg" to="application/ogg"/>
+        <map from="ogx" to="application/ogg"/>
+        <!-- /freebox V6 -->
+
+        <map from="3gp" to="video/3gpp"/>
+        <map from="asf" to="video/x-ms-asf"/>
+        <map from="asr" to="video/x-ms-asf"/>
+        <map from="asx" to="video/x-ms-asf"/>
+        <map from="lsf" to="video/x-la-asf"/>
+        <map from="lsx" to="video/x-la-asf"/>
+        <map from="movie" to="video/x-sgi-movie"/>
+        <map from="qt" to="video/quicktime"/>
+        <map from="rv" to="video/vnd.rn-realvideo"/>
+        <map from="wm"  to="video/x-ms-wm"/>
+        <map from="wmx" to="video/x-ms-wmx"/>
+        <map from="wvx" to="video/x-ms-wvx"/>
+
+        <map from="aif" to="audio/x-aiff"/>
+        <map from="aifc" to="audio/x-aiff"/>
+        <map from="aiff" to="audio/x-aiff"/>
+        <map from="au" to="audio/basic"/>
+        <map from="kar" to="audio/midi"/>
+        '';
+
+
   configText = lib.optionalString (!cfg.customCfg) ''
     <?xml version="1.0" encoding="UTF-8"?>
     <config version="2" xmlns="http://mediatomb.cc/config/2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://mediatomb.cc/config/2 http://mediatomb.cc/config/2.xsd">
@@ -155,7 +214,7 @@ let
               ${lib.optionalString cfg.dsmSupport ''
                 <map from="avi" to="video/avi"/>
               ''}
-            </extension-mimetype>
+              ${lib.optionalString true freeboxRevolution6mappings}            </extension-mimetype>
             <mimetype-upnpclass>
               <map from="audio/*" to="object.item.audioItem.musicTrack"/>
               <map from="video/*" to="object.item.videoItem"/>
