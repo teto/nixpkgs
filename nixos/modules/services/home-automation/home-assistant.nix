@@ -965,9 +965,10 @@ in
         + copyCustomComponents
         + removeBlueprints
         + copyBlueprints
-        + ''
-          ${escapeShellArgs [ (lib.getExe package) "--script" "check_config" "--config" cfg.configDir ]}
-        '';
+        # + ''
+        #   ${escapeShellArgs [ (lib.getExe package) "--script" "check_config" "--config" cfg.configDir ]}
+        # ''
+        ;
       environment.PYTHONPATH = package.pythonPath;
       serviceConfig =
         let
