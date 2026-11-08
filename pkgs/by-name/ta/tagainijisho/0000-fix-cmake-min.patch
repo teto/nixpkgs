@@ -12,4 +12,80 @@ index a3816f7..81116dd 100644
 +cmake_policy(VERSION 3.10)
  
  find_package(Qt5 ${QTVERSION} REQUIRED COMPONENTS Core Widgets PrintSupport Network LinguistTools)
+
+diff --git a/src/sqlite/Query.h b/src/sqlite/Query.h
+--- a/src/sqlite/Query.h
++++ b/src/sqlite/Query.h
+@@ -49,4 +49,4 @@ private:
+ 	bool checkBind(int &col);
+-	bool checkBindRes();
++	bool checkBindRes(int result);
+ 
+ public:
+diff --git a/src/sqlite/Query.cc b/src/sqlite/Query.cc
+--- a/src/sqlite/Query.cc
++++ b/src/sqlite/Query.cc
+@@ -88,13 +88,13 @@ bool Query::checkBindRes()
+ 	return true;
+ }
+ 
+-bool Query::checkBindRes()
++bool Query::checkBindRes(int result)
+ {
+-	_lastError = _connection->updateError();
++	_lastError = result == SQLITE_OK ? Error() : Error(result, sqlite3_errmsg(_connection->_handler));
+ 	checkQueryError(*this, queryText());
+-	if (_lastError.code() != SQLITE_OK) {
++	if (result != SQLITE_OK) {
+ 		_state = ERROR;
+ 		return false;
+ 	}
+ 	return true;
+ }
+@@ -99,5 +99,4 @@ bool Query::bindValue(const qint32 val, int col)
+ {
+ 	if (!checkBind(col)) return false;
+-	sqlite3_bind_int(_stmt, col, val);
+-	return checkBindRes();
++	return checkBindRes(sqlite3_bind_int(_stmt, col, val));
+ }
+@@ -116,5 +115,4 @@ bool Query::bindValue(const qint64 val, int col)
+ {
+ 	if (!checkBind(col)) return false;
+-	sqlite3_bind_int64(_stmt, col, val);
+-	return checkBindRes();
++	return checkBindRes(sqlite3_bind_int64(_stmt, col, val));
+ }
+@@ -128,5 +126,4 @@ bool Query::bindValue(const double val, int col)
+ {
+ 	if (!checkBind(col)) return false;
+-	sqlite3_bind_double(_stmt, col, val);
+-	return checkBindRes();
++	return checkBindRes(sqlite3_bind_double(_stmt, col, val));
+ }
+@@ -135,6 +132,5 @@ bool Query::bindValue(const QString &val, int col)
+ {
+ 	if (!checkBind(col)) return false;
+-	sqlite3_bind_text(_stmt, col,
+-		val.toUtf8().data(), -1, SQLITE_TRANSIENT);
+-	return checkBindRes();
++	return checkBindRes(sqlite3_bind_text(_stmt, col,
++		val.toUtf8().data(), -1, SQLITE_TRANSIENT));
+ }
+@@ -143,6 +139,5 @@ bool Query::bindValue(const QByteArray &val, int col)
+ {
+ 	if (!checkBind(col)) return false;
+-	sqlite3_bind_blob(_stmt, col,
+-		val.data(), val.length(), SQLITE_TRANSIENT);
+-	return checkBindRes();
++	return checkBindRes(sqlite3_bind_blob(_stmt, col,
++		val.data(), val.length(), SQLITE_TRANSIENT));
+ }
+@@ -151,5 +146,4 @@ bool Query::bindNullValue(int col)
+ {
+ 	if (!checkBind(col)) return false;
+-	sqlite3_bind_null(_stmt, col);
+-	return checkBindRes();
++	return checkBindRes(sqlite3_bind_null(_stmt, col));
+ }
  
