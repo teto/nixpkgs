@@ -77,6 +77,12 @@ rustPlatform.buildRustPackage (finalAttrs: {
   ];
   cargoTestFlags = finalAttrs.cargoBuildFlags;
 
+  # jemalloc-sys 0.5 treats the cargo hook's sentinel override path as a
+  # real library path instead of building bundled jemalloc.
+  preBuild = ''
+    unset JEMALLOC_OVERRIDE
+  '';
+
   env = {
     # https://docs.rs/openssl/latest/openssl/#manual
     OPENSSL_NO_VENDOR = true;
