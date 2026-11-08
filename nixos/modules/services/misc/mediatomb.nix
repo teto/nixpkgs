@@ -148,58 +148,7 @@ let
             </script-folder>
             <virtual-layout type="builtin"/>
           </scripting>
-          <mappings>
-            <extension-mimetype ignore-unknown="no">
-              <map from="mp3" to="audio/mpeg"/>
-              <map from="ogx" to="application/ogg"/>
-              <map from="ogv" to="video/ogg"/>
-              <map from="oga" to="audio/ogg"/>
-              <map from="ogg" to="audio/ogg"/>
-              <map from="ogm" to="video/ogg"/>
-              <map from="asf" to="video/x-ms-asf"/>
-              <map from="asx" to="video/x-ms-asf"/>
-              <map from="wma" to="audio/x-ms-wma"/>
-              <map from="wax" to="audio/x-ms-wax"/>
-              <map from="wmv" to="video/x-ms-wmv"/>
-              <map from="wvx" to="video/x-ms-wvx"/>
-              <map from="wm" to="video/x-ms-wm"/>
-              <map from="wmx" to="video/x-ms-wmx"/>
-              <map from="m3u" to="audio/x-mpegurl"/>
-              <map from="pls" to="audio/x-scpls"/>
-              <map from="flv" to="video/x-flv"/>
-              <map from="mkv" to="video/x-matroska"/>
-              <map from="mka" to="audio/x-matroska"/>
-              ${lib.optionalString cfg.ps3Support ''
-                <map from="avi" to="video/divx"/>
-              ''}
-              ${lib.optionalString cfg.dsmSupport ''
-                <map from="avi" to="video/avi"/>
-              ''}
-              ${lib.optionalString true freeboxRevolution6mappings}            </extension-mimetype>
-            <mimetype-upnpclass>
-              <map from="audio/*" to="object.item.audioItem.musicTrack"/>
-              <map from="video/*" to="object.item.videoItem"/>
-              <map from="image/*" to="object.item.imageItem"/>
-            </mimetype-upnpclass>
-            <mimetype-contenttype>
-              <treat mimetype="audio/mpeg" as="mp3"/>
-              <treat mimetype="application/ogg" as="ogg"/>
-              <treat mimetype="audio/ogg" as="ogg"/>
-              <treat mimetype="audio/x-flac" as="flac"/>
-              <treat mimetype="audio/x-ms-wma" as="wma"/>
-              <treat mimetype="audio/x-wavpack" as="wv"/>
-              <treat mimetype="image/jpeg" as="jpg"/>
-              <treat mimetype="audio/x-mpegurl" as="playlist"/>
-              <treat mimetype="audio/x-scpls" as="playlist"/>
-              <treat mimetype="audio/x-wav" as="pcm"/>
-              <treat mimetype="audio/L16" as="pcm"/>
-              <treat mimetype="video/x-msvideo" as="avi"/>
-              <treat mimetype="video/mp4" as="mp4"/>
-              <treat mimetype="audio/mp4" as="mp4"/>
-              <treat mimetype="application/x-iso9660" as="dvd"/>
-              <treat mimetype="application/x-iso9660-image" as="dvd"/>
-            </mimetype-contenttype>
-          </mappings>
+          ${cfg.mappings}
         </import>
         ${cfg.transcoding}
       </config>
@@ -283,6 +232,70 @@ in
         '';
         description = ''
           The XML transcoding section to include in the Gerbera configuration.
+        '';
+      };
+
+      mappings = lib.mkOption {
+        type = lib.types.str;
+        defaultText = lib.literalExpression "placeholder";
+        default = ''
+          <mappings>
+            <extension-mimetype ignore-unknown="no">
+              <map from="mp3" to="audio/mpeg"/>
+              <map from="ogx" to="application/ogg"/>
+              <map from="ogv" to="video/ogg"/>
+              <map from="oga" to="audio/ogg"/>
+              <map from="ogg" to="audio/ogg"/>
+              <map from="ogm" to="video/ogg"/>
+              <map from="asf" to="video/x-ms-asf"/>
+              <map from="asx" to="video/x-ms-asf"/>
+              <map from="wma" to="audio/x-ms-wma"/>
+              <map from="wax" to="audio/x-ms-wax"/>
+              <map from="wmv" to="video/x-ms-wmv"/>
+              <map from="wvx" to="video/x-ms-wvx"/>
+              <map from="wm" to="video/x-ms-wm"/>
+              <map from="wmx" to="video/x-ms-wmx"/>
+              <map from="m3u" to="audio/x-mpegurl"/>
+              <map from="pls" to="audio/x-scpls"/>
+              <map from="flv" to="video/x-flv"/>
+              <map from="mkv" to="video/x-matroska"/>
+              <map from="mka" to="audio/x-matroska"/>
+              ${lib.optionalString cfg.ps3Support ''
+                <map from="avi" to="video/divx"/>
+              ''}
+              ${lib.optionalString cfg.dsmSupport ''
+                <map from="avi" to="video/avi"/>
+              ''}
+              ${lib.optionalString true freeboxRevolution6mappings}
+            </extension-mimetype>
+            <mimetype-upnpclass>
+              <map from="audio/*" to="object.item.audioItem.musicTrack"/>
+              <map from="video/*" to="object.item.videoItem"/>
+              <map from="image/*" to="object.item.imageItem"/>
+            </mimetype-upnpclass>
+            <mimetype-contenttype>
+              <treat mimetype="audio/mpeg" as="mp3"/>
+              <treat mimetype="application/ogg" as="ogg"/>
+              <treat mimetype="audio/ogg" as="ogg"/>
+              <treat mimetype="audio/x-flac" as="flac"/>
+              <treat mimetype="audio/x-ms-wma" as="wma"/>
+              <treat mimetype="audio/x-wavpack" as="wv"/>
+              <treat mimetype="image/jpeg" as="jpg"/>
+              <treat mimetype="audio/x-mpegurl" as="playlist"/>
+              <treat mimetype="audio/x-scpls" as="playlist"/>
+              <treat mimetype="audio/x-wav" as="pcm"/>
+              <treat mimetype="audio/L16" as="pcm"/>
+              <treat mimetype="video/x-msvideo" as="avi"/>
+              <treat mimetype="video/mp4" as="mp4"/>
+              <treat mimetype="audio/mp4" as="mp4"/>
+              <treat mimetype="application/x-iso9660" as="dvd"/>
+              <treat mimetype="application/x-iso9660-image" as="dvd"/>
+            </mimetype-contenttype>
+          </mappings>
+        '';
+
+        description = ''
+          The XML mappings section to include in the Gerbera configuration.
         '';
       };
 
