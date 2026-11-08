@@ -38,45 +38,6 @@ let
     d:
     ''<directory location="${d.path}" mode="inotify" recursive="${lib.boolToYesNo d.recursive}" hidden-files="${lib.boolToYesNo d.hidden-files}" media-type="Any" />'';
 
-  transcodingConfig =
-    if cfg.transcoding then
-      with pkgs;
-      ''
-        <transcoding enabled="yes">
-          <mimetype-profile-mappings>
-            <transcode mimetype="video/x-flv" using="vlcmpeg" />
-            <transcode mimetype="application/ogg" using="vlcmpeg" />
-            <transcode mimetype="audio/ogg" using="ogg2mp3" />
-            ${lib.concatMapStringsSep "\n            " (mapping: mapping) cfg.transcodingMimeMappings}
-          </mimetype-profile-mappings>
-          <profiles>
-            <profile name="ogg2mp3" enabled="no" type="external">
-              <mimetype>audio/mpeg</mimetype>
-              <accept-url>no</accept-url>
-              <first-resource>yes</first-resource>
-              <accept-ogg-theora>no</accept-ogg-theora>
-              <agent command="${ffmpeg}/bin/ffmpeg" arguments="-y -i %in -f mp3 %out" />
-              <buffer size="1048576" chunk-size="131072" fill-size="262144" />
-            </profile>
-            <profile name="vlcmpeg" enabled="no" type="external">
-              <mimetype>video/mpeg</mimetype>
-              <accept-url>yes</accept-url>
-              <first-resource>yes</first-resource>
-              <accept-ogg-theora>yes</accept-ogg-theora>
-              <agent command="${lib.getExe vlc}"
-                arguments="-I dummy %in --sout #transcode{venc=ffmpeg,vcodec=mp2v,vb=4096,fps=25,aenc=ffmpeg,acodec=mpga,ab=192,samplerate=44100,channels=2}:standard{access=file,mux=ps,dst=%out} vlc:quit" />
-              <buffer size="14400000" chunk-size="512000" fill-size="120000" />
-            </profile>
-            ${lib.concatMapStringsSep "\n            " (profile: profile) cfg.transcodingProfiles}
-          </profiles>
-        </transcoding>
-      ''
-    else
-      ''
-        <transcoding enabled="no">
-        </transcoding>
-      '';
-
     freeboxRevolution6mappings = ''
         <map from="avi" to="video/x-msvideo"/>
         <map from="flv" to="video/x-flv"/>
@@ -240,7 +201,7 @@ let
             </mimetype-contenttype>
           </mappings>
         </import>
-        ${transcodingConfig}
+        ${cfg.transcoding}
       </config>
   '';
   defaultFirewallRules = {
@@ -308,38 +269,20 @@ in
       };
 
       transcoding = lib.mkOption {
-        type = lib.types.bool;
-        default = false;
-        description = ''
-          Whether to enable transcoding.
+        type = lib.types.lines;
+        default = ''
+          <transcoding enabled="no">
+          </transcoding>
         '';
-      };
-
-      transcodingMimeMappings = lib.mkOption {
-        type = lib.types.listOf lib.types.lines;
-        default = [ ];
-        example = [ ''<transcode mimetype="video/x-matroska" using="my-profile" />'' ];
-        description = ''
-          Additional XML <transcode> mappings for the transcoding section. Use these
-          to associate MIME types with custom profiles declared in
-          {option}`services.mediatomb.transcodingProfiles`.
+        example = ''
+          <transcoding enabled="yes">
+            <mimetype-profile-mappings>
+              <transcode mimetype="audio/ogg" using="ogg2mp3" />
+            </mimetype-profile-mappings>
+          </transcoding>
         '';
-      };
-
-      transcodingProfiles = lib.mkOption {
-        type = lib.types.listOf lib.types.lines;
-        default = [ ];
-        example = [
-          ''
-            <profile name="my-profile" enabled="yes" type="external">
-              <mimetype>video/mpeg</mimetype>
-              <agent command="/run/current-system/sw/bin/ffmpeg" arguments="-i %in %out" />
-            </profile>
-          ''
-        ];
         description = ''
-          Additional XML <profile> definitions for transcoding. These are inserted
-          alongside the built-in ogg2mp3 and vlcmpeg profiles.
+          The XML transcoding section to include in the Gerbera configuration.
         '';
       };
 
