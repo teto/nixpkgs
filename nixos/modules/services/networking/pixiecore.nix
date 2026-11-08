@@ -17,6 +17,13 @@ in
     services.pixiecore = {
       enable = mkEnableOption "Pixiecore";
 
+      package = mkOption {
+        type = types.package;
+        default = pkgs.pixiecore;
+        defaultText = literalExpression "pkgs.pixiecore";
+        description = "The Pixiecore package to run.";
+      };
+
       openFirewall = mkOption {
         type = types.bool;
         default = false;
@@ -165,7 +172,7 @@ in
                 ];
           in
           ''
-            ${pkgs.pixiecore}/bin/pixiecore \
+            ${cfg.package}/bin/pixiecore \
               ${lib.escapeShellArgs argString} \
               ${optionalString cfg.debug "--debug"} \
               ${optionalString cfg.dhcpNoBind "--dhcp-no-bind"} \
