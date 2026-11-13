@@ -142,6 +142,7 @@ in
         PrivateMounts = true;
         PrivateTmp = true;
         PrivateUsers = true;
+        # TODO add meminfo ?!
         ProcSubset = "pid";
         ProtectClock = true;
         ProtectControlGroups = true;
