@@ -1,6 +1,7 @@
 {
   lib,
   buildPythonPackage,
+  buildNpmPackage,
   fetchFromGitHub,
   fetchNpmDeps,
   nodejs,
@@ -49,17 +50,55 @@
   withRapidocr ? false,
 }:
 
-buildPythonPackage (finalAttrs: {
-  pname = "docling-serve";
+let
   version = "1.38.2";
-  pyproject = true;
 
   src = fetchFromGitHub {
     owner = "docling-project";
     repo = "docling-serve";
-    tag = "v${finalAttrs.version}";
+    tag = "v${version}";
     hash = "sha256-B71HuMIUQG+tSogW1pPlMtcBtZQ8kkWppKNdZDFwgEM=";
   };
+
+  ui = buildNpmPackage {
+    pname = "docling-serve-ui";
+    inherit version src;
+
+    npmRoot = "ui";
+    npmDepsHash = "sha256-lEKhwvkVMGuMVjk87/u19ridN/dQnFRh+I9G6s4eMBQ=";
+
+    dontNpmBuild = true;
+    buildPhase = ''
+      runHook preBuild
+      mkdir -p docling_serve/ui_static
+      npm --prefix ui run build
+      runHook postBuild
+    '';
+
+    installPhase = ''
+      runHook preInstall
+      mkdir -p $out/share/docling-serve-ui
+      cp -r docling_serve/ui_static/. $out/share/docling-serve-ui/
+      runHook postInstall
+    '';
+
+    meta = {
+      description = "Web UI for Docling Serve";
+      homepage = "https://github.com/docling-project/docling-serve";
+      license = lib.licenses.mit;
+      maintainers = [ ];
+      platforms = lib.platforms.all;
+    };
+  };
+in
+buildPythonPackage (finalAttrs: {
+  pname = "docling-serve";
+  inherit version;
+  pyproject = true;
+
+  inherit src;
+
+  passthru.ui = ui;
 
   build-system = [
     setuptools
