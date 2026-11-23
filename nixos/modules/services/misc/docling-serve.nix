@@ -92,7 +92,7 @@ in
       // cfg.environment;
 
       serviceConfig = {
-        ExecStart = "${lib.getExe cfg.package} run --host \"${cfg.host}\" --port ${toString cfg.port}";
+        ExecStart = "${lib.getExe cfg.package} run --enable-ui --host \"${cfg.host}\" --port ${toString cfg.port}";
         EnvironmentFile = lib.optional (cfg.environmentFile != null) cfg.environmentFile;
         WorkingDirectory = cfg.stateDir;
         StateDirectory = "docling-serve";
